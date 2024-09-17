@@ -12,7 +12,6 @@ const LoginPage = () => {
     const navigate = useNavigate()
 
     const onSubmit = async (values) => {
-        console.log("Values: ", values)
         setError("")
         
         try {
@@ -20,12 +19,15 @@ const LoginPage = () => {
                 "http://localhost:5000/api/auth",
                 values
             )
-
+            console.log(response)
             signIn({
                 token: response.data.token,
                 expiresIn: 3600,
                 tokenType: "Bearer",
-                authState: { email: values.email },
+                authState: { 
+                    email: values.email,
+                    uid: response.data.uid 
+                },
             })
             navigate("/dashboard")
 

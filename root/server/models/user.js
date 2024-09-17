@@ -22,7 +22,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 10,
         maxlength: 1024
-    },
+    }, 
+    workouts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Workout'
+    }],
     isAdmin: Boolean
 })
 
@@ -88,7 +92,17 @@ function validateUser(user) {
                   } 
             })
             return errors
-        })
+        }),
+        workouts: Joi.array().items(Joi.string().pattern(/^[0-9a-fA-F]{24}$/)).error(errors => {
+          errors.forEach(err => {
+              switch (err.code) { 
+                  case "string.pattern.base":
+                      err.message = "Invalid Workout ID format";
+                      break;
+                } 
+          })
+          return errors
+      })
     })
 
     return schema.validate(user)

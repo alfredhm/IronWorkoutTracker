@@ -1,4 +1,4 @@
-import { Grid, Show, GridItem, Flex, Box, Heading } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import NavBar from "../components/NavBar";
 import MainHeader from "../components/MainHeader";
 import MainDescription from "../components/MainDescription";
