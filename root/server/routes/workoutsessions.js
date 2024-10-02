@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
         res.json(workoutSessions)
     } catch (err) {
         res.status(500).json({ message: err.message})
-    }
+    } 
 })
 
 // Get workout session by user ID
@@ -47,7 +47,7 @@ router.post('/', async (req, res) => {
         return res.status(400).send('User does not exist in database')
     }
 
-    // If connected to a workout session, check that workout session exists
+    // If connected to a workout, check that workout exists
     if (req.body.workoutTemplate) {
         const workoutExists = await Workout.exists({ _id: req.body.workoutTemplate })
         if (!workoutExists) {
@@ -56,16 +56,19 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        const workout = new Workout({
+        const workoutSession = new WorkoutSession({
             userId: req.body.userId,
+            name: req.body.name,
+            focusGroup: req.body.focusGroup,
             workoutTemplate: req.body.workoutTemplate,
             exercises: req.body.exercises,
             date: req.body.date,
-            notes: req.body.notes,
-        });
+            durationSec: req.body.durationSec,
+            notes: req.body.notes || "",
+        }); 
 
-        const newWorkout = await workout.save()
-        res.status(201).json(newWorkout)
+        const newWorkoutSession = await workoutSession.save()
+        res.status(201).json(newWorkoutSession)
     } catch (err) {
         res.status(400).json({ message: err.message })
     }
@@ -79,22 +82,31 @@ router.put('/:id', getWorkoutSession, async (req, res) => {
 
     try {
         if (req.body.userId != null) {
-            res.workout.userId = req.body.userId;
+            res.workoutSession.userId = req.body.userId;
         }
-        if (req.body.workoutTemplate != null) {
-            res.workout.workoutTemplate = req.body.workoutTemplate;
+        if (req.body.name != null) {
+            res.workoutSession.name = req.body.name;
+        }
+        if (req.body.focusGroup != null) {
+            res.workoutSession.focusGroup = req.body.focusGroup;
+        }
+        if (req.body.workoutSessionTemplate != null) {
+            res.workoutSession.workoutTemplate = req.body.workoutTemplate;
         }
         if (req.body.exercises != null) {
-            res.workout.exercises = req.body.exercises;
+            res.workoutSession.exercises = req.body.exercises;
         }
         if (req.body.date != null) {
-            res.workout.date = req.body.date;
+            res.workoutSession.date = req.body.date;
+        }
+        if (req.body.durationSec != null) {
+            res.workoutSession.durationSec = req.body.durationSec;
         }
         if (req.body.notes != null) {
-            res.workout.notes = req.body.notes;
+            res.workoutSession.notes = req.body.notes;
         }
 
-        const updatedWorkout = await res.workout.save();
+        const updatedWorkout = await res.workoutSession.save();
         res.json(updatedWorkout);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -104,7 +116,7 @@ router.put('/:id', getWorkoutSession, async (req, res) => {
 // Delete a workout
 router.delete('/:id', getWorkoutSession, async (req, res) => {
     try {
-        await res.workout.remove();
+        await res.workoutSession.deleteOne()
         res.json({ message: 'Deleted Workout Session' });
     } catch (err) {
         res.status(500).json({ message: err.message });

@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "./pages/HomePage"
 import LoginPage from "./pages/LoginPage";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import { RequireAuth } from "react-auth-kit";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/PasswordReset/ForgotPassword";
@@ -37,10 +37,11 @@ const router = createBrowserRouter([
             },
             { 
                 path: "dashboard", 
-                element: 
+                element: (
                     <RequireAuth loginPath="/login">
                         <Dashboard />
                     </RequireAuth>
+                )
             }
         ]
     }

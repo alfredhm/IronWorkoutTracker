@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-import { ChakraProvider, extendTheme, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Box, Text, VStack, Tooltip, SliderMark } from '@chakra-ui/react';
-
-// Extend the Chakra UI theme to use the dark mode
-const theme = extendTheme({
-  config: {
-    initialColorMode: 'dark',
-    useSystemColorMode: false,
-  },
-});
+import { Slider, SliderTrack, SliderFilledTrack, SliderThumb, Box, Text, VStack, Tooltip, SliderMark } from '@chakra-ui/react';
+import formatTime from '../resources/formatTime';
 
 const TimeSlider = ({ onTimeChange }) => {
   // State for the total time in 5-minute intervals
@@ -17,18 +10,6 @@ const TimeSlider = ({ onTimeChange }) => {
   // Calculate total seconds (each interval represents 5 minutes)
   const totalSeconds = intervals * 300;
 
-  // Format the total seconds into "1h 25m" format
-  const formatTime = (totalSeconds) => {
-    const hrs = Math.floor(totalSeconds / 3600);
-    const mins = Math.floor((totalSeconds % 3600) / 60);
-
-    // Build the formatted string
-    const hoursPart = hrs > 0 ? `${hrs}h ` : '';
-    const minutesPart = mins > 0 ? `${mins}m` : '';
-    
-    return `${hoursPart}${minutesPart}`.trim();
-  };
-
   const labelStyles = {
     mt: '2',
     ml: '-2.5',
@@ -36,12 +17,8 @@ const TimeSlider = ({ onTimeChange }) => {
   }
 
   return (
-    <ChakraProvider theme={theme}>
-      <Box p={6} minW="300px" maxW="500px" mx="auto" textAlign="center" bg="gray.700" borderRadius="md" boxShadow="md">
-          <Text mb={4} fontSize="md" fontWeight="bold" color="white">
-            Workout Duration
-          </Text>
-        <VStack align="stretch">
+      <Box width="100%" mx="auto" textAlign="center">
+        <VStack align="stretch" border="1px solid white" bg="gray.600" borderRadius="lg" boxShadow="xl" p={6}>
           <Box>
             <Slider
               aria-label="time-slider"
@@ -67,24 +44,23 @@ const TimeSlider = ({ onTimeChange }) => {
               <SliderMark value={36} {...labelStyles}>
                 3h
               </SliderMark>
-              <SliderTrack bg="gray.600">
+              <SliderTrack bg="gray.400">
                 <SliderFilledTrack bg="blue.300" />
               </SliderTrack>
               <Tooltip
                 hasArrow
-                bg="gray.400"
+                bg="gray.500"
                 color="white"
                 placement="top"
                 isOpen={showTooltip}
                 label={formatTime(totalSeconds)}
               >
-                <SliderThumb boxSize={6} />
+                <SliderThumb boxSize={4} />
               </Tooltip>
             </Slider>
           </Box>
         </VStack>
       </Box>
-    </ChakraProvider>
   );
 };
 

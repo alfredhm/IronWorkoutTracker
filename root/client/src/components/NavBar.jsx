@@ -13,6 +13,7 @@ const NavBar = () => {
     const [authState, setAuthState] = useState(isAuthenticated)
 
     const isLoginPage = window.location.pathname === "/login" || window.location.pathname === "/register"
+    const isHomePage = window.location.pathname === "/"
 
     const logOut = () => {
         navigate("/login")
@@ -23,10 +24,10 @@ const NavBar = () => {
     let logoHref = authState ? "/dashboard" : "/"
 
     return (
-        <Box display="flex" justifyContent="space-between" w="100%" p={8} >
+        <Box display="flex" alignItems="center" justifyContent="space-between" w={isHomePage ? "100%" : ['100%', '100%', '700px']} py={6} px={4}>
             <Link href={logoHref}>
                 <Box width='70px'>
-                    <Image src={process.env.PUBLIC_URL + '/assets/dbicon.png'} />
+                    <Image w={['50px', '50px', '60px']} h={['50px', '50px', '60px']} src={process.env.PUBLIC_URL + '/assets/dbicon.png'} />
                 </Box>
             </Link>
 

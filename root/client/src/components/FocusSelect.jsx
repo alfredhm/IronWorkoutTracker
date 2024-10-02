@@ -1,17 +1,17 @@
-import React from 'react'
-import { FormControl, FormLabel, Box, Text, Select, Tag, TagCloseButton, TagLabel, Menu, MenuButton, Button, MenuList, MenuItem } from "@chakra-ui/react"
-import { useState } from "react"
+import { Box, Tag, TagLabel, TagCloseButton, FormControl, Menu, MenuButton, Button, MenuList, MenuItem } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
+import React, { useState } from 'react'
 import muscleGroups from '../resources/muscle-groups'
 
-const FocusGroupSelect = (formik) => {
-    const [selectedGroups, setSelectedGroups] = useState([])
-    
+const FocusSelect = ({ formik, focusValues }) => {
+    const [selectedGroups, setSelectedGroups] = useState(focusValues ? [...focusValues] : [])
+
     // Handle adding items to the selectedGroups array
     const handleAddGroup = (newGroup) => {
         if (newGroup && !selectedGroups.includes(newGroup)) {
-            setSelectedGroups([...selectedGroups, newGroup]);
-            formik.setFieldValue('items', [...selectedGroups, newGroup]); // Update Formik state
+            const updatedGroups = [...selectedGroups, newGroup]
+            setSelectedGroups(updatedGroups);
+            formik.setFieldValue('focusGroup', updatedGroups);
         }
     };
 
@@ -19,38 +19,41 @@ const FocusGroupSelect = (formik) => {
     const handleRemoveGroup = (groupToRemove) => {
         const updatedGroups = selectedGroups.filter((group) => group !== groupToRemove);
         setSelectedGroups(updatedGroups);
-        formik.setFieldValue('items', updatedGroups); // Update Formik state
+        formik.setFieldValue('focusGroup', updatedGroups);
     };
+
     return (
-        <>
-            <FormControl>
-                <FormLabel>Add a Focus Group</FormLabel>
+        <FormControl pb={1}>
+            <Box pb={1} display="flex" justifyContent="center">
                 <Menu>
-                    <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                        Choose a Focus Group
+                    <MenuButton bg="gray.600" color="gray.200" as={Button} rightIcon={<ChevronDownIcon />}>
+                        Add Target
                     </MenuButton>
-                    <MenuList bg="teal.100" color="black">
+                    <MenuList bg="gray.100" color="black" zIndex={5}>
                         {muscleGroups
                             .filter((group) => !selectedGroups.includes(group))
                             .map((group) => (
                             <MenuItem 
                                 key={group} 
+                                bg="gray.100"
                                 onClick={() => handleAddGroup(group)}
-                                _hover={{ bg: 'teal.200' }}
+                                fontSize="12px"
+                                _hover={{ bg: 'gray.300' }}
                             >
                                 {group}
                             </MenuItem>
                         ))}
                     </MenuList>
                 </Menu>
-            </FormControl>
-            <Box>
+            </Box>
+            <Box pb={1} minWidth="150px" textAlign="center">
                 {selectedGroups.length > 0 ? (
                 selectedGroups.map((group) => (
                     <Tag
                     key={group}
                     size="lg"
-                    colorScheme="teal"
+                    bg="gray.500"
+                    color="gray.100"
                     borderRadius="full"
                     m={1}
                     >
@@ -58,12 +61,10 @@ const FocusGroupSelect = (formik) => {
                     <TagCloseButton onClick={() => handleRemoveGroup(group)} />
                     </Tag>
                 ))
-                ) : (
-                <Text>No Focus Groups Selected</Text>
-                )}
+                ) : (<></>)}
             </Box>
-        </>
+        </FormControl>
     )
 }
 
-export default FocusGroupSelect
+export default FocusSelect

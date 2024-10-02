@@ -1,6 +1,6 @@
 const Joi = require('joi')
 const mongoose = require('mongoose')
-const muscleGroups = require('../../client/src/resources/muscle-groups')
+const muscleGroups = require('../resources/muscle-groups')
 
 const workoutSchema = new mongoose.Schema({
     userId: {
@@ -10,23 +10,22 @@ const workoutSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true,
-        minlength: 2,
-        maxlength: 50
+        maxlength: 50,
+        default: "Unnamed Workout"
     },
     focusGroup: {
         type: [String],
         enum: muscleGroups,
-        required: true,
+        default: []
     },
     notes: {
         type: String,
-        max: 250,
+        max: 50,
         default: ""
     },
-    durationSec: {
-        type: Number,
-        required: true
+    date: {
+        type: Date, 
+        default: Date.now
     },
     exercises: [{ 
         type: mongoose.Schema.Types.ObjectId,
@@ -41,7 +40,7 @@ const workoutSchema = new mongoose.Schema({
 const Workout = mongoose.model('Workout', workoutSchema)
 
 async function validateWorkout(workout) {
-    const schema = Joi.object({
+     const schema = Joi.object({
         userId: Joi.string().required().pattern(/^[0-9a-fA-F]{24}$/).error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
@@ -55,7 +54,7 @@ async function validateWorkout(workout) {
             })
             return errors
         }),
-        name: Joi.string().min(2).max(30).required().error(errors => {
+        name: Joi.string().max(30).default('Unnamed Workout').allow('', null).error(errors => {
             errors.forEach(err => {
                 switch (err.code) { 
                     case "any.empty":
@@ -66,15 +65,13 @@ async function validateWorkout(workout) {
                       break;
                     case "string.max":
                       err.message = `Name should not be more than ${err.local.limit} characters!`;
-                      break;
+                      break; 
                   } 
             })
             return errors
         }),
         focusGroup: Joi.array()
             .items(Joi.string().valid(...muscleGroups))
-            .required()
-            .min(1)
             .error(errors => {
                 errors.forEach(err => {
                     switch (err.code) {
@@ -91,7 +88,7 @@ async function validateWorkout(workout) {
                 })
             return errors
         }),
-        notes: Joi.string().max(250).default("").error(errors => {
+        notes: Joi.string().max(50).allow('', null).optional().error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
                     case "string.max":
@@ -101,19 +98,7 @@ async function validateWorkout(workout) {
             })
             return errors
         }),
-        durationSec: Joi.number().min(5).required().error(errors => {
-            errors.forEach(err => {
-                switch (err.code) {
-                    case "any.empty":
-                        err.message = "Workout Duration is Required"
-                        break
-                    case "number.min":
-                        err.message = "Workout Must be Longer than 10 Seconds"
-                        break
-                }
-            })
-            return errors
-        }),
+        date: Joi.date(),
         exercises: Joi.array().items(Joi.string().pattern(/^[0-9a-fA-F]{24}$/)).error(errors => {
             errors.forEach(err => {
                 switch (err.code) { 

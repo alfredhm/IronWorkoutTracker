@@ -2,7 +2,7 @@ const config = require('config')
 const jwt = require('jsonwebtoken')
 const Joi = require('joi')
 const mongoose = require('mongoose')
-const muscleGroups = require('../resources/muscle-groups')
+const muscleCategories = require('../resources/muscle-groups')
 const { User } = require('./user')
 
 const exerciseSchema = new mongoose.Schema({
@@ -11,19 +11,17 @@ const exerciseSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    workoutId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Workout'
-    },
     name: {
         type: String,
         required: true,
         minlength: 2,
         maxlength: 50
     },
-    focusGroup: {
+    category: {
         type: [String],
-        enum: muscleGroups,
+        enum: muscleCategories,
+        length: 1,
+        required: true
     },
     notes: {
         type: String,
@@ -36,6 +34,14 @@ const exerciseSchema = new mongoose.Schema({
     isTemplate: {
         type: Boolean,
         default: true
+    },
+    isSingle: {
+        type: Boolean,
+        default: false
+    },
+    isPreset: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -51,19 +57,6 @@ async function validateExercise(exercise) {
                         break;
                     case "string.pattern.base":
                         err.message = "InvalidUser ID format";
-                        break;
-                }
-            })
-            return errors
-        }),
-        workoutId: Joi.string().required().pattern(/^[0-9a-fA-F]{24}$/).error(errors => {
-            errors.forEach(err => {
-                switch (err.code) {
-                    case "any.empty":
-                        err.message = "Workout ID is required";
-                        break;
-                    case "string.pattern.base":
-                        err.message = "Workout User ID format";
                         break;
                 }
             })
@@ -87,17 +80,21 @@ async function validateExercise(exercise) {
             })
             return errors
         }),
-        focusGroup: Joi.array()
-            .items(Joi.string().valid(...muscleGroups))
+        category: Joi.array()
+            .items(Joi.string().valid(...muscleCategories))
             .min(1)
+            .max(1)
             .error(errors => {
                 errors.forEach(err => {
                     switch (err.code) {
                         case "any.empty":
-                            err.message = "At Least 1 Focus Group is Required"
+                            err.message = "Category is Required"
                             break
                         case "any.only":
-                            err.message = "Must Be a Valid Muscle Group"
+                            err.message = "Must Be a Valid Category"
+                            break
+                        case "any.max":
+                            err.message = "Only 1 Category"
                             break
                     }
                 })
@@ -122,7 +119,9 @@ async function validateExercise(exercise) {
             })
             return errors
         }),
-        template: Joi.boolean().default(true),
+        isTemplate: Joi.boolean().default(true),
+        isSingle: Joi.boolean().default(false),
+        isPreset: Joi.boolean().default(false),
     })
 
     // Validate using Joi Schema

@@ -1,0 +1,258 @@
+[
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Crunches",
+        "category": ["Abs"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Plank",
+        "category": ["Abs"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Side Plank",
+        "category": ["Abs"],
+        "isTemplate": true,
+        "isSingle": true,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Deadlift",
+        "category": ["Back"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Pull-Up",
+        "category": ["Back"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Barbell Row",
+        "category": ["Back"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Single-Arm Dumbbell Row",
+        "category": ["Back"],
+        "isTemplate": true,
+        "isSingle": true,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Bicep Curl",
+        "category": ["Biceps"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Hammer Curl",
+        "category": ["Biceps"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Concentration Curl",
+        "category": ["Biceps"],
+        "isTemplate": true,
+        "isSingle": true,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Treadmill",
+        "category": ["Cardio"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Jump Rope",
+        "category": ["Cardio"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Cycling",
+        "category": ["Cardio"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Bench Press",
+        "category": ["Chest"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Dumbbell Press",
+        "category": ["Chest"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Incline Dumbbell Press",
+        "category": ["Chest"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Push-Up",
+        "category": ["Chest"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Single-Arm Chest Press",
+        "category": ["Chest"],
+        "isTemplate": true,
+        "isSingle": true,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Chest Fly",
+        "category": ["Chest"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Squat",
+        "category": ["Legs"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Leg Press",
+        "category": ["Legs"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Lunges",
+        "category": ["Legs"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Single-Leg Deadlift",
+        "category": ["Legs"],
+        "isTemplate": true,
+        "isSingle": true,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Single-Leg Squat",
+        "category": ["Legs"],
+        "isTemplate": true,
+        "isSingle": true,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Shoulder Press",
+        "category": ["Shoulders"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Lateral Raise",
+        "category": ["Shoulders"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Single-Arm Shoulder Press",
+        "category": ["Shoulders"],
+        "isTemplate": true,
+        "isSingle": true,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Front Raise",
+        "category": ["Shoulders"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Tricep Pushdown",
+        "category": ["Triceps"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Overhead Tricep Extension",
+        "category": ["Triceps"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Single-Arm Tricep Kickback",
+        "category": ["Triceps"],
+        "isTemplate": true,
+        "isSingle": true,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Dips",
+        "category": ["Triceps"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    }
+]

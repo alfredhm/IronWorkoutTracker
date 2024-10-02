@@ -12,11 +12,12 @@ import {
     Flex,
     Image
   } from '@chakra-ui/react';
-import AddWorkoutModal from './modal-body/AddWorkoutModal'
-import WorkoutList from './WorkoutList';
+import WorkoutSessionList from './WorkoutSessionList';
+import AddSessionModal from './modal-body/AddSessionModal';
 
-const AddWorkout = () => {
+const AddWorkoutSession = () => {
     const [modalClosed, setModalClosed] = useState(0)
+
     const { isOpen, onOpen, onClose } = useDisclosure() 
 
     const handleClose = () => {
@@ -35,16 +36,16 @@ const AddWorkout = () => {
                     <ModalContent border="1px solid white" bgColor="gray.700" borderRadius="10px">
                         <ModalCloseButton color="white" />
                         <ModalBody>
-                            <AddWorkoutModal handleClose={handleClose} />
+                            <AddSessionModal handleClose={handleClose}/>
                         </ModalBody>
                         <ModalFooter display="flex" justifyContent="center" alignItems="center">
                         </ModalFooter>
                     </ModalContent>
                 </Modal>
             </Flex>
-            <WorkoutList refresh={modalClosed} handleClose={handleClose}/>
+            <WorkoutSessionList refresh={modalClosed} handleClose={handleClose}/>
         </Box>
     )
 }
 
-export default AddWorkout
+export default AddWorkoutSession

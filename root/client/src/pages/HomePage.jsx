@@ -6,15 +6,14 @@ import MainDescription from "../components/MainDescription";
 const HomePage = () => {
     return (
       <>
-        <Box h="200%" bgColor="gray.700" >
-          <Box zIndex={2} display="flex" flexDirection='column' justifyContent="center" alignItems="center" h="100%">
+        <Box w="100vw" height="100vh" bgColor="gray.700" >
+          <Box zIndex={2} display="flex" flexDirection='column' justifyContent="center" alignItems="center">
             <NavBar />
             <MainHeader />
           </Box>
           <Box display="flex" flexDirection='column' justifyContent="center" alignItems="center" px={6}>
             <MainDescription />
           </Box>
-          <Box h="1500px"></Box>
         </Box>
       </>
 

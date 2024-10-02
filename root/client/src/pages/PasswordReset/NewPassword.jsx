@@ -42,7 +42,7 @@ const NewPassword = () => {
     })
 
     return (
-        <Box h="95em" bgColor="gray.800" display="flex" flexDirection="column">
+        <Box w="100vw" minH="100vh" bgColor="gray.800" display="flex" flexDirection="column">
             <NavBar />
             <Center>
                 <Center bgColor="gray.700" color="white" w="350px" py={8} px={8} m={4} borderRadius="10px" display="flex"flexDirection="column" gap={8}>

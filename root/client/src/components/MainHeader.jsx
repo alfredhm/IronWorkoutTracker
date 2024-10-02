@@ -12,7 +12,7 @@ const MainHeader = () => {
         zIndex={10}
         position="absolute"
         textAlign="center"
-        bottom={{base: '88.5%', md: '87%', lg: '86%', xl: '84%', '2xl': '81%'}}
+        bottom={{base: '80%', md: '78%', lg: '67%', xl: '65%', '2xl': '60%'}}
         w="100%"
       >
         <Heading 

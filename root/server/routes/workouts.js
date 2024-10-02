@@ -26,9 +26,9 @@ router.get('/user/:userId', async (req, res) => {
         res.json(workouts)
     } catch (err) {
         res.status(500).json({ message: err.message })
-    }
+    }  
 })
-
+ 
 // Get workout by exercise ID
 router.get('/:id', getWorkout, async (req, res) => {
     res.json(res.workout)
@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message)
 
         
-    // Validate that user exists
+    // Validate that user exists 
     const userExists = await User.exists({ _id: req.body.userId })
     if (!userExists) {
         return res.status(400).send('User does not exist in database')
@@ -52,7 +52,6 @@ router.post('/', async (req, res) => {
             name: req.body.name,
             focusGroup: req.body.focusGroup,
             notes: req.body.notes,
-            durationSec: req.body.durationSec,
             exercises: req.body.exercises,
             isTemplate: req.body.isTemplate,
         });
@@ -83,16 +82,13 @@ router.put('/:id', getWorkout, async (req, res) => {
         if (req.body.notes != null) {
             res.workout.notes = req.body.notes;
         }
-        if (req.body.durationSec != null) {
-            res.workout.durationSec = req.body.durationSec;
-        }
         if (req.body.exercises != null) {
             res.workout.exercises = req.body.exercises;
         }
         if (req.body.isTemplate != null) {
             res.workout.isTemplate = req.body.isTemplate;
         }
-
+        
         const updatedWorkout = await res.workout.save();
         res.json(updatedWorkout);
     } catch (err) {
