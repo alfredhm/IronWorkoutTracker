@@ -56,6 +56,7 @@ const WorkoutList = ({ refresh, handleClose }) => {
                 const updatedData = response.data;
                 setWorkouts(updatedData);
             } catch (err) {
+                setWorkouts([])
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -120,11 +121,6 @@ const WorkoutList = ({ refresh, handleClose }) => {
                         )}
                     </Box>
                 ))
-            )}
-            {error && (
-                <Text color="red.300" textAlign="center">
-                    {error}
-                </Text>
             )}
         </Flex>
     )

@@ -37,7 +37,7 @@ const ExerciseCategories = () => {
         <Box>
             {muscleCategories.map((category) => (
                 <Box key={category} >
-                    <Box onClick={() => handleOpen(category)} px={2} py={1.5}borderBottom="1px solid gray" _hover={{ bg: "gray.800", cursor: "pointer" }}>
+                    <Box onClick={() => handleOpen(category)} px={2} py={1.5} borderBottom="1px solid gray" _hover={{ bg: "gray.800", cursor: "pointer" }}>
                         <Box>
                             {category}
                         </Box>

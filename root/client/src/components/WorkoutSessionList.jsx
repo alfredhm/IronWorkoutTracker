@@ -54,6 +54,7 @@ const WorkoutSessionList = ({ refresh, handleClose }) => {
                 setWorkouts(updatedData);
                 setLoading(false)
             } catch (err) {
+                setWorkouts([])
                 setError(err.message);
                 setLoading(false)
             }
@@ -112,7 +113,6 @@ const WorkoutSessionList = ({ refresh, handleClose }) => {
                     </Box>
                 ))
             )}
-            {error && <Box color="red">{error}</Box>}
         </Flex>
     )
 }

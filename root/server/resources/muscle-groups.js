@@ -11,7 +11,7 @@ const muscleGroups = [
     "Quadriceps",
     "Hamstrings",
     "Glutes",
-    "Calves"
+    "Calves",
 ];
 
 module.exports = muscleGroups

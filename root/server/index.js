@@ -12,7 +12,7 @@ const mongoose = require('mongoose')
 require('dotenv').config({ path: "./config.env" })
 
 mongoose.connect('mongodb://localhost/tracker')
-  .then(() => console.log("Connected to MongoDB"))
+  .then(() => {console.log("Connected to MongoDB")})
   .catch(err => console.error('Could not connect to MongoDB...', err))
 
 if (!config.get('jwtPrivateKey')) {

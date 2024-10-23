@@ -6,6 +6,17 @@ const express = require('express')
 const { Workout } = require('../models/workout')
 const router = express.Router()
 
+const exerciseKey = {
+    "Abs": ["Abs", "Obliques"],
+    "Back": ["Back", "Lower Back"],
+    "Biceps": ["Biceps"],
+    "Chest": ["Chest"],
+    "Legs": ["Quadriceps", "Hamstrings", "Glutes", "Calves"],
+    "Shoulders": ["Shoulders"],
+    "Triceps": ["Triceps"]
+}
+
+
 // Get all exercises
 router.get('/', async (req, res) => {
     try {
@@ -35,10 +46,17 @@ router.get('/category/:category', async (req, res) => {
     try {
         let category = req.params.category
         category = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
-        
-        const exercises = await Exercise.find({ category: category })
-        if (exercises.length === 0) {
+        let categories = exerciseKey[category]
+        if (categories.length === 0 || !categories) {
             return res.json([])
+        }
+
+        let exercises = []
+
+        for (let i = 0; i < categories.length; i++) {
+            const currExercises = await Exercise.find({ category: categories[i] })
+            exercises.push(...currExercises)
+            
         }
         res.json(exercises)
     } catch (err) {
