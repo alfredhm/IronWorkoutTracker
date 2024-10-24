@@ -37,7 +37,7 @@ router.get('/user/:userId', async (req, res) => {
         }
         res.json(exercises)
     } catch (err) {
-        res.status(500).json({ message: err.message })
+        res.status(404).json({ message: err.message })
     }
 })
 

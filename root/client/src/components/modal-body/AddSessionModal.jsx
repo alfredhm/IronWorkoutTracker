@@ -169,7 +169,7 @@ const AddSessionModal = ({ handleClose }) => {
                             />
                         </FormControl>
                         <TimeSlider onTimeChange={handleChildTimeChange} />
-                        <AddExercise exercises={exercises} />
+                        <AddExercise exercises={exercises} setExercises={setExercises} session={true} />
                         <FocusSelect formik={formik} />
                         <FormControl>
                         </FormControl>

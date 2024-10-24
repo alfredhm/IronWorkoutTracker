@@ -113,6 +113,23 @@ router.put('/:id', getWorkoutSession, async (req, res) => {
     }
 })
 
+// Update the exercises array in a workout session
+router.put('/:id/exercises', async (req, res) => {
+    try {
+        const workoutSession = await WorkoutSession.findById(req.params.id);
+        if (!workoutSession) return res.status(404).send('Workout session not found.');
+
+        // Add the new exercise to the exercises array
+        workoutSession.exercises.push(req.body.exerciseId);
+
+        // Save the updated session
+        await workoutSession.save();
+        res.send(workoutSession);
+    } catch (error) {
+        res.status(500).send('Something went wrong.');
+    }
+});
+
 // Delete a workout
 router.delete('/:id', getWorkoutSession, async (req, res) => {
     try {

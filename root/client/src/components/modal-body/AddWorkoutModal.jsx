@@ -148,7 +148,7 @@ const AddWorkoutModal = ({ handleClose }) => {
                                 paddingLeft="10px"
                             />
                         </FormControl>
-                        <AddExercise exercises={exercises} />
+                        <AddExercise setExercises={setExercises} session={false} />
                         <FocusSelect formik={formik} />
                         <Button
                             type="submit"

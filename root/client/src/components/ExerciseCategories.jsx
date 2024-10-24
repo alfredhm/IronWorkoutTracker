@@ -2,18 +2,58 @@ import { Box, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, Mod
 import muscleCategories from '../resources/exercise-categories'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import { useAuthUser } from 'react-auth-kit'
 
-const ExerciseCategories = () => {
+const ExerciseCategories = ({ session, workoutID, setExercises }) => {
     const [category, setCategory] = useState('')
     const [categoryExercises, setCategoryExercises] = useState([])
     const [error, setError] = useState('')
     const [isLoading, setLoading] = useState(true)
+
+    const auth = useAuthUser()
+    const uid = auth()?.uid;
 
     const { isOpen, onOpen, onClose } = useDisclosure()
 
     const handleOpen = (newCategory) => {
         setCategory(newCategory)
         onOpen()
+    }
+
+    const handleAddExercise = async (exercise) => {
+        try {
+            // Create new exercise in database
+            const newExercise = {
+                ...exercise, 
+                userId: uid
+            }
+            delete newExercise._id
+            delete newExercise.__v
+            const response = await axios.post(`http://localhost:5000/api/exercises`, newExercise)
+
+            // If adding exercise to a workout sessions (through session prop variable), use the workout session API
+            if (session) {
+                console.log(session)
+
+                // If there is a workoutID, the exercise is being added to a precreated workout session, if not, the session is currently being created
+                if (workoutID) {
+                    console.log(workoutID)
+                    console.log('Edit')
+                    await axios.put(`http://localhost:5000/api/workoutsessions/${workoutID}/exercises`, {
+                        exerciseId: response.data._id
+                    })
+                } else {
+                    console.log('Add')
+                }
+            }
+
+            // Otherwise, use the workout API to add
+            console.log(exercise.name)
+            setLoading(false)
+        } catch (error) {
+            setError(error.message)
+            setLoading(false)
+        }
     }
 
     useEffect(() => {
@@ -49,7 +89,7 @@ const ExerciseCategories = () => {
                             <ModalCloseButton />
                             <ModalBody _loading={isLoading}>
                                 {categoryExercises.map((exercise) => (
-                                    <Box key={exercise.name}>
+                                    <Box key={exercise.name} onClick={() => handleAddExercise(exercise)}>
                                         <Box px={2} py={1.5}borderBottom="1px solid gray" _hover={{ bg: "gray.800", cursor: "pointer" }}>
                                             {exercise.name}
                                         </Box>

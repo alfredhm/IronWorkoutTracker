@@ -13,6 +13,7 @@ import muscleGroups from '../../resources/muscle-groups';
 import * as Yup from 'yup'
 import FocusSelect from '../FocusSelect';
 import AddExercise from '../AddExercise';
+import ExerciseList from '../ExerciseList';
 
 const EditSessionModal = ({ handleClose, data }) => {
     const [error, setError] = useState("")
@@ -184,7 +185,8 @@ const EditSessionModal = ({ handleClose, data }) => {
                             />
                         </FormControl>
                         <TimeSlider onTimeChange={handleChildTimeChange} />
-                        <AddExercise exercises={exercises} />
+                        <ExerciseList session={true} workoutID={data._id} />
+                        <AddExercise setExercises={setExercises} session={true} workoutID={data._id} />
                         <FormControl>
                         </FormControl>
                         {!data.isTemplate && (

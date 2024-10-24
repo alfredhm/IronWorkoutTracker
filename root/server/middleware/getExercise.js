@@ -1,14 +1,14 @@
 const { Exercise } = require('../models/exercise')
 
 async function getExercise(req, res, next) {
-    let exercise;
+    var exercise;
     try {
-        exercise = await Exercise.findById(req.params.id).populate('userId')
+        exercise = await Exercise.findById(req.params.id)
         if (!exercise) {
             return res.status(404).json({ message: 'Cannot find exercise'})
         }
     } catch (err) {
-        return res.status(500).json({ message: err.message})
+        return res.status(404).json({ message: 'Cannot find exercise'})
     }
     res.exercise = exercise
     next()

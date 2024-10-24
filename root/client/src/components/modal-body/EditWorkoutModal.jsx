@@ -12,6 +12,7 @@ import FocusSelect from '../FocusSelect';
 import muscleGroups from '../../resources/muscle-groups';
 import * as Yup from 'yup'
 import AddExercise from '../AddExercise';
+import ExerciseList from '../ExerciseList';
 
 const EditWorkoutModal = ({ handleClose, data }) => {
     const [error, setError] = useState("")
@@ -156,7 +157,8 @@ const EditWorkoutModal = ({ handleClose, data }) => {
                                 paddingLeft="10px"
                             />
                         </FormControl>
-                        <AddExercise exercises={exercises} />
+                        <ExerciseList session={false} workoutID={data._id} />
+                        <AddExercise setExercises={setExercises} session={false} workoutID={data._id}/>
                         <Button type="submit" isLoading={loading} bgColor="gray.600" color="white" my={2} py={5} px={8}>
                             Done
                         </Button>

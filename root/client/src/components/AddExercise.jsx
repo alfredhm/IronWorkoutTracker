@@ -2,7 +2,7 @@ import { Button, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFo
 import React from 'react'
 import ExerciseCategories from './ExerciseCategories'
 
-const AddExercise = () => {
+const AddExercise = ({ session, workoutID, setExercises, exercises }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
 
     return (
@@ -14,7 +14,7 @@ const AddExercise = () => {
                     <ModalHeader>Select Exercise</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <ExerciseCategories />
+                        <ExerciseCategories setExercises={setExercises} session={session} workoutID={workoutID} />
                     </ModalBody>
                     <ModalFooter>
                     </ModalFooter>
