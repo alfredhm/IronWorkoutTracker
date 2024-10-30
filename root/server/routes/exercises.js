@@ -129,10 +129,7 @@ router.put('/:id', getExercise, async (req, res) => {
         }
         if (req.body.notes != null) {
             res.exercise.notes = req.body.notes;
-        }
-        if (req.body.sets != null) {
-            res.exercise.sets = req.body.sets;
-        }
+        } 
         if (req.body.isTemplate != null) {
             res.exercise.isTemplate = req.body.isTemplate;
         }
@@ -141,6 +138,9 @@ router.put('/:id', getExercise, async (req, res) => {
         }
         if (req.body.isPreset != null) {
             res.exercise.isPreset = req.body.isPreset;
+        }
+        if (req.body.sets != null && Array.isArray(req.body.sets)) {
+            res.exercise.sets.push(...req.body.sets);
         }
 
         const updatedExercise = await res.exercise.save();

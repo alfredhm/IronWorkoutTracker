@@ -20,6 +20,7 @@ const EditSessionModal = ({ handleClose, data }) => {
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
     const [isOn, setIsOn] = useState(false);
+    const [refresh, setRefresh] = useState(0)
 
     const auth = useAuthUser();
     const uid = auth()?.uid; 
@@ -54,6 +55,7 @@ const EditSessionModal = ({ handleClose, data }) => {
     });
 
     const onSubmit = async (values) => {
+        console.log("a")
         setError('')
         setLoading(true)
 
@@ -98,6 +100,10 @@ const EditSessionModal = ({ handleClose, data }) => {
         onSubmit: onSubmit,
         validationSchema: WorkoutSessionSchema
     })
+
+    const handleSecondChildClose = () => {
+        setRefresh(prev => prev + 1)
+    }
 
     const handleChildTimeChange = (data) => {
         formik.setFieldValue('durationSec', data);
@@ -145,8 +151,8 @@ const EditSessionModal = ({ handleClose, data }) => {
                 setLoading(false);
             }
         };
-
         loadExercises();
+
     }, [uid, navigate, formik.values.handleChildTimeChange]);
 
     return (
@@ -185,8 +191,8 @@ const EditSessionModal = ({ handleClose, data }) => {
                             />
                         </FormControl>
                         <TimeSlider onTimeChange={handleChildTimeChange} />
-                        <ExerciseList session={true} workoutID={data._id} />
-                        <AddExercise setExercises={setExercises} session={true} workoutID={data._id} />
+                        <ExerciseList session={true} workoutID={data._id} refresh={refresh}  />
+                        <AddExercise onSecondChildClose={handleSecondChildClose} session={true} workoutID={data._id} />
                         <FormControl>
                         </FormControl>
                         {!data.isTemplate && (

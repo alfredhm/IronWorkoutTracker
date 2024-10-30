@@ -16,6 +16,7 @@ const AddWorkoutModal = ({ handleClose }) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([])
+    const [updated, setUpdated] = useState(false)
 
     const auth = useAuthUser()
     const uid = auth()?.uid;
@@ -34,6 +35,7 @@ const AddWorkoutModal = ({ handleClose }) => {
           .max(50, 'Notes cannot exceed 50 characters.')
           .notRequired(),
     });
+    
 
     const onSubmit = async (values) => {
         setError('')
@@ -115,8 +117,10 @@ const AddWorkoutModal = ({ handleClose }) => {
             }
         };
 
+
         loadExercises();
-    }, [uid, navigate]);
+        console.log(exercises)
+    }, [uid, navigate, updated]);
 
     return (
         <Box width="100%" display="flex" flexDirection="column">
@@ -148,7 +152,7 @@ const AddWorkoutModal = ({ handleClose }) => {
                                 paddingLeft="10px"
                             />
                         </FormControl>
-                        <AddExercise setExercises={setExercises} session={false} />
+                        <AddExercise onParentClose={() => setUpdated(prev => !prev)} setExercises={setExercises} session={false} />
                         <FocusSelect formik={formik} />
                         <Button
                             type="submit"

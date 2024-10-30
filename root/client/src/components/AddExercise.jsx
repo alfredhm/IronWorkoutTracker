@@ -2,8 +2,13 @@ import { Button, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFo
 import React from 'react'
 import ExerciseCategories from './ExerciseCategories'
 
-const AddExercise = ({ session, workoutID, setExercises, exercises }) => {
+const AddExercise = ({ session, workoutID, setExercises, onSecondChildClose }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
+
+    const handleClose = () => {
+        onSecondChildClose()
+        onClose()
+    }
 
     return (
         <Flex justify="center" alignItems="center">
@@ -14,7 +19,7 @@ const AddExercise = ({ session, workoutID, setExercises, exercises }) => {
                     <ModalHeader>Select Exercise</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <ExerciseCategories setExercises={setExercises} session={session} workoutID={workoutID} />
+                        <ExerciseCategories onChildClose={handleClose} setExercises={setExercises} session={session} workoutID={workoutID} />
                     </ModalBody>
                     <ModalFooter>
                     </ModalFooter>

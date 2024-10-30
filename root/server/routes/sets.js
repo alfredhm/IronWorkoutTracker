@@ -32,11 +32,12 @@ router.get('/exercise/:exerciseId', async (req, res) => {
 router.get('/:id', getSet, async (req, res) => {
     res.json(res.varSet)
 })
-
-// Post new exercise
+ 
+// Post new set 
 router.post('/', async (req, res) => {
+    console.log(req.body) 
     const { error } = validate(req.body)
-    if (error) return res.status(400).send(error.details[0].message)
+    if (error) return res.status(400).send(error.details[0].message) 
 
     const set = new Set({
         exerciseId: req.body.exerciseId,
@@ -44,12 +45,12 @@ router.post('/', async (req, res) => {
         weight: req.body.weight,
         bodyWeight: req.body.bodyWeight,
         restTimeSec: req.body.restTimeSec
-    });
+    }); 
 
     try {
         const newSet = await set.save()
-        res.status(201).json(newSet)
-    } catch (err) {
+        res.status(201).json(newSet) 
+    } catch (err) {  
         res.status(400).json({ message: err.message })
     }
     

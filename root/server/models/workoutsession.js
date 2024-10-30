@@ -1,6 +1,7 @@
 const Joi = require('joi')
 const mongoose = require('mongoose')
 const muscleGroups = require('../resources/muscle-groups')
+const Exercise = require('./exercise')
 
 const workoutSessionSchema = new mongoose.Schema({
     userId: {
@@ -38,6 +39,16 @@ const workoutSessionSchema = new mongoose.Schema({
         type: String,
         maxlength: 50,
         default: ""
+    }
+});
+
+// Middleware to delete exercises when a WorkoutSession is deleted
+workoutSessionSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
+    try {
+        await Exercise.deleteMany({ _id: { $in: this.exercises } });
+        next();
+    } catch (err) {
+        next(err);
     }
 });
 

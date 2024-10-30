@@ -4,16 +4,17 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useAuthUser } from 'react-auth-kit'
 
-const ExerciseCategories = ({ session, workoutID, setExercises }) => {
+const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
     const [category, setCategory] = useState('')
     const [categoryExercises, setCategoryExercises] = useState([])
+    const [updated, setUpdated] = useState(false)
     const [error, setError] = useState('')
     const [isLoading, setLoading] = useState(true)
 
     const auth = useAuthUser()
     const uid = auth()?.uid;
 
-    const { isOpen, onOpen, onClose } = useDisclosure()
+    const { isOpen, onOpen } = useDisclosure()
 
     const handleOpen = (newCategory) => {
         setCategory(newCategory)
@@ -45,10 +46,21 @@ const ExerciseCategories = ({ session, workoutID, setExercises }) => {
                 } else {
                     console.log('Add')
                 }
-            }
-
+            
             // Otherwise, use the workout API to add
-            console.log(exercise.name)
+            } else {
+                // If there is a workoutID, the exercise is being added to a precreated workout session, if not, the session is currently being created
+                if (workoutID) {
+                    console.log(workoutID)
+                    console.log('Edit')
+                    await axios.put(`http://localhost:5000/api/workoutsessions/${workoutID}/exercises`, {
+                        exerciseId: response.data._id
+                    })
+                } else {
+                    console.log('Add')
+                }
+            }
+            setUpdated(true)
             setLoading(false)
         } catch (error) {
             setError(error.message)
@@ -71,7 +83,8 @@ const ExerciseCategories = ({ session, workoutID, setExercises }) => {
             }
         }
         getCategoryExercises()
-    },[category])
+        setUpdated(false)
+    },[category, updated])
 
     return (
         <Box>
@@ -82,7 +95,7 @@ const ExerciseCategories = ({ session, workoutID, setExercises }) => {
                             {category}
                         </Box>
                     </Box>
-                    <Modal isOpen={isOpen} onClose={onClose}>
+                    <Modal isOpen={isOpen} onClose={onChildClose}>
                         <ModalOverlay />
                         <ModalContent color="white" border="1px solid white" bgColor="gray.700" borderRadius="10px">
                             <ModalHeader>Select Exercise</ModalHeader>

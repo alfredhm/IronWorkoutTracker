@@ -12,7 +12,6 @@ const setSchema = new mongoose.Schema({
         type: Number,
         min: 1,
         max: 300,
-        required: true
     },
     weight: {
         type: Number,
@@ -45,12 +44,9 @@ async function validateSet(set) {
             })
             return errors
         }),
-        reps: Joi.number().min(1).max(30).required().error(errors => {
+        reps: Joi.number().min(1).max(30).error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
-                    case "any.empty":
-                        err.message = "Number of Reps is Required"
-                        break
                     case "number.min":
                         err.message = `Minimum Number of Reps is 1`;
                         break;

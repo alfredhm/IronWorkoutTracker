@@ -22,6 +22,7 @@ const AddWorkoutSession = () => {
 
     const handleClose = () => {
         onClose()
+        console.log("closed")
         setModalClosed((prev) => prev + 1)
     }
 
