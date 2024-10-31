@@ -29,7 +29,7 @@ router.get('/user/:userId', async (req, res) => {
     }  
 })
  
-// Get workout by exercise ID
+// Get workout by workout ID
 router.get('/:id', getWorkout, async (req, res) => {
     res.json(res.workout)
 })
@@ -100,10 +100,10 @@ router.put('/:id', getWorkout, async (req, res) => {
 router.put('/:id/exercises', async (req, res) => {
     try {
         const workout = await Workout.findById(req.params.id);
-        if (!workout) return res.status(404).send('Workout session not found.');
+        if (!workout) return res.status(404).send('Workout not found.');
 
         // Add the new exercise to the exercises array
-        Workout.exercises.push(req.body.exerciseId);
+        workout.exercises.push(req.body.exerciseId);
 
         // Save the updated session
         await workout.save();

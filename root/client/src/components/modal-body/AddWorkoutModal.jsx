@@ -85,51 +85,6 @@ const AddWorkoutModal = ({ handleClose }) => {
             navigate('/login');
             return;
         }
-        
-        // Async function that fetches the preset exercises 
-        const getPresets = async () => {
-            try {
-                // Filters all the preset exercises
-                const presetRes = await axios.get(`http://localhost:5000/api/exercises`);
-                const presetExercises = presetRes.data.filter(exercise => exercise.isPreset);
-
-                return presetExercises;
-            } catch (err) {
-                setError(err.message);
-                return [];
-            }
-        };
-
-        // Async function that fetches the user's saved exercises 
-        const getUserExercises = async () => {
-            try {
-                // Filters all the user's exercises for the ones saved as a template
-                const response = await axios.get(`http://localhost:5000/api/exercises/user/${uid}`);
-                const userExercises = response.data.filter(exercise => exercise.isTemplate);
-
-                return userExercises;
-            } catch (err) {
-                setError(err.message);
-                return [];
-            }
-        };
-
-        // Async function that calls both above functions to get all the exercises
-        const loadExercises = async () => {
-            setLoading(true);
-            try {
-                const [presetExercises, userExercises] = await Promise.all([getPresets(), getUserExercises()]);
-                const combinedExercises = [...presetExercises, ...userExercises];
-                setExercises(combinedExercises);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        // Reload exercises
-        loadExercises();
     }, [uid, navigate, updated]);
 
     return (
@@ -162,7 +117,7 @@ const AddWorkoutModal = ({ handleClose }) => {
                                 paddingLeft="10px"
                             />
                         </FormControl>
-                        <AddExercise onParentClose={() => setUpdated(prev => !prev)} setExercises={setExercises} session={false} />
+                        <AddExercise onParentClose={() => setUpdated(prev => !prev)} session={false} />
                         <FocusSelect formik={formik} />
                         <Button
                             type="submit"

@@ -19,9 +19,6 @@ router.get('/exercise/:exerciseId', async (req, res) => {
     try {
         const exerciseId = req.params.exerciseId
         const sets = await Set.find({ exerciseId: exerciseId }).populate('exerciseId')
-        if (sets.length === 0) {
-            return res.status(404).json({ message: 'No sets found for this user'})
-        }
         res.json(sets)
     } catch (err) {
         res.status(500).json({ message: err.message })

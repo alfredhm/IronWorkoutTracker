@@ -55,7 +55,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
                 if (workoutID) {
                     console.log(workoutID)
                     console.log('Edit')
-                    await axios.put(`http://localhost:5000/api/workoutsessions/${workoutID}/exercises`, {
+                    await axios.put(`http://localhost:5000/api/workouts/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })
                 } else {

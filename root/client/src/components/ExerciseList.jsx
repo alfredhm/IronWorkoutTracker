@@ -8,7 +8,6 @@ const ExerciseList = ({ workoutID, session, refresh }) => {
   const [exercises, setExercises] = useState([]);
   const [error, setError] = useState('')
 
-
   useEffect(() => {
     // Async function to get all the exercise objects from the workouts exercise array of exerciseIDs
     const getExercises = async () => {
@@ -19,6 +18,7 @@ const ExerciseList = ({ workoutID, session, refresh }) => {
         let currExercises = [];
 
         // TODO: CREATE CASCADE DELETION MIDDLEWARE SO YOU DONT NEED TO SKIP OVER GHOST EXERCISES
+        console.log(currExerciseIDs)
         for (let i = 0; i < currExerciseIDs.length; i++) {
           try {
             const res = await axios.get(`http://localhost:5000/api/exercises/${currExerciseIDs[i]}`);
@@ -30,6 +30,7 @@ const ExerciseList = ({ workoutID, session, refresh }) => {
         }
         setExercises(currExercises);
       } catch (err) {
+        console.log(err)
         setError(err.message);
       }
     };

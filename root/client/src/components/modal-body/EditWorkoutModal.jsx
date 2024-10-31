@@ -18,6 +18,7 @@ const EditWorkoutModal = ({ handleClose, data }) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
+    const [refresh, setRefresh] = useState(0)
 
     // Grabs the id of the current user
     const auth = useAuthUser();
@@ -84,6 +85,14 @@ const EditWorkoutModal = ({ handleClose, data }) => {
         onSubmit: onSubmit,
         validationSchema: WorkoutSchema
     });
+
+    /* 
+        Function that responds to the closing of its child component, 
+        the exercise list, creating a refresh of this page and its exercises
+    */
+    const handleSecondChildClose = () => {
+        setRefresh(prev => prev + 1)
+    }
 
     useEffect(() => {
         // If there is no uid, the user is not logged in and is redirected to the login page
@@ -171,8 +180,8 @@ const EditWorkoutModal = ({ handleClose, data }) => {
                                 paddingLeft="10px"
                             />
                         </FormControl>
-                        <ExerciseList session={false} workoutID={data._id} />
-                        <AddExercise setExercises={setExercises} session={false} workoutID={data._id}/>
+                        <ExerciseList session={false} workoutID={data._id} refresh={refresh} />
+                        <AddExercise onSecondChildClose={handleSecondChildClose} setExercises={setExercises} session={false} workoutID={data._id}/>
                         <Button type="submit" isLoading={loading} bgColor="gray.600" color="white" my={2} py={5} px={8}>
                             Done
                         </Button>

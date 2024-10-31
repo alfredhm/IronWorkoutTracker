@@ -1,7 +1,7 @@
 import { Input, Textarea, Text, Flex, Box } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 
-const Set = ({ index, exercise }) => {
+const Set = ({ index }) => {
     const [height, setHeight] = useState("auto");
     const minHeight = "18px";
     const textareaRef = useRef(null);
@@ -97,6 +97,7 @@ const Set = ({ index, exercise }) => {
                         rows={1}
                         resize="none"  // Prevent manual resizing
                         height={height}
+                        maxLength={164}
                         overflow="hidden"
                         p={0}
                         border={0}
