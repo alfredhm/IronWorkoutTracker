@@ -12,15 +12,18 @@ const NavBar = () => {
 
     const [authState, setAuthState] = useState(isAuthenticated)
 
+    // Variables that check if the user is on a login/register page or the home page
     const isLoginPage = window.location.pathname === "/login" || window.location.pathname === "/register"
     const isHomePage = window.location.pathname === "/"
 
+    // Function for logging users out
     const logOut = () => {
         navigate("/login")
         signOut()
         setAuthState(false)
     }
 
+    // Logo brings user to dashboard if they are logged in and to the home page if they are not
     let logoHref = authState ? "/dashboard" : "/"
 
     return (
@@ -32,32 +35,33 @@ const NavBar = () => {
             </Link>
 
             {
+                // If the user is on the loginpage, there is no log in button
                 isLoginPage ? (
                     <>
                     </>
                 ) : 
                 (
                     <>
-                    { authState ? (
-                        <Link>
-                            <Button colorScheme='blue' onClick={logOut} size='md'>
-                                Logout
-                            </Button>
-                        </Link>
-                    ) : (
-                        <Link href="/login">
-                            <Button colorScheme='blue' size='md'>
-                                Login/Register
-                            </Button>
-                        </Link>
-                    )}
+                    { 
+                        // If the user is logged in, show the logout button, otherwise show the login/register button
+                        authState ? (
+                            <Link>
+                                <Button colorScheme='blue' onClick={logOut} size='md'>
+                                    Logout
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Link href="/login">
+                                <Button colorScheme='blue' size='md'>
+                                    Login/Register
+                                </Button>
+                            </Link>
+                        )
+                    }
                     </>
 
                 )
             }
-
-
-            
         </Box>
 
     )

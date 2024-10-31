@@ -14,7 +14,7 @@ const Calendar = () => {
         setSelectedDate(date);
     };
 
-    // Handler for navigating months
+    // Handlers for navigating months
     const handlePreviousMonth = () => {
         setCurrentDate(currentDate.subtract(1, 'month'));
     };

@@ -1,5 +1,6 @@
 const { Exercise } = require('../models/exercise')
 
+// Fetchees an exercise
 async function getExercise(req, res, next) {
     var exercise;
     try {

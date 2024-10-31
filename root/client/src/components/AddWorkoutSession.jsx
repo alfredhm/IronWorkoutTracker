@@ -20,9 +20,9 @@ const AddWorkoutSession = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure() 
 
+    // Closes the modal as well as alters the modalClsoed variable which causes a refresh in the workoutsession list
     const handleClose = () => {
         onClose()
-        console.log("closed")
         setModalClosed((prev) => prev + 1)
     }
 

@@ -11,35 +11,45 @@ const router = express.Router()
 
 const JWT_SECRET = config.get('jwtPrivateKey')
 
+// Gets user data (except password)
 router.get('/me', auth, async (req, res) => {
     const user = await User.findById(req.user._id).select('-password')
     res.send(user)
 })
 
+// Creates new user
 router.post('/', async (req, res) => {
+    // Validate body, if not validated, throw error
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
 
+    // Find user with email, if user found, throw error that user is already registered
     let user = await User.findOne({ email: req.body.email })
     if (user) return res.status(400).send('User already registered.')
 
+    // Create new user with encrypted password
     user = new User(_.pick(req.body, ['name', 'email', 'password']))
     const salt = await bcrypt.genSalt(10)
     user.password = await bcrypt.hash(user.password, salt)
     await user.save()
     
+    // Send token 
     const token = user.generateAuthToken()
     res.header('x-auth-token', token).send(_.pick(user, ['name', 'email']))
 })
 
+// Sends a reset password link to a user, activated when email is submitted to forgot password page
 router.post('/reset-password', async (req, res) => {
     const { email } = (req.body)
 
     try {
+        // Find user by email, if none, throw error
         const user = await User.findOne({ email: email})
         if (!user) {
             return res.status(400).json({ success: false, message: 'User does not exist'})
         }
+
+        // Create jwt token for reset link
         const secret = JWT_SECRET
         const token = jwt.sign({ email: user.email, id: user._id }, secret, {
             expiresIn: "5m",
@@ -47,6 +57,7 @@ router.post('/reset-password', async (req, res) => {
 
         const link = `http://localhost:3000/reset-password/${user._id}/${token}`
 
+        // Use nodemailer to send link to user through email
         var transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -62,7 +73,7 @@ router.post('/reset-password', async (req, res) => {
             text: `Click on the link to change your password \n ${link}`
           };
           
-          transporter.sendMail(mailOptions, function(error, info){
+          transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
               console.log(error);
             } else {
@@ -76,23 +87,29 @@ router.post('/reset-password', async (req, res) => {
     }
 })
 
+// Verifies user and token when reset link is clicked
 router.get("/reset-password/:id/:token", async (req, res) => {
     const { id, token } = req.params
 
     try {
+        // Get user
         const user = await User.findOne({ _id: id})
 
+        // If user doesn't exist, throw error
         if (!user) {
             return res.status(400).json({ success: false, message: 'User does not exist'})
         }
     
+        // Verifies jwt token
         const secret = JWT_SECRET
         const verify = jwt.verify(token, secret)
         
+        // If id doesn't match after verification, token is invalid
         if (verify.id !== id) {
             return res.status(400).json({ success: false, message: 'Invalid Token'})
         }
 
+        // If success, redirect user to new password page
         res.json({ success: true, message: 'Token Verified', redirectUrl: `/new-password/${id}/${token}`})
     } catch (err) {
         console.error('Token verification failed: ', err)
@@ -100,32 +117,40 @@ router.get("/reset-password/:id/:token", async (req, res) => {
     }
 })
 
+// Changes the user's password
 router.post("/reset-password/:id/:token", async (req, res) => {
     const { id, token } = req.params
     const { password, password_2 } = req.body
 
     try {
+        // Get user
         const user = await User.findOne({ _id: id})
 
+        // If user doesn't exist, throw error
         if (!user) {
             return res.status(400).json({ success: false, message: 'User does not exist'})
         }
     
+        // Verifies jwt token
         const secret = JWT_SECRET
         const verify = jwt.verify(token, secret)
         
+        // If id doesn't match after verification, token is invalid
         if (verify.id !== id) {
             return res.status(400).json({ success: false, message: 'Invalid Token'})
         }
 
+        // If passwords don't match, throw error
         if (password !== password_2) {
             return res.status(400).json({ success: false, message: 'Passwords Do Not Match'})
         }        
 
+        // If password is less than 10 characters, throw error
         if (password.length < 10) {
             return res.status(400).json({ success: false, message: 'Password Must Be At Least 10 Characters'})
         }        
 
+        // Encrypt new password and update user's password
         const salt = await bcrypt.genSalt(10)
         const encryptedPassword = await bcrypt.hash(password, salt)
 

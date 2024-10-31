@@ -18,10 +18,12 @@ const AddWorkoutModal = ({ handleClose }) => {
     const [exercises, setExercises] = useState([])
     const [updated, setUpdated] = useState(false)
 
+    // Grabs the id of the current user
     const auth = useAuthUser()
     const uid = auth()?.uid;
     const navigate = useNavigate();
 
+    // Schema for a workout for front-end validation
     const WorkoutSchema = Yup.object().shape({
         name: Yup.string()
           .max(50, 'Name cannot exceed 50 characters.')
@@ -36,18 +38,19 @@ const AddWorkoutModal = ({ handleClose }) => {
           .notRequired(),
     });
     
-
+    // Formik Submit function
     const onSubmit = async (values) => {
         setError('')
         setLoading(true) 
-
         values.userId = uid;
 
+        // If the name is blank, set it to "Unnamed Workout"
         if (!values.name) {
             values.name = "Unnamed Workout";
         }
         
         try {
+            // Saves workout and closes and resets form
             let workoutValues = { ...values }
             delete workoutValues.durationSec
             await axios.post(
@@ -58,11 +61,13 @@ const AddWorkoutModal = ({ handleClose }) => {
             handleClose()
             formik.resetForm()
         } catch (err) {
+            // Error handling
             setError(err.message)
             setLoading(false);
         }
     }
 
+    // Formik creation
     const formik = useFormik({
         initialValues: {
             name: "",
@@ -74,14 +79,17 @@ const AddWorkoutModal = ({ handleClose }) => {
         validationSchema: WorkoutSchema,
     });
 
+    // If there is no uid, the user is not logged in and is redirected to the login page
     useEffect(() => {
         if (!uid) {
             navigate('/login');
             return;
         }
-
+        
+        // Async function that fetches the preset exercises 
         const getPresets = async () => {
             try {
+                // Filters all the preset exercises
                 const presetRes = await axios.get(`http://localhost:5000/api/exercises`);
                 const presetExercises = presetRes.data.filter(exercise => exercise.isPreset);
 
@@ -92,8 +100,10 @@ const AddWorkoutModal = ({ handleClose }) => {
             }
         };
 
+        // Async function that fetches the user's saved exercises 
         const getUserExercises = async () => {
             try {
+                // Filters all the user's exercises for the ones saved as a template
                 const response = await axios.get(`http://localhost:5000/api/exercises/user/${uid}`);
                 const userExercises = response.data.filter(exercise => exercise.isTemplate);
 
@@ -104,6 +114,7 @@ const AddWorkoutModal = ({ handleClose }) => {
             }
         };
 
+        // Async function that calls both above functions to get all the exercises
         const loadExercises = async () => {
             setLoading(true);
             try {
@@ -117,9 +128,8 @@ const AddWorkoutModal = ({ handleClose }) => {
             }
         };
 
-
+        // Reload exercises
         loadExercises();
-        console.log(exercises)
     }, [uid, navigate, updated]);
 
     return (

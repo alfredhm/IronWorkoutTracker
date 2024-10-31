@@ -1,5 +1,6 @@
 const { Set } = require('../models/set')
 
+// Fetches a set
 async function getSet(req, res, next) {
     let set;
     try {

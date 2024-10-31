@@ -19,10 +19,12 @@ const AddSessionModal = ({ handleClose }) => {
     const [exercises, setExercises] = useState([]);
     const [isOn, setIsOn] = useState(false);
 
+    // Grabs the id of the current user
     const auth = useAuthUser();
     const uid = auth()?.uid; 
     const navigate = useNavigate();
 
+    // Schema for a workout session for front-end validation
     const WorkoutSessionSchema = Yup.object().shape({
         name: Yup.string()
           .max(50, 'Name cannot exceed 50 characters.')
@@ -42,16 +44,19 @@ const AddSessionModal = ({ handleClose }) => {
           .notRequired(),
     });
 
+    // Formik Submit function
     const onSubmit = async (values) => {
         setError('');
         setLoading(true);
-
         values.userId = uid;
+
+        // If the name is blank, set it to "Unnamed Workout"
         if (!values.name) {
             values.name = "Unnamed Workout";
         }
 
         try {
+            // If user wants to save the session as a template, it is saved as a workout
             if (values.isTemplate) {
                 let workoutValues = { ...values };
                 delete workoutValues.durationSec;
@@ -60,6 +65,8 @@ const AddSessionModal = ({ handleClose }) => {
                     workoutValues
                 );
             }
+
+            // Workout Session is saved and form is closed and reset
             let sessionValues = { ...values };
             delete sessionValues.isTemplate;
             await axios.post(
@@ -69,12 +76,15 @@ const AddSessionModal = ({ handleClose }) => {
             setLoading(false);
             handleClose();
             formik.resetForm();
+        
+        // Error handling
         } catch (err) {
             setError(err.message);
             setLoading(false);
         }
     }
 
+    // Formik creation
     const formik = useFormik({
         initialValues: {
             name: "",
@@ -88,18 +98,23 @@ const AddSessionModal = ({ handleClose }) => {
         validationSchema: WorkoutSessionSchema,
     });
 
+    // When the time changes, update the duration (input is a slider)
     const handleChildTimeChange = (data) => {
         formik.setFieldValue('durationSec', data);
     };
 
     useEffect(() => {
+        // If there is no uid, the user is not logged in and is redirected to the login page
         if (!uid) {
             navigate('/login');
             return;
         }
 
+        // Async function that fetches the preset exercises 
         const getPresets = async () => {
             try {
+
+                // Filters all the preset exercises
                 const presetRes = await axios.get(`http://localhost:5000/api/exercises`);
                 const presetExercises = presetRes.data.filter(exercise => exercise.isPreset);
 
@@ -110,8 +125,10 @@ const AddSessionModal = ({ handleClose }) => {
             }
         };
 
+        // Async function that fetches the user's saved exercises 
         const getUserExercises = async () => {
             try {
+                // Filters all the user's exercises for the ones saved as a template
                 const response = await axios.get(`http://localhost:5000/api/exercises/user/${uid}`);
                 const userExercises = response.data.filter(exercise => exercise.isTemplate);
 
@@ -122,6 +139,7 @@ const AddSessionModal = ({ handleClose }) => {
             }
         };
 
+        // Async function that calls both above functions to get all the exercises
         const loadExercises = async () => {
             setLoading(true)
             try {
@@ -135,6 +153,7 @@ const AddSessionModal = ({ handleClose }) => {
             }
         };
 
+        // Reload exercises
         loadExercises();
     }, [uid, navigate]);
 
@@ -171,8 +190,6 @@ const AddSessionModal = ({ handleClose }) => {
                         <TimeSlider onTimeChange={handleChildTimeChange} />
                         <AddExercise exercises={exercises} setExercises={setExercises} session={true} />
                         <FocusSelect formik={formik} />
-                        <FormControl>
-                        </FormControl>
                         <FormControl pt={0} display="flex" justifyContent="center">
                             <FormLabel htmlFor="switch" mb="0" color="white">
                                 Save as a Routine

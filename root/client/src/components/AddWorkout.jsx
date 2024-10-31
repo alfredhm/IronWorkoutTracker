@@ -19,6 +19,7 @@ const AddWorkout = () => {
     const [modalClosed, setModalClosed] = useState(0)
     const { isOpen, onOpen, onClose } = useDisclosure() 
 
+    // Closes the modal as well as alters the modalClsoed variable which causes a refresh in the workout list
     const handleClose = () => {
         onClose()
         setModalClosed((prev) => prev + 1)

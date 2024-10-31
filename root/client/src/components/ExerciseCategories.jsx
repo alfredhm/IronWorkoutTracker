@@ -16,6 +16,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
 
     const { isOpen, onOpen } = useDisclosure()
 
+    // Opens modal and sets the category to the selected category
     const handleOpen = (newCategory) => {
         setCategory(newCategory)
         onOpen()
@@ -26,6 +27,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
             // Create new exercise in database
             const newExercise = {
                 ...exercise, 
+                isPreset: false,
                 userId: uid
             }
             delete newExercise._id
@@ -49,7 +51,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
             
             // Otherwise, use the workout API to add
             } else {
-                // If there is a workoutID, the exercise is being added to a precreated workout session, if not, the session is currently being created
+                // If there is a workoutID, the exercise is being added to a precreated workout, if not, the workout is currently being created
                 if (workoutID) {
                     console.log(workoutID)
                     console.log('Edit')
@@ -60,7 +62,9 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
                     console.log('Add')
                 }
             }
-            setUpdated(true)
+
+            // Close everything out
+            onChildClose()
             setLoading(false)
         } catch (error) {
             setError(error.message)
@@ -69,9 +73,13 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
     }
 
     useEffect(() => {
+        // Async function that grabs the exercises for each category
         const getCategoryExercises = async () => {
             try {
+                // If there is no category, do nothing
                 if (!category) return
+
+                // Fetch exercises from category and set category exercises to the exercises fetched
                 const response = await axios.get(`http://localhost:5000/api/exercises/category/${category.toLowerCase()}`)
                 const exercises = response.data
                 setCategoryExercises(exercises)

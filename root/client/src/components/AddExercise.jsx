@@ -5,6 +5,7 @@ import ExerciseCategories from './ExerciseCategories'
 const AddExercise = ({ session, workoutID, setExercises, onSecondChildClose }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
 
+    // When ExerciseCategories is closed, the function for the parent of this component (One of the modals) is activated, causing a refresh
     const handleClose = () => {
         onSecondChildClose()
         onClose()

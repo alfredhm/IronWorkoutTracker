@@ -22,10 +22,12 @@ const EditSessionModal = ({ handleClose, data }) => {
     const [isOn, setIsOn] = useState(false);
     const [refresh, setRefresh] = useState(0)
 
+    // Grabs the id of the current user
     const auth = useAuthUser();
     const uid = auth()?.uid; 
     const navigate = useNavigate(); 
 
+    // Initial values used for formik and checking if anything has been edited
     const initialValues = {
         userId: uid || "",
         name: data.name || "",
@@ -36,6 +38,7 @@ const EditSessionModal = ({ handleClose, data }) => {
         isTemplate: data.isTemplate || isOn
     }
 
+    // Schema for a workout session for front-end validation
     const WorkoutSessionSchema = Yup.object().shape({
         name: Yup.string()
           .max(50, 'Name cannot exceed 50 characters.')
@@ -54,11 +57,12 @@ const EditSessionModal = ({ handleClose, data }) => {
           .optional(),
     });
 
+    // Submit function for formik
     const onSubmit = async (values) => {
-        console.log("a")
         setError('')
         setLoading(true)
 
+        // If the values are unchanged, close form with no submission
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             handleClose()
             setLoading(false)
@@ -68,6 +72,7 @@ const EditSessionModal = ({ handleClose, data }) => {
         values.userId = uid;
 
         try {
+            // If user edits session to be saved as a template, save as workout
             if (values.isTemplate) {
                 let workoutValues = { ...values }
                 delete workoutValues.durationSec
@@ -80,6 +85,7 @@ const EditSessionModal = ({ handleClose, data }) => {
             let sessionValues = { ...values }
             delete sessionValues.isTemplate
 
+            // Update session
             await axios.put(
                 `http://localhost:5000/api/workoutsessions/${data._id}`,
                 sessionValues
@@ -95,28 +101,38 @@ const EditSessionModal = ({ handleClose, data }) => {
         }
     }
 
+    // Formik creation
     const formik = useFormik({
         initialValues: initialValues,
         onSubmit: onSubmit,
         validationSchema: WorkoutSessionSchema
     })
 
+    /* 
+        Function that responds to the closing of its child component, 
+        the exercise list, creating a refresh of this page and its exercises
+    */
     const handleSecondChildClose = () => {
         setRefresh(prev => prev + 1)
     }
 
+    // When the time changes, update the duration (input is a slider)
     const handleChildTimeChange = (data) => {
         formik.setFieldValue('durationSec', data);
     };
 
     useEffect(() => {
+        // If there is no uid, the user is not logged in and is redirected to the login page
         if (!uid) {
             navigate('/login');
             return;
         }
 
+        // Async function that fetches the preset exercises 
         const getPresets = async () => {
             try {
+
+                // Filters all the preset exercises
                 const presetRes = await axios.get(`http://localhost:5000/api/exercises`);
                 const presetExercises = presetRes.data.filter(exercise => exercise.isPreset);
 
@@ -127,8 +143,10 @@ const EditSessionModal = ({ handleClose, data }) => {
             }
         };
 
+        // Async function that fetches the user's saved exercises 
         const getUserExercises = async () => {
             try {
+                // Filters all the user's exercises for the ones saved as a template
                 const response = await axios.get(`http://localhost:5000/api/exercises/user/${uid}`);
                 const userExercises = response.data.filter(exercise => exercise.isTemplate);
 
@@ -139,6 +157,7 @@ const EditSessionModal = ({ handleClose, data }) => {
             }
         };
 
+        // Async function that calls both above functions to get all the exercises
         const loadExercises = async () => {
             setLoading(true);
             try {
@@ -151,8 +170,8 @@ const EditSessionModal = ({ handleClose, data }) => {
                 setLoading(false);
             }
         };
+        // Reload exercises
         loadExercises();
-
     }, [uid, navigate, formik.values.handleChildTimeChange]);
 
     return (

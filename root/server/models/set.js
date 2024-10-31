@@ -29,6 +29,7 @@ const setSchema = new mongoose.Schema({
 
 const Set = mongoose.model('Set', setSchema)
 
+// Validator function
 async function validateSet(set) {
     const schema = Joi.object({
         exerciseId: Joi.string().required().pattern(/^[0-9a-fA-F]{24}$/).error(errors => {

@@ -8,12 +8,14 @@ import NavBar from "../components/NavBar"
 
 const Register = () => {
     const [error, setError] = useState("")
+    
     const signIn = useSignIn()
     const navigate = useNavigate()
 
+    // Formik onsubmit function
     const onSubmit = async (values) => {
-        console.log("Values: ", values)
 
+        // If passwords do not match, display error
         if (values.password !== values.password_2) {
             setError("Passwords Do Not Match")
         }
@@ -24,8 +26,7 @@ const Register = () => {
             password: values.password
         }
 
-        console.log(postValues, values)
-
+        // Saves new account in back end and then initializes the signIn function to create a token for the user
         try {
             const response = await axios.post(
                 "http://localhost:5000/api/users",
@@ -39,6 +40,7 @@ const Register = () => {
                 authState: { email: values.email },
             })
 
+            // After login, send user to dashboard
             navigate("/dashboard")
 
         } catch (err) {
@@ -53,6 +55,7 @@ const Register = () => {
         }
     }
 
+    // Formik creation
     const formik = useFormik({
         initialValues: {
             name:"",

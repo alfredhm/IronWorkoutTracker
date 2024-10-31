@@ -1,21 +1,8 @@
 import { Flex, List, ListItem, Text } from "@chakra-ui/react"
 import Set from "./Set"
 import { HamburgerIcon } from "@chakra-ui/icons"
-import { useEffect, useState } from "react"
 
 const Exercise = ({ exercise }) => {
-
-    const [sets, setSets] = useState(exercise.sets)
-    console.log(exercise.sets)
-
-    const handleAddSet = () => {
-        setSets(...sets, {})
-    }
-
-    useEffect(() => {
-
-    }, [sets])
-
     return (
         <Flex key={exercise._id} w="100%" border="1px solid white" borderRadius={7} bg="gray.600">
             <Flex w="100%">
@@ -57,7 +44,6 @@ const Exercise = ({ exercise }) => {
                             cursor: 'pointer',
                             color: 'blue.100'
                             }}
-                            onClick={handleAddSet}
                             >
                             Add Set
                             </Text>

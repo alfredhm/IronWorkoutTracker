@@ -1,5 +1,6 @@
 const { WorkoutSession } = require('../models/workoutsession')
 
+// Fetches a workout session
 async function getWorkoutSession(req, res, next) {
     let workoutSession;
     try {

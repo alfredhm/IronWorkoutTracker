@@ -1,3 +1,4 @@
+// Takes seconds and puts them in 0h 0m format
 const formatTime = (totalSeconds) => {
     const hrs = Math.floor(totalSeconds / 3600);
     const mins = Math.floor((totalSeconds % 3600) / 60);

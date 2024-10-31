@@ -8,18 +8,20 @@ import NavBar from "../components/NavBar"
 
 const LoginPage = () => {
     const [error, setError] = useState("")
+
     const signIn = useSignIn()
     const navigate = useNavigate()
 
+    // Formik submit function
     const onSubmit = async (values) => {
         setError("")
         
         try {
+            // Sends authentication post to back end and then initializes the signIn function to create a token for the user
             const response = await axios.post(
                 "http://localhost:5000/api/auth",
                 values
             )
-            console.log(response)
             signIn({
                 token: response.data.token,
                 expiresIn: 3600,
@@ -29,6 +31,8 @@ const LoginPage = () => {
                     uid: response.data.uid 
                 },
             })
+
+            // After login, send user to dashboard
             navigate("/dashboard")
 
         } catch (err) {
@@ -43,6 +47,7 @@ const LoginPage = () => {
         }
     }
 
+    // Formik creation
     const formik = useFormik({
         initialValues: {
             email: "",

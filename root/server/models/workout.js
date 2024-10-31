@@ -39,6 +39,7 @@ const workoutSchema = new mongoose.Schema({
 
 const Workout = mongoose.model('Workout', workoutSchema)
 
+// Validator function
 async function validateWorkout(workout) {
      const schema = Joi.object({
         userId: Joi.string().required().pattern(/^[0-9a-fA-F]{24}$/).error(errors => {

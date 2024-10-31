@@ -19,10 +19,12 @@ const EditWorkoutModal = ({ handleClose, data }) => {
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
 
+    // Grabs the id of the current user
     const auth = useAuthUser();
     const uid = auth()?.uid;
     const navigate = useNavigate();
 
+    // Initial values used for formik and checking if anything has been edited
     const initialValues = {
         name: data.name || "",
         focusGroup: data.focusGroup || [],
@@ -30,6 +32,7 @@ const EditWorkoutModal = ({ handleClose, data }) => {
         exercises: data.exercises || [],
     }
 
+    // Schema for a workout for front-end validation
     const WorkoutSchema = Yup.object().shape({
         name: Yup.string()
           .max(50, 'Name cannot exceed 50 characters.')
@@ -43,10 +46,12 @@ const EditWorkoutModal = ({ handleClose, data }) => {
           .optional(),
     });
 
+    // Submit function for formik
     const onSubmit = async (values) => {
         setError('');
         setLoading(true);
 
+        // If the values are unchanged, close form with no submission
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
             handleClose()
             setLoading(false)
@@ -56,6 +61,7 @@ const EditWorkoutModal = ({ handleClose, data }) => {
         values.userId = uid;
 
         try {
+            // Update workout
             let workoutValues = { ...values }
             delete workoutValues.durationSec
             await axios.put(
@@ -72,6 +78,7 @@ const EditWorkoutModal = ({ handleClose, data }) => {
         }
     }
 
+    // Formik creation
     const formik = useFormik({
         initialValues: initialValues,
         onSubmit: onSubmit,
@@ -79,13 +86,16 @@ const EditWorkoutModal = ({ handleClose, data }) => {
     });
 
     useEffect(() => {
+        // If there is no uid, the user is not logged in and is redirected to the login page
         if (!uid) {
             navigate('/login');
             return;
         }
 
+        // Async function that fetches the preset exercises 
         const getPresets = async () => {
             try {
+                // Filters all the preset exercises
                 const presetRes = await axios.get(`http://localhost:5000/api/exercises`);
                 const presetExercises = presetRes.data.filter(exercise => exercise.isPreset);
 
@@ -96,8 +106,10 @@ const EditWorkoutModal = ({ handleClose, data }) => {
             }
         };
 
+        // Async function that fetches the user's saved exercises
         const getUserExercises = async () => {
             try {
+                // Filters all the user's exercises for the ones saved as a template
                 const response = await axios.get(`http://localhost:5000/api/exercises/user/${uid}`);
                 const userExercises = response.data.filter(exercise => exercise.isTemplate);
 
@@ -108,6 +120,7 @@ const EditWorkoutModal = ({ handleClose, data }) => {
             }
         };
 
+        // Async function that calls both above functions to get all the exercises
         const loadExercises = async () => {
             setLoading(true);
             try {
@@ -121,6 +134,7 @@ const EditWorkoutModal = ({ handleClose, data }) => {
             }
         };
 
+        // Reload exercises
         loadExercises();
     }, [uid, navigate, formik.values.name]);
 

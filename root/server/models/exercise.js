@@ -4,6 +4,8 @@ const Joi = require('joi')
 const mongoose = require('mongoose')
 const muscleCategories = require('../resources/muscle-groups')
 const { User } = require('./user')
+const path = require('path')
+const { fstat } = require('fs')
 
 const exerciseSchema = new mongoose.Schema({
     userId: {
@@ -47,6 +49,7 @@ const exerciseSchema = new mongoose.Schema({
 
 const Exercise = mongoose.model('Exercise', exerciseSchema)
 
+// Validator function
 async function validateExercise(exercise) {
     const schema = Joi.object({
         userId: Joi.string().required().pattern(/^[0-9a-fA-F]{24}$/).error(errors => {

@@ -42,18 +42,9 @@ const workoutSessionSchema = new mongoose.Schema({
     }
 });
 
-// Middleware to delete exercises when a WorkoutSession is deleted
-workoutSessionSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
-    try {
-        await Exercise.deleteMany({ _id: { $in: this.exercises } });
-        next();
-    } catch (err) {
-        next(err);
-    }
-});
-
 const WorkoutSession = mongoose.model('WorkoutSession', workoutSessionSchema);
 
+// Validator function
 async function validateWorkoutSession(workoutSession) {
     const schema = Joi.object({
         userId: Joi.string().required().pattern(/^[0-9a-fA-F]{24}$/).error(errors => {

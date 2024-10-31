@@ -15,26 +15,32 @@ const WorkoutSessionList = ({ refresh, handleClose }) => {
     const [loading, setLoading] = useState(false)
 
     const { isOpen, onOpen, onClose } = useDisclosure()
+
+    // Grabs the user's id
     const auth = useAuthUser()
     const uid = auth()?.uid
     const navigate = useNavigate()
 
+    // Sets selected workout to the workout clicked and opens the modal
     const handleWorkoutClick = (workout) => {
         setSelectedWorkout(workout);
         onOpen();
     };
 
+    // When the edit modal is closed, its parent component (AddWorkoutSession.jsx) is refreshed
     const handleEditClose = () => {
         handleClose()
         onClose()
     }
 
     useEffect(() => {
+        // If no uid, user is not logged in and sent to login page
         if (!uid) {
             navigate('/login')
             return
         }
 
+        // Fetches all the workoutsessions for the user
         const getWorkoutSessions = async () => {
             setLoading(true)
             try {

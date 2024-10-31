@@ -13,10 +13,13 @@ const WorkoutList = ({ refresh, handleClose }) => {
     const [loading, setLoading] = useState(false)
 
     const { isOpen, onOpen, onClose } = useDisclosure()
+
+    // Grabs the user's id
     const auth = useAuthUser()
     const uid = auth()?.uid;
     const navigate = useNavigate();
 
+    // Function that shortens length of focusGroups if it has more than 5 exercises to limit the number of icons displayed on each workout
     const getFocusCount = (workout) => {
         if (workout.focusGroup.length > 5) {
             return 4
@@ -25,6 +28,7 @@ const WorkoutList = ({ refresh, handleClose }) => {
         }
     }
 
+    // Converts an isoString into MM/DD format
     const convertToMonthDay = (isoString) => {
         const date = new Date(isoString);
         const month = date.getUTCMonth() + 1;
@@ -33,22 +37,26 @@ const WorkoutList = ({ refresh, handleClose }) => {
         return `${month}/${day}`;
     }
 
+    // Sets selected workout to the workout clicked and opens the modal
     const handleWorkoutClick = (workout) => {
         setSelectedWorkout(workout);
         onOpen();
     };
 
+    // When the edit modal is closed, its parent component (AddWorkout.jsx) is refreshed
     const handleEditClose = () => {
         handleClose();
         onClose();
     }
 
     useEffect(() => {
+        // If no uid, user is not logged in and sent to login page
         if (!uid) {
             navigate('/login');
             return;
         }
 
+        // Fetches all the workouts for the user
         const getWorkouts = async () => {
             setLoading(true);
             try {
