@@ -1,9 +1,9 @@
 import { Flex  } from "@chakra-ui/react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import Exercise from "./Exercise";
 
-const ExerciseList = ({ workoutID, session, refresh }) => {
+const ExerciseList = forwardRef(({ workoutID, session, refresh, handleModalClose }, ref) => {
   const apiParam = session ? "workoutsessions" : "workouts";
   const [exercises, setExercises] = useState([]);
   const [error, setError] = useState('')
@@ -18,7 +18,6 @@ const ExerciseList = ({ workoutID, session, refresh }) => {
         let currExercises = [];
 
         // TODO: CREATE CASCADE DELETION MIDDLEWARE SO YOU DONT NEED TO SKIP OVER GHOST EXERCISES
-        console.log(currExerciseIDs)
         for (let i = 0; i < currExerciseIDs.length; i++) {
           try {
             const res = await axios.get(`http://localhost:5000/api/exercises/${currExerciseIDs[i]}`);
@@ -41,11 +40,11 @@ const ExerciseList = ({ workoutID, session, refresh }) => {
     <>
         <Flex flexDir="column" w="100%" gap={4} pt={2}>
             {exercises.map((exercise) => (
-              <Exercise key={exercise._id} exercise={exercise} />
+              <Exercise key={exercise._id} ref={ref} exercise={exercise} handleModalClose={handleModalClose}/>
             ))}
         </Flex>
     </>
   );
-};
+});
 
 export default ExerciseList;

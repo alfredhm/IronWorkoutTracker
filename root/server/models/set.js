@@ -10,12 +10,14 @@ const setSchema = new mongoose.Schema({
     },
     reps: {
         type: Number,
-        min: 1,
-        max: 300,
     },
     weight: {
         type: Number,
         min: 0,
+    },
+    notes: {
+        type: String,
+        max: 250
     },
     bodyWeight: {
         type: Boolean,
@@ -45,7 +47,7 @@ async function validateSet(set) {
             })
             return errors
         }),
-        reps: Joi.number().min(1).max(30).error(errors => {
+        reps: Joi.number().error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
                     case "number.min":
@@ -67,6 +69,15 @@ async function validateSet(set) {
                 }
             })
             return errors
+        }),
+        notes: Joi.string().max(250).error(errors => {
+            errors.forEach(err => {
+                switch (err.code) {
+                    case "string.max":
+                        err.message = `Max Notes Length is 250 Characters`;
+                        break;                   
+                }
+            })
         }),
         bodyWeight: Joi.boolean().default(false),
         restTimeSec: Joi.number().min(0).error(errors => {

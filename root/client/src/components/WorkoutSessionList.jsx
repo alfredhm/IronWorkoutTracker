@@ -1,6 +1,6 @@
 import { Box, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, Spinner, useDisclosure } from '@chakra-ui/react'
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { useNavigate } from 'react-router-dom'
 import EditSessionModal from './modal-body/EditSessionModal'
@@ -8,7 +8,7 @@ import formatTime from '../resources/formatTime'
 import daysOfWeek from '../resources/daysOfWeek'
 
 
-const WorkoutSessionList = ({ refresh, handleClose }) => {
+const WorkoutSessionList = forwardRef(({ refresh, handleClose }, ref) => {
     const [workouts, setWorkouts] = useState([])
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [error, setError] = useState("")
@@ -28,7 +28,7 @@ const WorkoutSessionList = ({ refresh, handleClose }) => {
     };
 
     // When the edit modal is closed, its parent component (AddWorkoutSession.jsx) is refreshed
-    const handleEditClose = () => {
+    const handleEditClose = async () => {
         handleClose()
         onClose()
     }
@@ -111,7 +111,7 @@ const WorkoutSessionList = ({ refresh, handleClose }) => {
                                 <ModalContent aria-hidden="false" border="1px solid white" bgColor="gray.700" borderRadius="10px">
                                     <ModalCloseButton color="white" />
                                     <ModalBody>
-                                        <EditSessionModal handleClose={handleEditClose} data={selectedWorkout} />
+                                        <EditSessionModal ref={ref} handleClose={handleEditClose} data={selectedWorkout} />
                                     </ModalBody>
                                 </ModalContent>
                             </Modal>
@@ -121,6 +121,6 @@ const WorkoutSessionList = ({ refresh, handleClose }) => {
             )}
         </Flex>
     )
-}
+})
 
 export default WorkoutSessionList

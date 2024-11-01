@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useState } from 'react'
 import {
     Box, VStack, Text, Center, FormControl, Input, Textarea,
     Button, FormLabel, Switch,
@@ -15,7 +15,7 @@ import FocusSelect from '../FocusSelect';
 import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
 
-const EditSessionModal = ({ handleClose, data }) => {
+const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
@@ -206,14 +206,11 @@ const EditSessionModal = ({ handleClose, data }) => {
                                 onChange={formik.handleChange}
                                 bgColor="gray.600"
                                 paddingLeft="10px"
-
                             />
                         </FormControl>
                         <TimeSlider onTimeChange={handleChildTimeChange} />
-                        <ExerciseList session={true} workoutID={data._id} refresh={refresh}  />
+                        <ExerciseList ref={ref} handleModalClose={handleClose} session={true} workoutID={data._id} refresh={refresh}  />
                         <AddExercise onSecondChildClose={handleSecondChildClose} session={true} workoutID={data._id} />
-                        <FormControl>
-                        </FormControl>
                         {!data.isTemplate && (
                             <FormControl pt={0} display="flex" justifyContent="center">
                                 <FormLabel htmlFor="switch" mb="0" color="white">
@@ -231,10 +228,6 @@ const EditSessionModal = ({ handleClose, data }) => {
                                 />
                             </FormControl>
                         )}
-
-                        <Button type="submit" isLoading={loading} bgColor="gray.600" color="white" my={2} py={5} px={8}>
-                            Done
-                        </Button>
                         <Box>
                             <Text textAlign="center" color="red.300">{error}</Text>
                         </Box>
@@ -243,6 +236,6 @@ const EditSessionModal = ({ handleClose, data }) => {
             </Center>
         </Box>
     )
-}
+})
 
 export default EditSessionModal;

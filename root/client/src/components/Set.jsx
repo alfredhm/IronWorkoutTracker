@@ -1,7 +1,7 @@
 import { Input, Textarea, Text, Flex, Box } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import {  useRef, useState } from "react";
 
-const Set = ({ index }) => {
+const Set = ({ index, set, onChange }) => {
     const [height, setHeight] = useState("auto");
     const minHeight = "18px";
     const textareaRef = useRef(null);
@@ -28,12 +28,21 @@ const Set = ({ index }) => {
         setHeight(`${textarea.scrollHeight}px`);  // Set height to match content
     };
 
+     // Handle changes to inputs and call onChange with updated values
+    const handleInputChange = (e, field) => {
+        const updatedValue = e.target.value
+        const updatedSet = { ...set, [field]: updatedValue }
+        console.log(updatedSet)
+        onChange(set._id || `set-${index}`, updatedSet)
+    }
+
+
     return (
         <Flex gap={3} py={2} position="relative" borderBottom="1px solid" borderColor="rgba(256, 256, 256, 0.3)">
             <Flex alignItems="center" justifyContent="center">
                 <Flex h={7} w={7} alignItems="center" justifyContent="center" border="1px solid" borderColor="rgba(256, 256, 256, 0.3)" borderRadius="25px">
                     <Text color="rgba(256, 256, 256, 0.3)" fontSize="x-small" p={2}>
-                       {index}
+                       {index + 1}
                     </Text>
                 </Flex>
             </Flex>
@@ -58,6 +67,9 @@ const Set = ({ index }) => {
                                 boxShadow: "none",
                                 borderColor: "transparent"
                             }}
+                            max={2000}
+                            value={set.weight || ''}
+                            onChange={(e) => handleInputChange(e, 'weight')}
                         />
                     </Flex>
                 </Box>
@@ -81,6 +93,9 @@ const Set = ({ index }) => {
                                 boxShadow: "none",
                                 borderColor: "transparent"
                             }}
+                            max={100}
+                            value={set.reps || ''}
+                            onChange={(e) => handleInputChange(e, 'reps')}
                         />
                     </Flex>
                 </Box>
@@ -114,6 +129,8 @@ const Set = ({ index }) => {
                         onFocus={handleFocus}
                         onInput={handleInput}
                         onBlur={handleBlur}
+                        value={set.notes || ''}
+                        onChange={(e) => handleInputChange(e, 'notes')}
                     />
                 </Flex>
             </Flex>

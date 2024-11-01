@@ -1,37 +1,101 @@
 import { Flex, List, ListItem, Text } from "@chakra-ui/react"
 import Set from "./Set"
 import { HamburgerIcon } from "@chakra-ui/icons"
-import { useEffect, useState } from "react"
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 import axios from "axios"
 
-const Exercise = ({ exercise }) => {
+const Exercise = forwardRef(({ exercise, handleModalClose }, ref) => {
     const [error, setError] = useState('')
-    const [sets, setSets] = useState([{
-        exerciseId: exercise._id
-    }])
+    const [sets, setSets] = useState([])
 
-    const handleAddSet = () => {
-        const newSet = {
-            exerciseId: exercise._id
-        }
-        setSets([...sets, newSet])
-    }
-
-    useEffect(() => {
-      const loadSets = async () => {
+    const handleAddSet = async () => {
         try {
-            console.log("x")
+            const newSet = {
+                exerciseId: exercise._id,
+                weight: undefined,
+                reps: undefined, 
+                notes: undefined
+            }
+            const res = await axios.post(`http://localhost:5000/api/sets`, newSet)
+            setSets((prevSets) => [...prevSets, { ...newSet, _id: res.data._id }]);
+        } catch (err) {
+            setError(err.message)
+        }
+
+    }   
+
+    // Handle set changes
+    const handleUpdateSet = (setId, updatedData) => {
+        setSets((prevSets) =>
+            prevSets.map((set) =>
+                set._id === setId ? { ...set, ...updatedData } : set
+            )
+        );
+    };
+
+    const postSetsToDatabase = async () => {
+        try {
+            await Promise.all(
+                sets.map(async (set) => {
+                    if (!set._id) {
+                        const response = await axios.post(`http://localhost:5000/api/sets`, {
+                            exerciseId: set.exerciseId,
+                            weight: set.weight,
+                            reps: set.reps,
+                            notes: set.notes,
+                        });
+                        set._id = response.data._id;
+                    } else {
+                        await axios.put(`http://localhost:5000/api/sets/${set._id}`, {
+                            exerciseId: set.exerciseId,
+                            weight: set.weight,
+                            reps: set.reps,
+                            notes: set.notes,
+                        });
+                    }
+                })
+            );
+            console.log('All sets have been posted successfully.');
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    // Handle modal close event
+    const handleClose = async () => {
+        await postSetsToDatabase(); // Post sets to the database
+    };
+
+    // Async function for loading sets used in effect hook
+    const loadSets = async () => {
+        try {
             const response = await axios.get(`http://localhost:5000/api/sets/exercise/${exercise._id}`)
             if (response.data.length > 0) {
-                setSets(response.data)
+                    setSets(
+                        response.data.map((set) => ({
+                            ...set,
+                            exerciseId: set.exerciseId,
+                            weight: set.weight !== undefined ? set.weight : undefined,
+                            reps: set.reps !== undefined ? set.reps : undefined,
+                            notes: set.notes !== undefined ? set.notes : undefined,
+                    }))
+                );
             }
-            
         } catch(err) {
             setError(err.message)
         }
-      }  
+      } 
+
+    // Use useImperativeHandle to expose handleClose to parent components
+    useImperativeHandle(ref, () => ({
+        handleClose,
+        loadSets
+    }));
+
+    useEffect(() => { 
       loadSets()
-    })
+    }, [exercise._id])
+    
     return (
         <Flex key={exercise._id} w="100%" border="1px solid white" borderRadius={7} bg="gray.600">
             <Flex w="100%">
@@ -52,7 +116,11 @@ const Exercise = ({ exercise }) => {
                     <List>
                         {sets.map((set, index) => (
                             <ListItem key={set._id || `set-${index}`}>
-                                <Set exercise={exercise} index={index + 1}/>
+                                <Set 
+                                    set={set}
+                                    index={index}
+                                    onChange={handleUpdateSet}
+                                />
                             </ListItem>
                         ))}
                     </List>            
@@ -76,6 +144,6 @@ const Exercise = ({ exercise }) => {
             </Flex>
         </Flex>
     )
-}
+})
 
 export default Exercise

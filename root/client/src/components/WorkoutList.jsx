@@ -1,12 +1,12 @@
 import { Box, Flex, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, Spinner, useDisclosure, Text } from '@chakra-ui/react'
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { useNavigate } from 'react-router-dom';
 import muscleIcons from '../resources/muscleIcons'
 import EditWorkoutModal from './modal-body/EditWorkoutModal'
 
-const WorkoutList = ({ refresh, handleClose }) => {
+const WorkoutList = forwardRef(({ refresh, handleClose }, ref) => {
     const [workouts, setWorkouts] = useState([])
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [error, setError] = useState("")
@@ -26,7 +26,7 @@ const WorkoutList = ({ refresh, handleClose }) => {
         } else {
             return workout.focusGroup.length
         }
-    }
+    } 
 
     // Converts an isoString into MM/DD format
     const convertToMonthDay = (isoString) => {
@@ -122,7 +122,7 @@ const WorkoutList = ({ refresh, handleClose }) => {
                                 <ModalContent aria-hidden="false" border="1px solid white" bgColor="gray.700" borderRadius="10px">
                                     <ModalCloseButton color="white" />
                                     <ModalBody>
-                                        <EditWorkoutModal handleClose={handleEditClose} data={selectedWorkout} />
+                                        <EditWorkoutModal ref={ref} handleClose={handleEditClose} data={selectedWorkout} />
                                     </ModalBody>
                                 </ModalContent>
                             </Modal>
@@ -132,6 +132,6 @@ const WorkoutList = ({ refresh, handleClose }) => {
             )}
         </Flex>
     )
-}
+})
 
 export default WorkoutList;

@@ -4,13 +4,7 @@ const { Set } = require('../models/set')
 async function getSet(req, res, next) {
     let set;
     try {
-        set = await Set.findById(req.params.id).populate('exerciseId').populate({
-            path: 'exerciseId',
-            populate: {
-                path: 'userId',
-                model: 'User'
-            }
-        })
+        set = await Set.findById(req.params.id)
         if (!set) {
             return res.status(404).json({ message: 'Cannot find set'})
         }
@@ -19,6 +13,6 @@ async function getSet(req, res, next) {
     }
     res.varSet = set
     next()
-} 
-
+}  
+   
 module.exports = getSet

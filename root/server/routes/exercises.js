@@ -124,12 +124,12 @@ router.put('/:id', getExercise, async (req, res) => {
         if (req.body.name != null) {
             res.exercise.name = req.body.name;
         }
-        if (req.body.focusGroup != null) {
+        if (req.body.focusGroup != null) { 
             res.exercise.focusGroup = req.body.focusGroup;
         }
         if (req.body.notes != null) {
             res.exercise.notes = req.body.notes;
-        } 
+        }  
         if (req.body.isTemplate != null) {
             res.exercise.isTemplate = req.body.isTemplate;
         }
@@ -161,5 +161,6 @@ router.delete('/:id', getExercise, async (req, res) => {
 });
 
 module.exports = router;
+ 
 
-
+   

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useState } from 'react'
 import {
     Box, VStack, Text, Center, 
     FormControl, Input, Textarea, 
@@ -14,7 +14,7 @@ import * as Yup from 'yup'
 import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
 
-const EditWorkoutModal = ({ handleClose, data }) => {
+const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
@@ -180,11 +180,8 @@ const EditWorkoutModal = ({ handleClose, data }) => {
                                 paddingLeft="10px"
                             />
                         </FormControl>
-                        <ExerciseList session={false} workoutID={data._id} refresh={refresh} />
+                        <ExerciseList ref={ref} session={false} workoutID={data._id} refresh={refresh} />
                         <AddExercise onSecondChildClose={handleSecondChildClose} setExercises={setExercises} session={false} workoutID={data._id}/>
-                        <Button type="submit" isLoading={loading} bgColor="gray.600" color="white" my={2} py={5} px={8}>
-                            Done
-                        </Button>
                         <Box>
                             <Text textAlign="center" color="red.300">{error}</Text>
                         </Box>
@@ -193,6 +190,6 @@ const EditWorkoutModal = ({ handleClose, data }) => {
             </Center>
         </Box>
     )
-}
+})
 
 export default EditWorkoutModal;

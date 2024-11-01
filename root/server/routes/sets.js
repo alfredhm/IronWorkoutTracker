@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 router.get('/exercise/:exerciseId', async (req, res) => {
     try {
         const exerciseId = req.params.exerciseId
-        const sets = await Set.find({ exerciseId: exerciseId }).populate('exerciseId')
+        const sets = await Set.find({ exerciseId: exerciseId })
         res.json(sets)
     } catch (err) {
         res.status(500).json({ message: err.message })
@@ -32,7 +32,6 @@ router.get('/:id', getSet, async (req, res) => {
  
 // Post new set 
 router.post('/', async (req, res) => {
-    console.log(req.body) 
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message) 
 
@@ -40,6 +39,7 @@ router.post('/', async (req, res) => {
         exerciseId: req.body.exerciseId,
         reps: req.body.reps,
         weight: req.body.weight,
+        notes: req.body.notes,
         bodyWeight: req.body.bodyWeight,
         restTimeSec: req.body.restTimeSec
     }); 
@@ -59,25 +59,29 @@ router.put('/:id', getSet, async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message)
     
     if (req.body.exerciseId != null) {
-        res.exercise.exerciseId = req.body.exerciseId;
+        res.varSet.exerciseId = req.body.exerciseId;
     }
     if (req.body.reps != null) {
-        res.exercise.reps = req.body.reps;
+        res.varSet.reps = req.body.reps;
     }
     if (req.body.weight != null) {
-        res.exercise.weight = req.body.weight;
+        res.varSet.weight = req.body.weight;
+    }
+    if (req.body.notes != null) {
+        res.varSet.notes = req.body.notes;
     }
     if (req.body.bodyWeight != null) {
-        res.exercise.bodyWeight = req.body.bodyWeight;
+        res.varSet.bodyWeight = req.body.bodyWeight;
     }
     if (req.body.restTimeSec != null) {
-        res.exercise.restTimeSec = req.body.restTimeSec;
+        res.varSet.restTimeSec = req.body.restTimeSec;
     }
 
     try {
-        const updatedSet = await res.set.save();
+        const updatedSet = await res.varSet.save();
         res.json(updatedSet);
     } catch (err) {
+        console.log(err)
         res.status(400).json({ message: err.message });
     }
 })
