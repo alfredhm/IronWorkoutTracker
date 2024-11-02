@@ -8,6 +8,16 @@ const Exercise = forwardRef(({ exercise, handleModalClose }, ref) => {
     const [error, setError] = useState('')
     const [sets, setSets] = useState([])
 
+    const handleDeleteSet = async (setId) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/sets/${setId}`)
+            setSets((prevSets) => prevSets.filter((set) => set._id !== setId))
+        } catch (err){
+            setError(err.message)
+            console.log(err)
+        }
+    }
+
     const handleAddSet = async () => {
         try {
             const newSet = {
@@ -120,6 +130,7 @@ const Exercise = forwardRef(({ exercise, handleModalClose }, ref) => {
                                     set={set}
                                     index={index}
                                     onChange={handleUpdateSet}
+                                    onDelete={handleDeleteSet}
                                 />
                             </ListItem>
                         ))}

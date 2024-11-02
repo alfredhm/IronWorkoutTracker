@@ -14,7 +14,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
     const auth = useAuthUser()
     const uid = auth()?.uid;
 
-    const { isOpen, onOpen } = useDisclosure()
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     // Opens modal and sets the category to the selected category
     const handleOpen = (newCategory) => {
@@ -46,7 +46,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
                         exerciseId: response.data._id
                     })
                 } else {
-                    console.log('Add')
+
                 }
             
             // Otherwise, use the workout API to add
@@ -54,12 +54,10 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
                 // If there is a workoutID, the exercise is being added to a precreated workout, if not, the workout is currently being created
                 if (workoutID) {
                     console.log(workoutID)
-                    console.log('Edit')
                     await axios.put(`http://localhost:5000/api/workouts/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })
                 } else {
-                    console.log('Add')
                 }
             }
 
@@ -67,6 +65,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
             onChildClose()
             setLoading(false)
         } catch (error) {
+            console.log(error)
             setError(error.message)
             setLoading(false)
         }
@@ -103,7 +102,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
                             {category}
                         </Box>
                     </Box>
-                    <Modal isOpen={isOpen} onClose={onChildClose}>
+                    <Modal isOpen={isOpen} onClose={onClose}>
                         <ModalOverlay />
                         <ModalContent color="white" border="1px solid white" bgColor="gray.700" borderRadius="10px">
                             <ModalHeader>Select Exercise</ModalHeader>

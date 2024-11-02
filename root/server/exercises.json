@@ -25,6 +25,22 @@
     },
     {
         "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Cable Chest Fly",
+        "category": ["Chest"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Incline Dumbbell Press",
+        "category": ["Chest"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
         "name": "Deadlift",
         "category": ["Back"],
         "isTemplate": true,
@@ -42,6 +58,22 @@
     {
         "userId": "65d44587e9ec2c1ec60f17b9",
         "name": "Lat Pulldown",
+        "category": ["Back"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Cable Row",
+        "category": ["Back"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Machine Row",
         "category": ["Back"],
         "isTemplate": true,
         "isSingle": false,
@@ -73,6 +105,30 @@
     },
     {
         "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "DB Shoulder Press",
+        "category": ["Shoulders"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Military Press",
+        "category": ["Shoulders"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Rear Delt Fly",
+        "category": ["Shoulders"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
         "name": "Bicep Curl",
         "category": ["Biceps"],
         "isTemplate": true,
@@ -90,6 +146,22 @@
     {
         "userId": "65d44587e9ec2c1ec60f17b9",
         "name": "Preacher Curl",
+        "category": ["Biceps"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Spider Curl",
+        "category": ["Biceps"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Incline Dumbbell Curl",
         "category": ["Biceps"],
         "isTemplate": true,
         "isSingle": false,
@@ -121,6 +193,14 @@
     },
     {
         "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Dips",
+        "category": ["Triceps"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
         "name": "Squat",
         "category": ["Quadriceps"],
         "isTemplate": true,
@@ -138,6 +218,14 @@
     {
         "userId": "65d44587e9ec2c1ec60f17b9",
         "name": "Leg Press",
+        "category": ["Quadriceps"],
+        "isTemplate": true,
+        "isSingle": false,
+        "isPreset": true
+    },
+    {
+        "userId": "65d44587e9ec2c1ec60f17b9",
+        "name": "Leg Extensions",
         "category": ["Quadriceps"],
         "isTemplate": true,
         "isSingle": false,
@@ -179,14 +267,6 @@
         "userId": "65d44587e9ec2c1ec60f17b9",
         "name": "Glute Bridge",
         "category": ["Glutes"],
-        "isTemplate": true,
-        "isSingle": false,
-        "isPreset": true
-    },
-    {
-        "userId": "65d44587e9ec2c1ec60f17b9",
-        "name": "Cable Chest Fly",
-        "category": ["Chest"],
         "isTemplate": true,
         "isSingle": false,
         "isPreset": true
