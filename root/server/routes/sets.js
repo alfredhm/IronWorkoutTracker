@@ -89,7 +89,7 @@ router.put('/:id', getSet, async (req, res) => {
 // Delete an exercise
 router.delete('/:id', getSet, async (req, res) => {
     try {
-        await res.varSet.deleteOne();
+        await res.set.remove();
         res.json({ message: 'Deleted Exercise' });
     } catch (err) {
         res.status(500).json({ message: err.message });

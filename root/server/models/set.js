@@ -26,7 +26,7 @@ const setSchema = new mongoose.Schema({
     restTimeSec: {
         type: Number,
         min: 0,
-    } 
+    }
 })
 
 const Set = mongoose.model('Set', setSchema)

@@ -4,8 +4,7 @@ const { Set } = require('../models/set')
 async function getSet(req, res, next) {
     let set;
     try {
-        set = await Set.findById(req.params.id).exec()
-        console.log(set)
+        set = await Set.findById(req.params.id)
         if (!set) {
             return res.status(404).json({ message: 'Cannot find set'})
         }
