@@ -1,7 +1,7 @@
-import { Input, Textarea, Text, Flex, Box } from "@chakra-ui/react";
+import { Input, Textarea, Text, Flex, Box, Image } from "@chakra-ui/react";
 import {  useRef, useState } from "react";
 
-const Set = ({ index, set, onChange }) => {
+const Set = ({ index, set, onChange, onDelete }) => {
     const [height, setHeight] = useState("auto");
     const minHeight = "18px";
     const textareaRef = useRef(null);
@@ -29,22 +29,63 @@ const Set = ({ index, set, onChange }) => {
     };
 
      // Handle changes to inputs and call onChange with updated values
-    const handleInputChange = (e, field) => {
+    const handleUpdateInputChange = (e, field) => {
         const updatedValue = e.target.value
         const updatedSet = { ...set, [field]: updatedValue }
-        console.log(updatedSet)
         onChange(set._id || `set-${index}`, updatedSet)
+    }
+
+    // Handle changes to inputs and call onChange with updated values
+    const handleDeleteInputChange = (e) => {
+        const setId = set._id
+        onDelete(set._id)
     }
 
 
     return (
         <Flex gap={3} py={2} position="relative" borderBottom="1px solid" borderColor="rgba(256, 256, 256, 0.3)">
             <Flex alignItems="center" justifyContent="center">
-                <Flex h={7} w={7} alignItems="center" justifyContent="center" border="1px solid" borderColor="rgba(256, 256, 256, 0.3)" borderRadius="25px">
-                    <Text color="rgba(256, 256, 256, 0.3)" fontSize="x-small" p={2}>
-                       {index + 1}
+                <Box
+                    h={7}
+                    w={7}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    border="1px solid"
+                    borderColor="rgba(256, 256, 256, 0.3)"
+                    borderRadius="25px"
+                    position="relative"
+                    _hover={{
+                        backgroundColor: 'red.300',
+                        cursor: 'pointer'
+                    }}
+                    role="group" // Enables grouping for hover effect
+                    onClick={(e) => handleDeleteInputChange(e)}
+                >
+                    <Text
+                        color="rgba(256, 256, 256, 0.3)"
+                        fontSize="x-small"
+                        p={2}
+                        position="absolute"
+                        top="50%"
+                        left="50%"
+                        transform="translate(-50%, -50%)"
+                        opacity={1}
+                        _groupHover={{ opacity: 0 }}
+                    >
+                        {index + 1}
                     </Text>
-                </Flex>
+                    <Image
+                        h={3}
+                        src={process.env.PUBLIC_URL + '/assets/close.png'}
+                        position="absolute"
+                        top="50%"
+                        left="50%"
+                        transform="translate(-50%, -50%)"
+                        opacity={0}
+                        _groupHover={{ opacity: 1 }}
+                    />
+                </Box>
             </Flex>
             <Flex position="relative" w="100%">
                 <Box position="absolute" top={0} left={0}>
@@ -69,7 +110,7 @@ const Set = ({ index, set, onChange }) => {
                             }}
                             max={2000}
                             value={set.weight || ''}
-                            onChange={(e) => handleInputChange(e, 'weight')}
+                            onChange={(e) => handleUpdateInputChange(e, 'weight')}
                         />
                     </Flex>
                 </Box>
@@ -95,7 +136,7 @@ const Set = ({ index, set, onChange }) => {
                             }}
                             max={100}
                             value={set.reps || ''}
-                            onChange={(e) => handleInputChange(e, 'reps')}
+                            onChange={(e) => handleUpdateInputChange(e, 'reps')}
                         />
                     </Flex>
                 </Box>
@@ -130,7 +171,7 @@ const Set = ({ index, set, onChange }) => {
                         onInput={handleInput}
                         onBlur={handleBlur}
                         value={set.notes || ''}
-                        onChange={(e) => handleInputChange(e, 'notes')}
+                        onChange={(e) => handleUpdateInputChange(e, 'notes')}
                     />
                 </Flex>
             </Flex>

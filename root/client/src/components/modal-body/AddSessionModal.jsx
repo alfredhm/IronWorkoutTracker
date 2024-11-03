@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useState } from 'react'
 import {
     Box, VStack, Text, Center, FormControl, Input, Textarea,
     Button, FormLabel, Switch,
@@ -12,12 +12,15 @@ import FocusSelect from '../FocusSelect';
 import muscleGroups from '../../resources/muscle-groups';
 import * as Yup from 'yup'
 import AddExercise from '../AddExercise';
+import ExerciseList from '../ExerciseList';
 
-const AddSessionModal = ({ handleClose }) => {
+const AddSessionModal = forwardRef(({ handleClose }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
+    const [workoutID, setWorkoutID] = useState("")
     const [isOn, setIsOn] = useState(false);
+    const [refresh, setRefresh] = useState(0)
 
     // Grabs the id of the current user
     const auth = useAuthUser();
@@ -44,10 +47,38 @@ const AddSessionModal = ({ handleClose }) => {
           .notRequired(),
     });
 
+    
+    /*  
+        Function that responds to the closing of its child component, 
+        the exercise list, creating a refresh of this page and its exercises
+    */
+    const handleSecondChildClose = () => {
+        setRefresh(prev => prev + 1)
+    }    
+
+    // When the time changes, update the duration (input is a slider)
+    const handleChildTimeChange = (data) => {
+        formik.setFieldValue('durationSec', data);
+    };
+
+            
+    // Modify createNewWorkout to accept parameters
+    const createNewWorkout = (extraValues) => {
+        const values = { ...formik.values, ...extraValues };
+        onSubmit(values, true); // true indicates it was triggered from the child component
+        setRefresh((prev) => prev + 1)
+    };
+
+    const handleSetWorkoutID = (workoutID) => {
+        setWorkoutID(workoutID)
+        setRefresh((prev) => prev + 1)
+    }
+
     // Formik Submit function
-    const onSubmit = async (values) => {
+    const onSubmit = async (values, fromExercise = false) => {
         setError('');
         setLoading(true);
+        console.log(values)
         values.userId = uid;
 
         // If the name is blank, set it to "Unnamed Workout"
@@ -74,7 +105,11 @@ const AddSessionModal = ({ handleClose }) => {
                 sessionValues
             );
             setLoading(false);
-            handleClose();
+            if (!fromExercise) {
+                handleClose();
+            } else {
+                setRefresh((prev) => prev + 1)
+            }
             formik.resetForm();
         
         // Error handling
@@ -98,70 +133,19 @@ const AddSessionModal = ({ handleClose }) => {
         validationSchema: WorkoutSessionSchema,
     });
 
-    // When the time changes, update the duration (input is a slider)
-    const handleChildTimeChange = (data) => {
-        formik.setFieldValue('durationSec', data);
-    };
-
     useEffect(() => {
         // If there is no uid, the user is not logged in and is redirected to the login page
         if (!uid) {
             navigate('/login');
             return;
         }
-
-        // Async function that fetches the preset exercises 
-        const getPresets = async () => {
-            try {
-
-                // Filters all the preset exercises
-                const presetRes = await axios.get(`http://localhost:5000/api/exercises`);
-                const presetExercises = presetRes.data.filter(exercise => exercise.isPreset);
-
-                return presetExercises;
-            } catch (err) {
-                setError(err.message);
-                return [];
-            }
-        };
-
-        // Async function that fetches the user's saved exercises 
-        const getUserExercises = async () => {
-            try {
-                // Filters all the user's exercises for the ones saved as a template
-                const response = await axios.get(`http://localhost:5000/api/exercises/user/${uid}`);
-                const userExercises = response.data.filter(exercise => exercise.isTemplate);
-
-                return userExercises;
-            } catch (err) {
-                setError(err.message);
-                return [];
-            }
-        };
-
-        // Async function that calls both above functions to get all the exercises
-        const loadExercises = async () => {
-            setLoading(true)
-            try {
-                const [presetExercises, userExercises] = await Promise.all([getPresets(), getUserExercises()]);
-                const combinedExercises = [...presetExercises, ...userExercises];
-                setExercises(combinedExercises);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false); 
-            }
-        };
-
-        // Reload exercises
-        loadExercises();
-    }, [uid, navigate]);
+    }, [uid, navigate, refresh]);
 
     return (
         <Box width="100%" display="flex" flexDirection="column">
             <Center>
                 <Center width="100%" color="white" mt={5} borderRadius="10px" display="flex" flexDirection="column">
-                    <VStack as="form" width="100%" onSubmit={formik.handleSubmit}>
+                    <VStack as="form" width="100%" onSubmit={(e) => formik.handleSubmit}>
                         <FormControl pt={4}>
                             <Input
                                 placeholder='Name'
@@ -188,7 +172,8 @@ const AddSessionModal = ({ handleClose }) => {
                             />
                         </FormControl>
                         <TimeSlider onTimeChange={handleChildTimeChange} />
-                        <AddExercise exercises={exercises} setExercises={setExercises} session={true} />
+                        <ExerciseList ref={ref} handleModalClose={handleClose} session={true} refresh={refresh}/>
+                        <AddExercise workoutID={workoutID} setWorkoutID={handleSetWorkoutID} createNewWorkout={createNewWorkout} onSecondChildClose={handleSecondChildClose} session={true} />
                         <FocusSelect formik={formik} />
                         <FormControl pt={0} display="flex" justifyContent="center">
                             <FormLabel htmlFor="switch" mb="0" color="white">
@@ -216,6 +201,6 @@ const AddSessionModal = ({ handleClose }) => {
             </Center>
         </Box>
     )
-}
+})
 
 export default AddSessionModal;

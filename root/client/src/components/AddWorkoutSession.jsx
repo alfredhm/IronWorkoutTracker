@@ -51,7 +51,7 @@ const AddWorkoutSession = () => {
                     <ModalContent border="1px solid white" bgColor="gray.700" borderRadius="10px">
                         <ModalCloseButton color="white" />
                         <ModalBody>
-                            <AddSessionModal handleClose={handleModalClose}/>
+                            <AddSessionModal ref={exerciseRef} handleClose={handleModalClose}/>
                         </ModalBody>
                         <ModalFooter display="flex" justifyContent="center" alignItems="center">
                         </ModalFooter>
