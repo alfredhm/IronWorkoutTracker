@@ -153,7 +153,7 @@ router.put('/:id', getExercise, async (req, res) => {
 // Delete an exercise
 router.delete('/:id', getExercise, async (req, res) => {
     try {
-        await res.exercise.remove();
+        await res.exercise.deleteOne();
         res.json({ message: 'Deleted Exercise' });
     } catch (err) {
         res.status(500).json({ message: err.message });

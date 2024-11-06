@@ -1,6 +1,6 @@
 import { Box, Tag, TagLabel, TagCloseButton, FormControl, Menu, MenuButton, Button, MenuList, MenuItem } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import muscleGroups from '../resources/muscle-groups'
 
 const FocusSelect = ({ formik, focusValues }) => {
@@ -21,6 +21,10 @@ const FocusSelect = ({ formik, focusValues }) => {
         setSelectedGroups(updatedGroups);
         formik.setFieldValue('focusGroup', updatedGroups);
     };
+
+    useEffect(() => {
+        setSelectedGroups(focusValues ? [...focusValues] : [])
+    }, [formik.values.focusGroup])
 
     return (
         <FormControl pb={1}>

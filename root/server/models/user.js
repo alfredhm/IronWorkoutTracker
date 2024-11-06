@@ -27,8 +27,8 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Workout'
     }],
-    isAdmin: Boolean
-})
+    isAdmin: Boolean 
+}) 
 
 userSchema.methods.generateAuthToken = function() {
     const token = jwt.sign({ __id: this._id, isAdmin: this.isAdmin }, config.get('jwtPrivateKey'))

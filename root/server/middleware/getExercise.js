@@ -11,6 +11,7 @@ async function getExercise(req, res, next) {
     } catch (err) {
         return res.status(404).json({ message: 'Cannot find exercise'})
     }
+    console.log(exercise)
     res.exercise = exercise
     next()
 } 

@@ -27,10 +27,10 @@ router.get('/exercise/:exerciseId', async (req, res) => {
 
 // Get set by set ID
 router.get('/:id', getSet, async (req, res) => {
-    res.json(res.varSet)
+    res.json(res.varSet) 
 })
  
-// Post new set 
+// Post new set  
 router.post('/', async (req, res) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message) 

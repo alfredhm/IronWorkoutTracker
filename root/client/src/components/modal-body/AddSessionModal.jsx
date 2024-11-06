@@ -17,7 +17,6 @@ import ExerciseList from '../ExerciseList';
 const AddSessionModal = forwardRef(({ handleClose }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
-    const [exercises, setExercises] = useState([]);
     const [workoutID, setWorkoutID] = useState("")
     const [isOn, setIsOn] = useState(false);
     const [refresh, setRefresh] = useState(0)
@@ -47,26 +46,12 @@ const AddSessionModal = forwardRef(({ handleClose }, ref) => {
           .notRequired(),
     });
 
-    
-    /*  
-        Function that responds to the closing of its child component, 
-        the exercise list, creating a refresh of this page and its exercises
-    */
     const handleSecondChildClose = () => {
         setRefresh(prev => prev + 1)
     }    
 
-    // When the time changes, update the duration (input is a slider)
     const handleChildTimeChange = (data) => {
         formik.setFieldValue('durationSec', data);
-    };
-
-            
-    // Modify createNewWorkout to accept parameters
-    const createNewWorkout = (extraValues) => {
-        const values = { ...formik.values, ...extraValues };
-        onSubmit(values, true); // true indicates it was triggered from the child component
-        setRefresh((prev) => prev + 1)
     };
 
     const handleSetWorkoutID = (workoutID) => {
@@ -74,20 +59,16 @@ const AddSessionModal = forwardRef(({ handleClose }, ref) => {
         setRefresh((prev) => prev + 1)
     }
 
-    // Formik Submit function
     const onSubmit = async (values, fromExercise = false) => {
         setError('');
         setLoading(true);
-        console.log(values)
+    
+        // Add user ID and default name if needed
         values.userId = uid;
-
-        // If the name is blank, set it to "Unnamed Workout"
-        if (!values.name) {
-            values.name = "Unnamed Workout";
-        }
-
+        values.name = values.name || "Unnamed Workout";
+    
         try {
-            // If user wants to save the session as a template, it is saved as a workout
+            // Check if the session should be saved as a template
             if (values.isTemplate) {
                 let workoutValues = { ...values };
                 delete workoutValues.durationSec;
@@ -96,30 +77,26 @@ const AddSessionModal = forwardRef(({ handleClose }, ref) => {
                     workoutValues
                 );
             }
-
-            // Workout Session is saved and form is closed and reset
+    
+            // Save the Workout Session
             let sessionValues = { ...values };
             delete sessionValues.isTemplate;
             await axios.post(
                 "http://localhost:5000/api/workoutsessions",
                 sessionValues
             );
+    
             setLoading(false);
-            if (!fromExercise) {
-                handleClose();
-            } else {
-                setRefresh((prev) => prev + 1)
-            }
-            formik.resetForm();
+            handleClose(); 
+            formik.resetForm(); // Reset the form after successful submission
         
-        // Error handling
         } catch (err) {
             setError(err.message);
             setLoading(false);
         }
     }
+    
 
-    // Formik creation
     const formik = useFormik({
         initialValues: {
             name: "",
@@ -134,7 +111,6 @@ const AddSessionModal = forwardRef(({ handleClose }, ref) => {
     });
 
     useEffect(() => {
-        // If there is no uid, the user is not logged in and is redirected to the login page
         if (!uid) {
             navigate('/login');
             return;
@@ -145,7 +121,7 @@ const AddSessionModal = forwardRef(({ handleClose }, ref) => {
         <Box width="100%" display="flex" flexDirection="column">
             <Center>
                 <Center width="100%" color="white" mt={5} borderRadius="10px" display="flex" flexDirection="column">
-                    <VStack as="form" width="100%" onSubmit={(e) => formik.handleSubmit}>
+                    <VStack as="form" width="100%" onSubmit={formik.handleSubmit}>
                         <FormControl pt={4}>
                             <Input
                                 placeholder='Name'
@@ -173,7 +149,7 @@ const AddSessionModal = forwardRef(({ handleClose }, ref) => {
                         </FormControl>
                         <TimeSlider onTimeChange={handleChildTimeChange} />
                         <ExerciseList ref={ref} handleModalClose={handleClose} session={true} refresh={refresh}/>
-                        <AddExercise workoutID={workoutID} setWorkoutID={handleSetWorkoutID} createNewWorkout={createNewWorkout} onSecondChildClose={handleSecondChildClose} session={true} />
+                        <AddExercise workoutID={workoutID} setWorkoutID={handleSetWorkoutID} onSecondChildClose={handleSecondChildClose} session={true} />
                         <FocusSelect formik={formik} />
                         <FormControl pt={0} display="flex" justifyContent="center">
                             <FormLabel htmlFor="switch" mb="0" color="white">

@@ -33,7 +33,7 @@ const workoutSchema = new mongoose.Schema({
     }], 
     isTemplate: {
         type: Boolean,
-        default: true
+        default: true 
     },
 }, { timestamps: true })
 

@@ -19,31 +19,27 @@ const AddWorkoutSession = () => {
     const [modalClosed, setModalClosed] = useState(0)
 
     const { isOpen, onOpen, onClose } = useDisclosure() 
-    const exerciseRef = useRef()
+    const editSessionModalRef = useRef()
 
-    // This function will be used to handle modal close, and will invoke the child function first
+     // This function will be used to handle modal close, and will invoke the child function first
     const handleModalClose = async () => {
-        // If the child has a handleClose function, call it first
-        if (exerciseRef.current) {
-            await exerciseRef.current.handleClose();
+        try {
+            console.log("handleModalClose called in parent"); // Log for confirmation
+            if (editSessionModalRef.current) {
+                console.log("Calling child handleClose"); // Log for confirmation
+                await editSessionModalRef.current.handleClose();
+            }
+            onClose(); // Close modal afterward
+            setModalClosed((prev) => prev + 1)
+        } catch (err) {
+            console.error("Error during modal close:", err);
         }
-        // Then, close the modal
-        onClose();
-        setModalClosed((prev) => prev + 1)
-    };
-
-    // Function called when the modal opens
-    const handleModalOpen = () => {
-        if (exerciseRef.current) {
-            exerciseRef.current.loadSets();
-        }
-        onOpen();
     };
 
     return (
         <Box>
             <Flex width="100%" justify="flex-end" py={4}>
-                <Button p={0} width="30px" height="40px" bg="gray.800" onClick={handleModalOpen}>
+                <Button p={0} width="30px" height="40px" bg="gray.800" onClick={onOpen}>
                     <Image maxHeight="13px" src={process.env.PUBLIC_URL + '/assets/plus.png'}></Image>
                 </Button>
                 <Modal isOpen={isOpen} onClose={handleModalClose}>
@@ -51,14 +47,14 @@ const AddWorkoutSession = () => {
                     <ModalContent border="1px solid white" bgColor="gray.700" borderRadius="10px">
                         <ModalCloseButton color="white" />
                         <ModalBody>
-                            <AddSessionModal ref={exerciseRef} handleClose={handleModalClose}/>
+                            <AddSessionModal ref={editSessionModalRef} handleClose={handleModalClose}/>
                         </ModalBody>
                         <ModalFooter display="flex" justifyContent="center" alignItems="center">
                         </ModalFooter>
                     </ModalContent>
                 </Modal>
             </Flex>
-            <WorkoutSessionList ref={exerciseRef} refresh={modalClosed} handleClose={handleModalClose}/>
+            <WorkoutSessionList ref={editSessionModalRef} refresh={modalClosed} handleClose={handleModalClose}/>
         </Box>
     )
 }

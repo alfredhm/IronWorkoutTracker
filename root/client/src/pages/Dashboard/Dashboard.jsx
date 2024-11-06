@@ -7,6 +7,7 @@ import { PiBarbellBold } from "react-icons/pi"
 import { IoCalendarOutline } from "react-icons/io5"
 import { RiAccountCircleLine } from "react-icons/ri"
 import Workouts from "./Workouts"
+import AccountPage from "../Account/AccountPage"
 
 const Dashboard = () => {
     return (
@@ -25,9 +26,7 @@ const Dashboard = () => {
                             <CalendarPage />
                         </TabPanel>
                         <TabPanel>
-                            <Box height="inherit">
-                                Account Page
-                            </Box>
+                            <AccountPage />
                         </TabPanel>
                     </TabPanels>
                     <Box display="flex" justifyContent="center">

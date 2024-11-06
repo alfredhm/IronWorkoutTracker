@@ -3,6 +3,8 @@ const { User } = require('../models/user')
 const getWorkout = require('../middleware/getWorkout')
 const mongoose = require('mongoose')
 const express = require('express')
+const { WorkoutSession } = require('../models/workoutsession')
+const { Exercise } = require('../models/exercise')
 const router = express.Router()
 
 // Get all workouts
@@ -110,6 +112,28 @@ router.put('/:id/exercises', async (req, res) => {
         res.send(workout);
     } catch (error) {
         res.status(500).send('Something went wrong.');
+    }
+});
+
+// Delete an exercise in the exercises array in a workout
+router.delete('/:id/exercises', async (req, res) => {
+    const { workoutID } = req.params;
+    const { exerciseID } = req.body;
+
+    try {
+        // Remove the exercise from the workout's exercises array
+        await Workout.findByIdAndUpdate(
+            workoutID,
+            { $pull: { exercises: exerciseID } }, // Removes exerciseID from the exercises array
+            { new: true }
+        );
+
+        // Delete the exercise itself
+        await Exercise.findByIdAndDelete(exerciseID);
+        
+        res.status(200).json({ message: 'Exercise removed from workout session and deleted' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 

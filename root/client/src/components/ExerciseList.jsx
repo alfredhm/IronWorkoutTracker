@@ -1,49 +1,88 @@
-import { Flex  } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import axios from "axios";
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import Exercise from "./Exercise";
 
-const ExerciseList = forwardRef(({ workoutID, session, refresh, handleModalClose }, ref) => {
+const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
   const apiParam = session ? "workoutsessions" : "workouts";
   const [exercises, setExercises] = useState([]);
-  const [error, setError] = useState('')
+  const [deletedExercise, setDeletedExercise] = useState(null); // Track deleted exercise
+  const [error, setError] = useState('');
 
+  const exerciseRefs = useRef([]);
+
+  const onDeleteExercise = async (exerciseID) => {
+    try {
+      // Call the backend to remove the exercise from the workout and delete the exercise
+      await axios.delete(`http://localhost:5000/api/${apiParam}/${workoutID}/exercises`, {
+        data: { exerciseID }
+      });
+      
+      // Update the state to reflect the deletion
+      setDeletedExercise(exerciseID); // Set deleted exercise ID for useEffect to handle
+    } catch (err) {
+      console.log(err);
+      setError(err.message);
+    }
+  };
+  
+  // Forward `handleClose` to allow `EditSessionModal` to trigger it
+  useImperativeHandle(ref, () => ({
+    async handleClose() {
+      // Call handleClose on each Exercise component
+      await Promise.all(exerciseRefs.current.map(exerciseRef => exerciseRef?.handleClose()));
+    }
+  }));
+
+  // Handle the deletion of exercises from state
   useEffect(() => {
-    // Async function to get all the exercise objects from the workouts exercise array of exerciseIDs
+    if (deletedExercise) {
+      setExercises((prevExercises) => prevExercises.filter((exercise) => exercise._id !== deletedExercise));
+      setDeletedExercise(null); // Reset deletedExercise after updating state
+    }
+  }, [deletedExercise]);
+
+  // Fetch exercises when component mounts or refresh changes
+  useEffect(() => {
     const getExercises = async () => {
       try {
-        // Fetches the workout/workoutsession and gathers all of its exercises, setting the exercises state variable
         const response = await axios.get(`http://localhost:5000/api/${apiParam}/${workoutID}`);
         const currExerciseIDs = response.data.exercises;
         let currExercises = [];
 
-        // TODO: CREATE CASCADE DELETION MIDDLEWARE SO YOU DONT NEED TO SKIP OVER GHOST EXERCISES
         for (let i = 0; i < currExerciseIDs.length; i++) {
           try {
             const res = await axios.get(`http://localhost:5000/api/exercises/${currExerciseIDs[i]}`);
             currExercises.push(res.data);
           } catch {
-            console.log(i)
-            continue
+            console.log(i);
+            continue;
           }
         }
+
         setExercises(currExercises);
       } catch (err) {
-        console.log(err)
+        console.log(err);
         setError(err.message);
       }
     };
-    getExercises();
+
+    if (workoutID) {
+      getExercises();
+    }
   }, [refresh, apiParam, workoutID]);
 
   return (
-    <>
-        <Flex flexDir="column" w="100%" gap={4} pt={2}>
-            {exercises.map((exercise) => (
-              <Exercise key={exercise._id} ref={ref} exercise={exercise} handleModalClose={handleModalClose}/>
-            ))}
-        </Flex>
-    </>
+    <Flex flexDir="column" w="100%" gap={4} pt={2}>
+      {exercises.map((exercise, index) => (
+        <Exercise
+          key={exercise._id}
+          ref={el => (exerciseRefs.current[index] = el)}
+          exercise={exercise}
+          onDeleteExercise={onDeleteExercise}
+        />
+      ))}
+    </Flex>
   );
 });
 

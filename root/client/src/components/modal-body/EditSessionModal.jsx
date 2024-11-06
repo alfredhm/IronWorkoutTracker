@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import {
     Box, VStack, Text, Center, FormControl, Input, Textarea,
     Button, FormLabel, Switch,
@@ -21,6 +21,8 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
     const [exercises, setExercises] = useState([]);
     const [isOn, setIsOn] = useState(false);
     const [refresh, setRefresh] = useState(0)
+
+    const exerciseListRef = useRef(null);
 
     // Grabs the id of the current user
     const auth = useAuthUser();
@@ -47,9 +49,18 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
           .of(Yup.string().oneOf(muscleGroups, 'Invalid muscle group'))
           .optional(),
         workoutTemplate: Yup.string(),
-        exercises: Yup.array().of(Yup.string()),
+        exercises: Yup.array().of(Yup.object({
+            name: Yup.string(),
+            _id: Yup.string().required('Exercise ID is required.'),
+            __v: Yup.number().required('Version number is required.'),
+            userId: Yup.string().required('User ID is required.'),
+            sets: Yup.array().of(Yup.object({
+                weight: Yup.number(),
+                reps: Yup.number(),
+                notes: Yup.string().optional(),
+            })),
+        })),
         durationSec: Yup.number()
-          .positive('Duration must be a positive number.')
           .integer('Duration must be an integer.')
           .optional(),
         notes: Yup.string()
@@ -59,17 +70,19 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
 
     // Submit function for formik
     const onSubmit = async (values) => {
+        console.log("Submitting values:", values)
         setError('')
         setLoading(true)
 
         // If the values are unchanged, close form with no submission
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            handleClose()
+            console.log('x')
             setLoading(false)
             return
         }
 
         values.userId = uid;
+        values.exercises = values.exercises.map(exercise => exercise._id);
 
         try {
             // If user edits session to be saved as a template, save as workout
@@ -106,6 +119,7 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
         initialValues: initialValues,
         onSubmit: onSubmit,
         validationSchema: WorkoutSessionSchema
+       
     })
 
     /* 
@@ -120,6 +134,34 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
     const handleChildTimeChange = (data) => {
         formik.setFieldValue('durationSec', data);
     };
+
+    // Expose handleClose function to be accessed via the ref
+    useImperativeHandle(ref, () => ({
+        async handleClose() {
+          console.log("handleClose in EditSessionModal called");
+      
+          // Ensure Exercise component handleClose is called first
+          try {
+            if (exerciseListRef.current) {
+              await exerciseListRef.current.handleClose();
+            }
+          } catch (error) {
+            console.error("Error in Exercise component handleClose:", error);
+          } 
+      
+          // Ensure validation completes before submitting
+          try {
+            console.log("Validating form...");
+            const res = await formik.validateForm();
+            console.log(formik.values, res)
+            console.log("Validation complete, submitting form.");
+            const res1 = formik.handleSubmit();
+            console.log(formik.values, res1)
+          } catch (validationError) {
+            console.error("Validation failed:", validationError);
+          }
+        },
+      }), [formik]);
 
     useEffect(() => {
         // If there is no uid, the user is not logged in and is redirected to the login page
@@ -172,7 +214,8 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
         };
         // Reload exercises
         loadExercises();
-    }, [uid, navigate, formik.values.handleChildTimeChange]);
+    }, [uid, navigate, formik.values]);
+    
 
     return (
         <Box width="100%" display="flex" flexDirection="column">
@@ -181,7 +224,7 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
                 <Center width="100%" color="white" mt={5} borderRadius="10px" display="flex" flexDirection="column">
                     <VStack as="form" width="100%" onSubmit={formik.handleSubmit}>
                         <FormControl>
-                            <FocusSelect formik={formik} />
+                            <FocusSelect focusValues={formik.values.focusGroup} formik={formik} />
                             <Input
                                 placeholder='Name'
                                 name="name"
@@ -208,8 +251,8 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
                                 paddingLeft="10px"
                             />
                         </FormControl>
-                        <TimeSlider onTimeChange={handleChildTimeChange} />
-                        <ExerciseList ref={ref} handleModalClose={handleClose} session={true} workoutID={data._id} refresh={refresh}  />
+                        <TimeSlider initial={typeof formik.values.durationSec === "number" ? formik.values.durationSec : 0} onTimeChange={handleChildTimeChange} />
+                        <ExerciseList ref={exerciseListRef} session={true} workoutID={data._id} refresh={refresh}  />
                         <AddExercise onSecondChildClose={handleSecondChildClose} session={true} workoutID={data._id} />
                         {!data.isTemplate && (
                             <FormControl pt={0} display="flex" justifyContent="center">
@@ -231,6 +274,7 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
                         <Box>
                             <Text textAlign="center" color="red.300">{error}</Text>
                         </Box>
+                        <Button type='submit'>Done</Button>
                     </VStack>
                 </Center>
             </Center>

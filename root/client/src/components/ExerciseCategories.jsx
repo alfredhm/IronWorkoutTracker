@@ -36,12 +36,8 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
 
             // If adding exercise to a workout sessions (through session prop variable), use the workout session API
             if (session) {
-                console.log(session)
-
                 // If there is a workoutID, the exercise is being added to a precreated workout session, if not, the session is currently being created
                 if (workoutID) {
-                    console.log(workoutID)
-                    console.log('Edit')
                     await axios.put(`http://localhost:5000/api/workoutsessions/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })
@@ -53,7 +49,6 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
             } else {
                 // If there is a workoutID, the exercise is being added to a precreated workout, if not, the workout is currently being created
                 if (workoutID) {
-                    console.log(workoutID)
                     await axios.put(`http://localhost:5000/api/workouts/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })

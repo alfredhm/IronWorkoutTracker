@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Slider, SliderTrack, SliderFilledTrack, SliderThumb, Box, Text, VStack, Tooltip, SliderMark } from '@chakra-ui/react';
 import formatTime from '../resources/formatTime';
 
-const TimeSlider = ({ onTimeChange }) => {
+const TimeSlider = ({ initial, onTimeChange }) => {
   // State for the total time in 5-minute intervals
   const [intervals, setIntervals] = useState(0);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -15,6 +15,10 @@ const TimeSlider = ({ onTimeChange }) => {
     ml: '-2.5',
     fontSize: 'sm',
   }
+
+  useEffect(() => {
+    setIntervals(initial / 300);
+  }, [initial]);
 
   return (
       <Box width="100%" mx="auto" textAlign="center">

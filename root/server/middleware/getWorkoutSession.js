@@ -15,4 +15,4 @@ async function getWorkoutSession(req, res, next) {
     next()
 } 
 
-module.exports = getWorkoutSession
+module.exports = getWorkoutSession 
