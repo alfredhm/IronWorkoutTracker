@@ -17,12 +17,12 @@ const TimeSlider = ({ initial, onTimeChange }) => {
   }
 
   useEffect(() => {
-    setIntervals(initial / 300);
+    setIntervals(Math.floor(initial / 300));
   }, [initial]);
 
   return (
       <Box width="100%" mx="auto" textAlign="center">
-        <VStack align="stretch" border="1px solid white" bg="gray.600" borderRadius="lg" boxShadow="xl" p={6}>
+        <VStack align="stretch" bg="gray.600" p={6}>
           <Box>
             <Slider
               aria-label="time-slider"
@@ -39,13 +39,13 @@ const TimeSlider = ({ initial, onTimeChange }) => {
               onMouseEnter={() => setShowTooltip(true)}
               onMouseLeave={() => setShowTooltip(false)}
             >
-              <SliderMark value={12} {...labelStyles}>
+              <SliderMark value={13} {...labelStyles}>
                 1h
               </SliderMark>
-              <SliderMark value={24} {...labelStyles}>
+              <SliderMark value={25} {...labelStyles}>
                 2h
               </SliderMark>
-              <SliderMark value={36} {...labelStyles}>
+              <SliderMark value={37} {...labelStyles}>
                 3h
               </SliderMark>
               <SliderTrack bg="gray.400">
@@ -59,7 +59,7 @@ const TimeSlider = ({ initial, onTimeChange }) => {
                 isOpen={showTooltip}
                 label={formatTime(totalSeconds)}
               >
-                <SliderThumb boxSize={4} />
+                <SliderThumb boxSize={3} />
               </Tooltip>
             </Slider>
           </Box>

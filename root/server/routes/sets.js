@@ -81,7 +81,6 @@ router.put('/:id', getSet, async (req, res) => {
         const updatedSet = await res.varSet.save();
         res.json(updatedSet);
     } catch (err) {
-        console.log(err)
         res.status(400).json({ message: err.message });
     }
 })

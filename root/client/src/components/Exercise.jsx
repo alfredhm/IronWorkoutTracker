@@ -15,7 +15,6 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise }, ref) => {
             // Notify parent to remove exercise from frontend state immediately
             onDeleteExercise(exercise._id);
         } catch (err) {
-            console.log(err);
             setError(err.message);
         }
     };
@@ -144,7 +143,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise }, ref) => {
     }));
 
     return (
-        <Flex key={exercise._id} w="100%" border="1px solid white" borderRadius={7} bg="gray.600">
+        <Flex key={exercise._id} w="100%" borderRadius={7} bg="gray.600">
             <Flex w="100%">
                 <Flex px={4} flexDir="column" w="100%">
                     <Flex
@@ -173,7 +172,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise }, ref) => {
                         ))}
                     </List>
                     <Flex>
-                        <Flex py={2} borderBottom="1px solid" borderColor="rgba(256, 256, 256, 0.3)">
+                        <Flex py={2}>
                             <Text
                                 color='blue.300'
                                 fontSize="small"

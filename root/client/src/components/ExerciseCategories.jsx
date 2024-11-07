@@ -24,18 +24,20 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
 
     const handleAddExercise = async (exercise) => {
         try {
-            // Create new exercise in database
-            const newExercise = {
-                ...exercise, 
-                isPreset: false,
-                userId: uid
-            }
-            delete newExercise._id
-            delete newExercise.__v
-            const response = await axios.post(`http://localhost:5000/api/exercises`, newExercise)
-
             // If adding exercise to a workout sessions (through session prop variable), use the workout session API
             if (session) {
+
+                // Create new exercise in database
+                const newExercise = {
+                    ...exercise, 
+                    isPreset: false,
+                    userId: uid
+                }
+                delete newExercise._id
+                delete newExercise.__v
+
+                const response = await axios.post(`http://localhost:5000/api/exercises`, newExercise)
+
                 // If there is a workoutID, the exercise is being added to a precreated workout session, if not, the session is currently being created
                 if (workoutID) {
                     await axios.put(`http://localhost:5000/api/workoutsessions/${workoutID}/exercises`, {
@@ -47,6 +49,21 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
             
             // Otherwise, use the workout API to add
             } else {
+
+                // Create new exerciseTemplate in database
+                const newExerciseTemplate = {
+                    ...exercise, 
+                    userId: uid
+                }
+                delete newExerciseTemplate._id
+                delete newExerciseTemplate.__v
+                delete newExerciseTemplate.isSingle
+                delete newExerciseTemplate.isPreset
+                delete newExerciseTemplate.sets
+                delete newExerciseTemplate.isTemplate
+
+                const response = await axios.post(`http://localhost:5000/api/exercises`, newExerciseTemplate)
+
                 // If there is a workoutID, the exercise is being added to a precreated workout, if not, the workout is currently being created
                 if (workoutID) {
                     await axios.put(`http://localhost:5000/api/workouts/${workoutID}/exercises`, {

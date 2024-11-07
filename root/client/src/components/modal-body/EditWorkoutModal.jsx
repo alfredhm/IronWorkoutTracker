@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import {
     Box, VStack, Text, Center, 
     FormControl, Input, Textarea, 
@@ -19,6 +19,9 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
     const [refresh, setRefresh] = useState(0)
+
+    const textareaRef = useRef(null);
+    const exerciseListRef = useRef(null);
 
     // Grabs the id of the current user
     const auth = useAuthUser();
@@ -41,7 +44,17 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
         focusGroup: Yup.array()
           .of(Yup.string().oneOf(muscleGroups, 'Invalid muscle group'))
           .optional(),
-        exercises: Yup.array().of(Yup.string()),
+        exercises: Yup.array().of(Yup.object({
+            name: Yup.string(),
+            _id: Yup.string().required('Exercise ID is required.'),
+            __v: Yup.number().required('Version number is required.'),
+            userId: Yup.string().required('User ID is required.'),
+            sets: Yup.array().of(Yup.object({
+                weight: Yup.number(),
+                reps: Yup.number(),
+                notes: Yup.string().optional(),
+            })),
+        })),
         notes: Yup.string()
           .max(50, 'Notes cannot exceed 50 characters.')
           .optional(),
@@ -54,12 +67,12 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
 
         // If the values are unchanged, close form with no submission
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            handleClose()
             setLoading(false)
             return
         }
 
         values.userId = uid;
+        values.exercises = values.exercises.map(exercise => exercise._id);
 
         try {
             // Update workout
@@ -93,6 +106,43 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
     const handleSecondChildClose = () => {
         setRefresh(prev => prev + 1)
     }
+
+    // Adjust height based on content
+    const adjustHeight = () => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+            textarea.style.height = 'auto'; // Reset height to auto to get scrollHeight
+            textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scrollHeight
+        }
+    };
+
+    // Expose handleClose function to be accessed via the ref
+    useImperativeHandle(ref, () => ({
+        async handleClose() {
+          console.log("handleClose in EditWorkoutModal called");
+      
+          // Ensure Exercise component handleClose is called first
+          try {
+            if (exerciseListRef.current) {
+              await exerciseListRef.current.handleClose();
+            }
+          } catch (error) {
+            console.error("Error in Exercise component handleClose:", error);
+          } 
+      
+          // Ensure validation completes before submitting
+          try {
+            console.log("Validating form...");
+            const res = await formik.validateForm();
+            console.log(formik.values, res)
+            console.log("Validation complete, submitting form.");
+            const res1 = formik.handleSubmit();
+            console.log(formik.values, res1)
+          } catch (validationError) {
+            console.error("Validation failed:", validationError);
+          }
+        },
+    }), [formik]);
 
     useEffect(() => {
         // If there is no uid, the user is not logged in and is redirected to the login page
@@ -145,7 +195,8 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
 
         // Reload exercises
         loadExercises();
-    }, [uid, navigate, formik.values.name]);
+        adjustHeight();
+    }, [uid, navigate, formik.values]);
 
     return (
         <Box width="100%" display="flex" flexDirection="column">
@@ -154,7 +205,9 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
                 <Center width="100%" color="white" mt={5} borderRadius="10px" display="flex" flexDirection="column">
                     <VStack as="form" width="100%" onSubmit={formik.handleSubmit}>
                         <FormControl>
-                            <FocusSelect formik={formik} focusValues={formik.values.focusGroup} />
+                            <FocusSelect focusValues={formik.values.focusGroup} formik={formik} />
+                        </FormControl>
+                        <FormControl p={1} pl={2} pt={2} bg="gray.600" borderRadius="10px">
                             <Input
                                 placeholder='Name'
                                 name="name"
@@ -166,21 +219,35 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
                                 type="name"
                                 autoComplete='false'
                                 paddingLeft="10px"
-                                aria-hidden="false"
+                                border={0}
+                                borderBottom={'1px solid gray'}
+                                borderRadius={0}
+                                _focus={{
+                                    outline: 'none',
+                                    border: 'none'
+                                }}
                             />
+                           <FormControl>
+                                <Textarea
+                                    placeholder='Notes...'
+                                    name="notes"
+                                    rows={1}
+                                    maxHeight="150px"
+                                    value={formik.values.notes}
+                                    ref={textareaRef}
+                                    onChange={(e) => {
+                                        formik.handleChange(e); // Update Formik value
+                                        adjustHeight(); // Adjust textarea height
+                                    }}
+                                    bgColor="gray.600"
+                                    paddingLeft="10px"
+                                    mt={1}
+                                    border={0}
+                                    borderRadius={0}
+                                />
+                            </FormControl>
                         </FormControl>
-                        <FormControl>
-                            <Textarea
-                                placeholder='Notes...'
-                                name="notes"
-                                value={formik.values.notes}
-                                onChange={formik.handleChange}
-                                bgColor="gray.600"
-                                maxHeight="120px"
-                                paddingLeft="10px"
-                            />
-                        </FormControl>
-                        <ExerciseList ref={ref} session={false} workoutID={data._id} refresh={refresh} />
+                        <ExerciseList ref={exerciseListRef} session={false} workoutID={data._id} refresh={refresh} />
                         <AddExercise onSecondChildClose={handleSecondChildClose} setExercises={setExercises} session={false} workoutID={data._id}/>
                         <Box>
                             <Text textAlign="center" color="red.300">{error}</Text>

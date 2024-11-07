@@ -1,7 +1,8 @@
-import { Flex } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import axios from "axios";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import Exercise from "./Exercise";
+import ExerciseTemplate from "./ExerciseTemplate";
 
 const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
   const apiParam = session ? "workoutsessions" : "workouts";
@@ -21,7 +22,6 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
       // Update the state to reflect the deletion
       setDeletedExercise(exerciseID); // Set deleted exercise ID for useEffect to handle
     } catch (err) {
-      console.log(err);
       setError(err.message);
     }
   };
@@ -55,14 +55,12 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
             const res = await axios.get(`http://localhost:5000/api/exercises/${currExerciseIDs[i]}`);
             currExercises.push(res.data);
           } catch {
-            console.log(i);
             continue;
           }
         }
 
         setExercises(currExercises);
       } catch (err) {
-        console.log(err);
         setError(err.message);
       }
     };
@@ -73,16 +71,29 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
   }, [refresh, apiParam, workoutID]);
 
   return (
-    <Flex flexDir="column" w="100%" gap={4} pt={2}>
-      {exercises.map((exercise, index) => (
-        <Exercise
-          key={exercise._id}
-          ref={el => (exerciseRefs.current[index] = el)}
-          exercise={exercise}
-          onDeleteExercise={onDeleteExercise}
-        />
-      ))}
-    </Flex>
+    <Box display={exercises.length === 0 ? "none" : "block"} p={2} bg='gray.600' w='100%' borderRadius={'10px'}>
+      <Flex flexDir="column" gap={session ? 2 : 0} w="100%" py={0}>
+        {exercises.map((exercise, index) => 
+          session ? (
+            <Exercise
+              key={exercise._id}
+              last={index === exercises.length - 1}
+              ref={el => (exerciseRefs.current[index] = el)}
+              exercise={exercise}
+              onDeleteExercise={onDeleteExercise}
+            />
+          ) : (
+            <ExerciseTemplate
+              key={exercise._id}
+              last={index === exercises.length - 1}
+              ref={el => (exerciseRefs.current[index] = el)}
+              exercise={exercise}
+              onDeleteExercise={onDeleteExercise}
+            />
+          )
+        )}
+      </Flex>
+    </Box>
   );
 });
 

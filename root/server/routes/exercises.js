@@ -63,7 +63,7 @@ router.get('/category/:category', async (req, res) => {
         res.status(500).json({ message: err.message })
     }
 })
-
+ 
 // Get exercise by exercise ID
 router.get('/:id', getExercise, async (req, res) => {
     res.json(res.exercise)
@@ -95,6 +95,7 @@ router.post('/', async (req, res) => {
         focusGroup: req.body.focusGroup,
         notes: req.body.notes,
         sets: req.body.sets,
+        numOfSets: req.body.numOfSets,
         isTemplate: req.body.isTemplate,
         isSingle: req.body.isSingle,
         isPreset: req.body.isPreset
@@ -115,33 +116,16 @@ router.put('/:id', getExercise, async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message)
 
     try { 
-        if (req.body.userId != null) {
-            res.exercise.userId = req.body.userId;
-        }
-        if (req.body.workoutId != null) {
-            res.exercise.workoutId = req.body.workoutId;
-        }
-        if (req.body.name != null) {
-            res.exercise.name = req.body.name;
-        }
-        if (req.body.focusGroup != null) { 
-            res.exercise.focusGroup = req.body.focusGroup;
-        }
-        if (req.body.notes != null) {
-            res.exercise.notes = req.body.notes;
-        }  
-        if (req.body.isTemplate != null) {
-            res.exercise.isTemplate = req.body.isTemplate;
-        }
-        if (req.body.isSingle != null) {
-            res.exercise.isSingle = req.body.isSingle;
-        }
-        if (req.body.isPreset != null) {
-            res.exercise.isPreset = req.body.isPreset;
-        }
-        if (req.body.sets != null && Array.isArray(req.body.sets)) {
-            res.exercise.sets.push(...req.body.sets);
-        }
+        if (req.body.userId) res.exercise.userId = req.body.userId;
+        if (req.body.workoutId) res.exercise.workoutId = req.body.workoutId
+        if (req.body.name) res.exercise.name = req.body.name;
+        if (req.body.focusGroup) res.exercise.focusGroup = req.body.focusGroup;
+        if (req.body.notes) res.exercise.notes = req.body.notes; 
+        if (req.body.isTemplate) res.exercise.isTemplate = req.body.isTemplate;
+        if (req.body.isSingle) res.exercise.isSingle = req.body.isSingle;
+        if (req.body.isPreset) res.exercise.isPreset = req.body.isPreset;
+        if (req.body.sets && Array.isArray(req.body.sets)) res.exercise.sets.push(...req.body.sets);
+        if (req.body.numOfSets) res.exercise.numOfSets = req.body.numOfSets;
 
         const updatedExercise = await res.exercise.save();
         res.json(updatedExercise);

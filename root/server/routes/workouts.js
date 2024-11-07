@@ -1,10 +1,8 @@
 const { Workout, validate } = require('../models/workout')
 const { User } = require('../models/user')
 const getWorkout = require('../middleware/getWorkout')
-const mongoose = require('mongoose')
 const express = require('express')
-const { WorkoutSession } = require('../models/workoutsession')
-const { Exercise } = require('../models/exercise')
+const { ExerciseTemplate } = require('../models/exercise')
 const router = express.Router()
 
 // Get all workouts
@@ -47,10 +45,10 @@ router.post('/', async (req, res) => {
     if (!userExists) {
         return res.status(400).send('User does not exist in database')
     }
-
+ 
     try {
         const workout = new Workout({
-            userId: req.body.userId,
+            userId: req.body.userId, 
             name: req.body.name,
             focusGroup: req.body.focusGroup,
             notes: req.body.notes,
@@ -72,24 +70,12 @@ router.put('/:id', getWorkout, async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message)
 
     try {
-        if (req.body.userId != null) {
-            res.workout.userId = req.body.userId;
-        }
-        if (req.body.name != null) {
-            res.workout.name = req.body.name;
-        }
-        if (req.body.focusGroup != null) {
-            res.workout.focusGroup = req.body.focusGroup;
-        }
-        if (req.body.notes != null) {
-            res.workout.notes = req.body.notes;
-        }
-        if (req.body.exercises != null) {
-            res.workout.exercises = req.body.exercises;
-        }
-        if (req.body.isTemplate != null) {
-            res.workout.isTemplate = req.body.isTemplate;
-        }
+        if (req.body.userId) res.workout.userId = req.body.userId;
+        if (req.body.name) res.workout.name = req.body.name;
+        if (req.body.focusGroup) res.workout.focusGroup = req.body.focusGroup;
+        if (req.body.notes) res.workout.notes = req.body.notes
+        if (req.body.exercises) res.workout.exercises = req.body.exercises;
+        if (req.body.isTemplate) res.workout.isTemplate = req.body.isTemplate;
         
         const updatedWorkout = await res.workout.save();
         res.json(updatedWorkout);
@@ -124,14 +110,11 @@ router.delete('/:id/exercises', async (req, res) => {
         // Remove the exercise from the workout's exercises array
         await Workout.findByIdAndUpdate(
             workoutID,
-            { $pull: { exercises: exerciseID } }, // Removes exerciseID from the exercises array
+            { $pull: { exerciseTemplates: exerciseID } }, // Removes exerciseID from the exercises array
             { new: true }
         );
-
-        // Delete the exercise itself
-        await Exercise.findByIdAndDelete(exerciseID);
         
-        res.status(200).json({ message: 'Exercise removed from workout session and deleted' });
+        res.status(200).json({ message: 'Exercise removed from workout session' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -4,7 +4,7 @@ import {
     Button, FormLabel, Switch,
     Heading,
 } from '@chakra-ui/react';
-import { useFormik } from "formik"
+import { Form, useFormik } from "formik"
 import { useAuthUser } from 'react-auth-kit'
 import { useNavigate } from 'react-router-dom';
 import TimeSlider from '../TimeSlider'
@@ -19,9 +19,9 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
-    const [isOn, setIsOn] = useState(false);
     const [refresh, setRefresh] = useState(0)
 
+    const textareaRef = useRef(null);
     const exerciseListRef = useRef(null);
 
     // Grabs the id of the current user
@@ -37,7 +37,6 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
         notes: data.notes || "",
         durationSec: data.durationSec || 0,
         exercises: data.exercises || [],
-        isTemplate: data.isTemplate || isOn
     }
 
     // Schema for a workout session for front-end validation
@@ -76,7 +75,6 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
 
         // If the values are unchanged, close form with no submission
         if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            console.log('x')
             setLoading(false)
             return
         }
@@ -85,23 +83,10 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
         values.exercises = values.exercises.map(exercise => exercise._id);
 
         try {
-            // If user edits session to be saved as a template, save as workout
-            if (values.isTemplate) {
-                let workoutValues = { ...values }
-                delete workoutValues.durationSec
-                await axios.post(
-                    `http://localhost:5000/api/workouts`,
-                    workoutValues
-                )
-            }
-
-            let sessionValues = { ...values }
-            delete sessionValues.isTemplate
-
             // Update session
             await axios.put(
                 `http://localhost:5000/api/workoutsessions/${data._id}`,
-                sessionValues
+                values
             )
             setLoading(false)
             handleClose()
@@ -135,6 +120,17 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
         formik.setFieldValue('durationSec', data);
     };
 
+    
+    // Adjust height based on content
+    const adjustHeight = () => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+            textarea.style.height = 'auto'; // Reset height to auto to get scrollHeight
+            textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scrollHeight
+        }
+    };
+
+
     // Expose handleClose function to be accessed via the ref
     useImperativeHandle(ref, () => ({
         async handleClose() {
@@ -153,15 +149,12 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
           try {
             console.log("Validating form...");
             const res = await formik.validateForm();
-            console.log(formik.values, res)
             console.log("Validation complete, submitting form.");
-            const res1 = formik.handleSubmit();
-            console.log(formik.values, res1)
+            formik.handleSubmit();
           } catch (validationError) {
-            console.error("Validation failed:", validationError);
           }
         },
-      }), [formik]);
+    }), [formik]);
 
     useEffect(() => {
         // If there is no uid, the user is not logged in and is redirected to the login page
@@ -212,8 +205,10 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
                 setLoading(false);
             }
         };
+
         // Reload exercises
         loadExercises();
+        adjustHeight();
     }, [uid, navigate, formik.values]);
     
 
@@ -221,10 +216,12 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
         <Box width="100%" display="flex" flexDirection="column">
             <Heading fontSize={{ base: "x-large", md: "xx-large" }} color="white">{formik.values.name}</Heading>
             <Center>
-                <Center width="100%" color="white" mt={5} borderRadius="10px" display="flex" flexDirection="column">
-                    <VStack as="form" width="100%" onSubmit={formik.handleSubmit}>
+                <Center width="100%" color="white" mt={5}  display="flex" flexDirection="column">
+                    <VStack as="form"  width="100%" onSubmit={formik.handleSubmit}>
                         <FormControl>
                             <FocusSelect focusValues={formik.values.focusGroup} formik={formik} />
+                        </FormControl>
+                        <FormControl p={1} pl={2} pt={2} bg="gray.600" borderRadius="10px">
                             <Input
                                 placeholder='Name'
                                 name="name"
@@ -236,45 +233,40 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
                                 type="name"
                                 autoComplete='false'
                                 paddingLeft="10px"
+                                border={0}
+                                borderBottom={'1px solid gray'}
+                                borderRadius={0}
+                                _focus={{
+                                    outline: 'none',
+                                    border: 'none',
+                                }}
                             />
-                        </FormControl>
-                        <FormControl>
-                            <Textarea
-                                placeholder='Notes...'
-                                name="notes"
-                                rows={1}
-                                minHeight="40px"
-                                maxHeight="150px"
-                                value={formik.values.notes}
-                                onChange={formik.handleChange}
-                                bgColor="gray.600"
-                                paddingLeft="10px"
-                            />
-                        </FormControl>
-                        <TimeSlider initial={typeof formik.values.durationSec === "number" ? formik.values.durationSec : 0} onTimeChange={handleChildTimeChange} />
-                        <ExerciseList ref={exerciseListRef} session={true} workoutID={data._id} refresh={refresh}  />
-                        <AddExercise onSecondChildClose={handleSecondChildClose} session={true} workoutID={data._id} />
-                        {!data.isTemplate && (
-                            <FormControl pt={0} display="flex" justifyContent="center">
-                                <FormLabel htmlFor="switch" mb="0" color="white">
-                                    Save as a Routine
-                                </FormLabel>
-                                <Switch
-                                    id="switch"
-                                    size="lg"
-                                    colorScheme="gray"
-                                    isChecked={isOn}
+                            <FormControl borderBottom={'1px solid gray'}>
+                                <Textarea
+                                    placeholder='Notes...'
+                                    name="notes"
+                                    rows={1}
+                                    maxHeight="150px"
+                                    value={formik.values.notes}
+                                    ref={textareaRef}
                                     onChange={(e) => {
-                                        setIsOn(e.target.checked);
-                                        formik.setFieldValue('isTemplate', e.target.checked);
+                                        formik.handleChange(e); // Update Formik value
+                                        adjustHeight(); // Adjust textarea height
                                     }}
+                                    bgColor="gray.600"
+                                    paddingLeft="10px"
+                                    mt={1}
+                                    border={0}
+                                    borderRadius={0}
                                 />
                             </FormControl>
-                        )}
+                            <TimeSlider initial={typeof formik.values.durationSec === "number" ? formik.values.durationSec : 0} onTimeChange={handleChildTimeChange} />
+                        </FormControl>
+                        <ExerciseList ref={exerciseListRef} session={true} workoutID={data._id} refresh={refresh}  />
+                        <AddExercise onSecondChildClose={handleSecondChildClose} session={true} workoutID={data._id} />
                         <Box>
                             <Text textAlign="center" color="red.300">{error}</Text>
                         </Box>
-                        <Button type='submit'>Done</Button>
                     </VStack>
                 </Center>
             </Center>

@@ -13,7 +13,7 @@ const exerciseSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    name: {
+    name: { 
         type: String,
         required: true,
         minlength: 2,
@@ -33,9 +33,9 @@ const exerciseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Set'
     }],
-    isTemplate: {
-        type: Boolean,
-        default: true
+    numOfSets:{
+        type: Number,
+        default: 3
     },
     isSingle: {
         type: Boolean,
@@ -122,7 +122,7 @@ async function validateExercise(exercise) {
             })
             return errors
         }),
-        isTemplate: Joi.boolean().default(true),
+        numOfSets: Joi.number().default(3),
         isSingle: Joi.boolean().default(false),
         isPreset: Joi.boolean().default(false),
     })

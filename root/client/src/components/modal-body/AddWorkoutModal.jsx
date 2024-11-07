@@ -15,7 +15,6 @@ import AddExercise from '../AddExercise';
 const AddWorkoutModal = ({ handleClose }) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
-    const [exercises, setExercises] = useState([])
     const [updated, setUpdated] = useState(false)
 
     // Grabs the id of the current user
@@ -43,6 +42,7 @@ const AddWorkoutModal = ({ handleClose }) => {
         setError('')
         setLoading(true) 
         values.userId = uid;
+        console.log(values)
 
         // If the name is blank, set it to "Unnamed Workout"
         if (!values.name) {
@@ -53,15 +53,17 @@ const AddWorkoutModal = ({ handleClose }) => {
             // Saves workout and closes and resets form
             let workoutValues = { ...values }
             delete workoutValues.durationSec
-            await axios.post(
+            const res = await axios.post(
                 "http://localhost:5000/api/workouts",
                 workoutValues
             )
+            console.log(res)
             setLoading(false)
             handleClose()
             formik.resetForm()
         } catch (err) {
             // Error handling
+            console.log(err)
             setError(err.message)
             setLoading(false);
         }

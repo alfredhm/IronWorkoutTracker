@@ -83,12 +83,9 @@ async function validateWorkoutSession(workoutSession) {
                 switch (err.code) {
                     case "any.empty":
                         err.message = "At Least 1 Focus Group is Required"
-                        console.log(muscleGroups)
                         break
                     case "any.only":
                         err.message = "Must Be a Valid Muscle Group"
-                        console.log(err)
-                        console.log(muscleGroups)
                         break
                 }
             })

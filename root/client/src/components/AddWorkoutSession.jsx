@@ -44,7 +44,7 @@ const AddWorkoutSession = () => {
                 </Button>
                 <Modal isOpen={isOpen} onClose={handleModalClose}>
                     <ModalOverlay />
-                    <ModalContent border="1px solid white" bgColor="gray.700" borderRadius="10px">
+                    <ModalContent mx={2} bgColor="gray.700" borderRadius="10px">
                         <ModalCloseButton color="white" />
                         <ModalBody>
                             <AddSessionModal ref={editSessionModalRef} handleClose={handleModalClose}/>

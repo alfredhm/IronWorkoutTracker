@@ -119,7 +119,7 @@ const WorkoutList = forwardRef(({ refresh, handleClose }, ref) => {
                         {selectedWorkout && selectedWorkout._id === workout._id && (
                             <Modal isOpen={isOpen} onClose={handleEditClose}>
                                 <ModalOverlay />
-                                <ModalContent aria-hidden="false" border="1px solid white" bgColor="gray.700" borderRadius="10px">
+                                <ModalContent aria-hidden="false" bgColor="gray.700" borderRadius="10px">
                                     <ModalCloseButton color="white" />
                                     <ModalBody>
                                         <EditWorkoutModal ref={ref} handleClose={handleEditClose} data={selectedWorkout} />

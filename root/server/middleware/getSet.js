@@ -5,7 +5,6 @@ async function getSet(req, res, next) {
     let set;
     try {
         set = await Set.findById(req.params.id).exec()
-        console.log(set)
         if (!set) {
             return res.status(404).json({ message: 'Cannot find set'})
         }
