@@ -53,10 +53,10 @@ router.post('/', async (req, res) => {
         const workoutExists = await Workout.exists({ _id: req.body.workoutTemplate })
         if (!workoutExists) {
             return res.status(400).send('Workout does not exist in database')
-        }
+        } 
     }
 
-    try {
+    try { 
         const workoutSession = new WorkoutSession({
             userId: req.body.userId,
             name: req.body.name,
@@ -82,30 +82,14 @@ router.put('/:id', getWorkoutSession, async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message)
 
     try {
-        if (req.body.userId != null) {
-            res.workoutSession.userId = req.body.userId;
-        }
-        if (req.body.name != null) {
-            res.workoutSession.name = req.body.name;
-        }
-        if (req.body.focusGroup != null) {
-            res.workoutSession.focusGroup = req.body.focusGroup;
-        }
-        if (req.body.workoutSessionTemplate != null) {
-            res.workoutSession.workoutTemplate = req.body.workoutTemplate;
-        }
-        if (req.body.exercises != null) {
-            res.workoutSession.exercises = req.body.exercises;
-        }
-        if (req.body.date != null) {
-            res.workoutSession.date = req.body.date;
-        }
-        if (req.body.durationSec != null) {
-            res.workoutSession.durationSec = req.body.durationSec;
-        }
-        if (req.body.notes != null) {
-            res.workoutSession.notes = req.body.notes;
-        }
+        if (req.body.userId) res.workoutSession.userId = req.body.userId;
+        if (req.body.name) res.workoutSession.name = req.body.name;
+        if (req.body.focusGroup) res.workoutSession.focusGroup = req.body.focusGroup;
+        if (req.body.workoutSessionTemplate) res.workoutSession.workoutTemplate = req.body.workoutTemplate;
+        if (req.body.exercises) res.workoutSession.exercises = req.body.exercises;
+        if (req.body.date) res.workoutSession.date = req.body.date;
+        if (req.body.durationSec) res.workoutSession.durationSec = req.body.durationSec;
+        if (req.body.notes) res.workoutSession.notes = req.body.notes;
 
         const updatedWorkout = await res.workoutSession.save();
         res.json(updatedWorkout);

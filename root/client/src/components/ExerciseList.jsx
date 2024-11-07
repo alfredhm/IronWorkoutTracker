@@ -13,11 +13,13 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
   const exerciseRefs = useRef([]);
 
   const onDeleteExercise = async (exerciseID) => {
+    console.log('Delete')
     try {
       // Call the backend to remove the exercise from the workout and delete the exercise
-      await axios.delete(`http://localhost:5000/api/${apiParam}/${workoutID}/exercises`, {
-        data: { exerciseID }
+      const res = await axios.delete(`http://localhost:5000/api/${apiParam}/${workoutID}/exercises`, {
+        exerciseID
       });
+      console.log(res)
       
       // Update the state to reflect the deletion
       setDeletedExercise(exerciseID); // Set deleted exercise ID for useEffect to handle
@@ -40,6 +42,7 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
       setExercises((prevExercises) => prevExercises.filter((exercise) => exercise._id !== deletedExercise));
       setDeletedExercise(null); // Reset deletedExercise after updating state
     }
+    console.log(exercises)
   }, [deletedExercise]);
 
   // Fetch exercises when component mounts or refresh changes
@@ -71,29 +74,39 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
   }, [refresh, apiParam, workoutID]);
 
   return (
-    <Box display={exercises.length === 0 ? "none" : "block"} p={2} bg='gray.600' w='100%' borderRadius={'10px'}>
-      <Flex flexDir="column" gap={session ? 2 : 0} w="100%" py={0}>
-        {exercises.map((exercise, index) => 
-          session ? (
-            <Exercise
-              key={exercise._id}
-              last={index === exercises.length - 1}
-              ref={el => (exerciseRefs.current[index] = el)}
-              exercise={exercise}
-              onDeleteExercise={onDeleteExercise}
-            />
-          ) : (
-            <ExerciseTemplate
-              key={exercise._id}
-              last={index === exercises.length - 1}
-              ref={el => (exerciseRefs.current[index] = el)}
-              exercise={exercise}
-              onDeleteExercise={onDeleteExercise}
-            />
-          )
-        )}
-      </Flex>
-    </Box>
+    session ? (
+        <Box display={exercises.length === 0 ? "none" : "block"} bg='gray.700' w='100%' borderRadius={'10px'}>
+          <Flex flexDir="column" gap={session ? "10px" : 0} w="100%" py={0}>
+            {exercises.map((exercise, index) => 
+                <Exercise
+                  key={exercise._id}
+                  last={index === exercises.length - 1}
+                  workoutID={workoutID}
+                  session={session}
+                  ref={el => (exerciseRefs.current[index] = el)}
+                  exercise={exercise}
+                  onDeleteExercise={onDeleteExercise}
+                />
+            )}
+          </Flex>
+        </Box>
+      ) : (
+        <Box display={exercises.length === 0 ? "none" : "block"} py={2} bg='gray.600' w='100%' borderRadius={'10px'}>
+          <Flex flexDir="column" gap={session ? "10px" : 0} w="100%" py={0}>
+            {exercises.map((exercise, index) => 
+                <ExerciseTemplate
+                  key={exercise._id}
+                  last={index === exercises.length - 1}
+                  workoutID={workoutID}
+                  session={session}
+                  ref={el => (exerciseRefs.current[index] = el)}
+                  exercise={exercise}
+                  onDeleteExercise={onDeleteExercise}
+                />
+            )}
+          </Flex>
+        </Box>
+      )
   );
 });
 

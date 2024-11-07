@@ -37,7 +37,7 @@ const workoutSessionSchema = new mongoose.Schema({
     },
     notes: {
         type: String,
-        maxlength: 50,
+        maxlength: 500,
         default: ""
     }
 });
@@ -125,11 +125,11 @@ async function validateWorkoutSession(workoutSession) {
             })
             return errors
         }),
-        notes: Joi.string().max(50).allow('', null).optional().error(errors => {
+        notes: Joi.string().max(500).allow('', null).optional().error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
                     case "string.max":
-                        err.message = `Max Notes Length is 250 Characters`;
+                        err.message = `Max Notes Length is 500 Characters`;
                         break;                   
                 }
             })

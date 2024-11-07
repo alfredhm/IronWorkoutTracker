@@ -4,7 +4,7 @@ import { HamburgerIcon } from "@chakra-ui/icons";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 
-const Exercise = forwardRef(({ exercise, onDeleteExercise }, ref) => {
+const Exercise = forwardRef(({ exercise, onDeleteExercise, session, workoutID }, ref) => {
     const [error, setError] = useState('');
     const [sets, setSets] = useState([]);
     const [deletedSets, setDeletedSets] = useState([]); // Track sets to delete from backend
@@ -41,6 +41,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise }, ref) => {
     const handleAddSet = () => {
         const newSet = {
             exerciseId: exercise._id,
+            sessionId: workoutID,
             weight: undefined,
             reps: undefined,
             notes: undefined,
@@ -78,6 +79,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise }, ref) => {
 
                     const processedSet = {
                         exerciseId: set.exerciseId,
+                        sessionId: workoutID,
                         weight: set.weight || undefined,
                         reps: set.reps || undefined,
                         notes: set.notes || undefined,
@@ -115,28 +117,33 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise }, ref) => {
         const loadSetsAndAddGhost = async () => {
             try {
                 const response = await axios.get(`http://localhost:5000/api/sets/exercise/${exercise._id}`);
-                // Only loads sets with weight, reps, or notes
-                let loadedSets = response.data.filter((set) => set.weight || set.reps || set.notes);
-
-                // If loadedSets is emprty with no ghost set, add a ghost set
+                
+                // Filter sets to include only those that match the provided workoutID
+                let loadedSets = response.data.filter(
+                    (set) => set.sessionId === workoutID && (set.weight || set.reps || set.notes || set.ghost === false)
+                );
+    
+                // Check if a ghost set is present; if not and no sets exist, add a ghost set
                 const hasGhostSet = loadedSets.some((set) => set.ghost);
                 if (!hasGhostSet && loadedSets.length === 0) {
                     loadedSets.push({
                         exerciseId: exercise._id,
+                        sessionId: workoutID,
                         weight: '',
                         reps: '',
                         notes: '',
                         ghost: true,
                     });
                 }
+    
                 setSets(loadedSets);
             } catch (err) {
                 setError(err.message);
             }
         };
-
+    
         loadSetsAndAddGhost();
-    }, [exercise._id]);
+    }, [exercise._id, workoutID]);
 
     useImperativeHandle(ref, () => ({
         handleClose

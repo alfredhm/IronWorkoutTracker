@@ -27,7 +27,7 @@ const exerciseSchema = new mongoose.Schema({
     },
     notes: {
         type: String,
-        max: 250
+        max: 500 
     },
     sets: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -103,11 +103,11 @@ async function validateExercise(exercise) {
                 })
             return errors
         }),
-        notes: Joi.string().max(250).error(errors => {
+        notes: Joi.string().max(500).error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
                     case "string.max":
-                        err.message = `Max Notes Length is 250 Characters`;
+                        err.message = `Max Notes Length is 500 Characters`;
                         break;                   
                 }
             })

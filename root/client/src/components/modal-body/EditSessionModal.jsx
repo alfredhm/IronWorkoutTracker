@@ -63,7 +63,7 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
           .integer('Duration must be an integer.')
           .optional(),
         notes: Yup.string()
-          .max(50, 'Notes cannot exceed 50 characters.')
+          .max(500, 'Notes cannot exceed 500 characters.')
           .optional(),
     });
 
@@ -149,6 +149,7 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
           try {
             console.log("Validating form...");
             const res = await formik.validateForm();
+            console.log(res)
             console.log("Validation complete, submitting form.");
             formik.handleSubmit();
           } catch (validationError) {

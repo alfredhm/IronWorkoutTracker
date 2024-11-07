@@ -93,7 +93,7 @@ const WorkoutSessionList = forwardRef(({ refresh, handleClose }, ref) => {
                                     <Box>
                                         {window.screen.width > 800 ? (
                                             <Flex flexDir="column" opacity="45%" color="white">
-                                                <Box fontSize="small">{workout.notes}</Box>
+                                                <Box fontSize="small">{workout.notes.length > 50 ? workout.notes.slice(0, 50) + '...' : workout.notes}</Box>
                                                 <Box></Box>
                                             </Flex>
                                         ) : (<></>)}

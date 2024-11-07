@@ -3,6 +3,7 @@ import {
     Box, VStack, Text, Center, 
     FormControl, Input, Textarea, 
     Button, Heading,
+    Flex,
 } from '@chakra-ui/react';
 import { useFormik } from "formik"
 import { useAuthUser } from 'react-auth-kit'
@@ -44,6 +45,7 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
         focusGroup: Yup.array()
           .of(Yup.string().oneOf(muscleGroups, 'Invalid muscle group'))
           .optional(),
+
         exercises: Yup.array().of(Yup.object({
             name: Yup.string(),
             _id: Yup.string().required('Exercise ID is required.'),
@@ -56,7 +58,7 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
             })),
         })),
         notes: Yup.string()
-          .max(50, 'Notes cannot exceed 50 characters.')
+          .max(500, 'Notes cannot exceed 240 characters.')
           .optional(),
     });
 
@@ -115,6 +117,52 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
             textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scrollHeight
         }
     };
+
+    const handleStartWorkout = async () => {
+        console.log("Start workout");
+        console.log(data)
+        console.log(formik.values)
+
+        try {
+            // Ensure validation completes before submitting
+            await formik.validateForm();
+
+            
+            const res = await axios.post(`http://localhost:5000/api/workoutsessions`, {
+                workoutTemplate: data._id,
+                name: data.name, 
+                focusGroup: data.focusGroup,
+                notes: data.notes,
+                userId: uid,
+                exercises: formik.values.exercises.map(exercise => exercise._id),
+            })
+
+            for (let i = 0; i < formik.values.exercises.length; i++) {
+                for (let j = 0; j < formik.values.exercises[i].numOfSets; j++) {
+                    await axios.post(`http://localhost:5000/api/sets`, {
+                        exerciseId: formik.values.exercises[i]._id,
+                        sessionId: res.data._id,
+                        weight: 0,
+                        reps: 0,
+                        notes: "",
+                        bodyWeight: false,
+                        restTimeSec: 0,
+                        ghost: false
+                    })
+                    console.log("Exercise: ", formik.values.exercises[i].name, "Set: ", j);
+                }
+            }
+            console.log(formik.values.exercises)
+
+            handleClose()
+
+            // Redirect to workout session
+        } catch (err) {
+            setError(err.message);
+            console.log(err)
+        }
+
+    }
 
     // Expose handleClose function to be accessed via the ref
     useImperativeHandle(ref, () => ({
@@ -248,7 +296,10 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
                             </FormControl>
                         </FormControl>
                         <ExerciseList ref={exerciseListRef} session={false} workoutID={data._id} refresh={refresh} />
-                        <AddExercise onSecondChildClose={handleSecondChildClose} setExercises={setExercises} session={false} workoutID={data._id}/>
+                        <Flex w="100%" justify='space-between'>
+                            <AddExercise onSecondChildClose={handleSecondChildClose} setExercises={setExercises} session={false} workoutID={data._id}/>
+                            <Button onClick={handleStartWorkout}>Start Workout</Button>
+                        </Flex>
                         <Box>
                             <Text textAlign="center" color="red.300">{error}</Text>
                         </Box>

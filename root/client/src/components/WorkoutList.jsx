@@ -100,7 +100,11 @@ const WorkoutList = forwardRef(({ refresh, handleClose }, ref) => {
                                         <Flex pl={2} justify="center" flexDir="column" color="white" minW="40px">
                                             <Box minW="50px">{workout.name}</Box>
                                             {window.screen.width > 800 ? (
-                                                <Box opacity="45%" fontSize="small">{workout.notes}</Box>
+                                                workout.notes ? (
+                                                    <Box opacity="45%" fontSize="small">{workout.notes.length > 50 ? workout.notes.slice(0, 50) + '...' : workout.notes}</Box>
+                                                ) : (
+                                                    <Box opacity="0%" fontSize="small">{"_"}</Box>
+                                                )
                                             ) : (
                                                 <Box opacity="45%" fontSize="small">{convertToMonthDay(workout.createdAt)}</Box>
                                             )}

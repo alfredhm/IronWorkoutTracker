@@ -35,6 +35,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
                 }
                 delete newExercise._id
                 delete newExercise.__v
+                delete newExercise.isTemplate
 
                 const response = await axios.post(`http://localhost:5000/api/exercises`, newExercise)
 

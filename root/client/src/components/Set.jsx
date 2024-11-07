@@ -84,6 +84,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                         </Text>
                         <Input
                             type="number"
+                            onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
                             p={0}
                             textAlign="center"
                             h="auto"
