@@ -120,27 +120,43 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
 
     const handleStartWorkout = async () => {
         console.log("Start workout");
-        console.log(data)
-        console.log(formik.values)
-
+        console.log(data);
+        console.log(formik.values);
+    
         try {
             // Ensure validation completes before submitting
             await formik.validateForm();
-
-            
+    
+            // Step 1: Duplicate each exercise to create independent entries for this session
+            const duplicatedExerciseIds = [];
+            for (let i = 0; i < formik.values.exercises.length; i++) {
+                const exercise = formik.values.exercises[i];
+                const duplicatedExercise = await axios.post(`http://localhost:5000/api/exercises`, {
+                    userId: uid,
+                    name: exercise.name,
+                    description: exercise.description,
+                    focusGroup: exercise.focusGroup,
+                    numOfSets: exercise.numOfSets,
+                    // Add any other properties you need to duplicate
+                });
+                duplicatedExerciseIds.push(duplicatedExercise.data._id);
+            }
+    
+            // Step 2: Create the workout session with duplicated exercise IDs
             const res = await axios.post(`http://localhost:5000/api/workoutsessions`, {
                 workoutTemplate: data._id,
-                name: data.name, 
+                name: data.name,
                 focusGroup: data.focusGroup,
                 notes: data.notes,
                 userId: uid,
-                exercises: formik.values.exercises.map(exercise => exercise._id),
-            })
-
-            for (let i = 0; i < formik.values.exercises.length; i++) {
+                exercises: duplicatedExerciseIds, // Use duplicated exercises here
+            });
+    
+            // Step 3: Create sets for each duplicated exercise in the workout session
+            for (let i = 0; i < duplicatedExerciseIds.length; i++) {
                 for (let j = 0; j < formik.values.exercises[i].numOfSets; j++) {
                     await axios.post(`http://localhost:5000/api/sets`, {
-                        exerciseId: formik.values.exercises[i]._id,
+                        exerciseId: duplicatedExerciseIds[i],
                         sessionId: res.data._id,
                         weight: 0,
                         reps: 0,
@@ -148,26 +164,28 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
                         bodyWeight: false,
                         restTimeSec: 0,
                         ghost: false
-                    })
+                    });
                     console.log("Exercise: ", formik.values.exercises[i].name, "Set: ", j);
                 }
             }
-            console.log(formik.values.exercises)
-
-            handleClose()
-
-            // Redirect to workout session
+    
+            console.log("Workout session and sets created successfully");
+            
+            handleClose();
+            window.location.reload();
+    
         } catch (err) {
             setError(err.message);
-            console.log(err)
+            console.log(err);
         }
-
-    }
+    };
+    
 
     // Expose handleClose function to be accessed via the ref
     useImperativeHandle(ref, () => ({
         async handleClose() {
           console.log("handleClose in EditWorkoutModal called");
+          console.log(ref.current)
       
           // Ensure Exercise component handleClose is called first
           try {

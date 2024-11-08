@@ -1,27 +1,33 @@
 import { Box, Flex, List, ListItem, Text } from "@chakra-ui/react";
 import Set from "./Set";
-import { DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon, DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 
-const ExerciseTemplate = forwardRef(({ exercise, onDeleteExercise, last }, ref) => {
+const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, last }, ref) => {
     const [error, setError] = useState('');
     const [sets, setSets] = useState([]);
-    const [deletedSets, setDeletedSets] = useState([]); // Track sets to delete from backend
 
     // Function to delete the entire exercise
     const deleteExercise = async () => {
         try {
             // Notify parent to remove exercise from frontend state immediately
-            onDeleteExercise(exercise._id);
+            await onDeleteExercise(exercise._id);
         } catch (err) {
             setError(err.message);
         }
+        console.log(exercises)
     };
 
     useEffect(() => {
         setSets(exercise.numOfSets);
     }, [exercise._id]);
+
+    useImperativeHandle(ref, () => ({
+        async handleClose() {
+            console.log(ref.current)
+        }
+    }));
 
     return (
         <Flex key={exercise._id} w="100%"  bg="gray.600">
@@ -44,13 +50,13 @@ const ExerciseTemplate = forwardRef(({ exercise, onDeleteExercise, last }, ref) 
                             </Text>
                         </Flex>
                         <Box 
-                            onClick={deleteExercise}
+                            onClick={() => deleteExercise(exercise._id)}
                             _hover={{ 
                                 cursor: 'pointer', 
                                 color: 'red.300'
                             }}
                         >
-                            <DeleteIcon />
+                            <DeleteIcon boxSize={4}/>
                         </Box>
                     </Flex>
                 </Flex>

@@ -1,6 +1,6 @@
-import { Flex, List, ListItem, Text } from "@chakra-ui/react";
+import { Box, Flex, List, ListItem, Text } from "@chakra-ui/react";
 import Set from "./Set";
-import { HamburgerIcon } from "@chakra-ui/icons";
+import { DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 
@@ -143,7 +143,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, session, workoutID },
         };
     
         loadSetsAndAddGhost();
-    }, [exercise._id, workoutID]);
+    }, [exercise._id]);
 
     useImperativeHandle(ref, () => ({
         handleClose
@@ -164,7 +164,15 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, session, workoutID },
                         <Text fontSize="small" fontWeight="650">
                             {exercise.name}
                         </Text>
-                        <HamburgerIcon />
+                        <Box 
+                            onClick={() => deleteExercise(exercise._id)}
+                            _hover={{ 
+                                cursor: 'pointer', 
+                                color: 'red.300'
+                            }}
+                        >
+                            <DeleteIcon boxSize={4}/>
+                        </Box>
                     </Flex>
                     <List>
                         {sets.map((set, index) => (

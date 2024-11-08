@@ -80,7 +80,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                 <Box position="absolute" top={0} left={0}>
                     <Flex flexDir="column" alignItems="center" justifyContent="center">
                         <Text color="rgba(256, 256, 256, 0.6)" fontSize="x-small">
-                            +Lb
+                            Lb(s)
                         </Text>
                         <Input
                             type="number"

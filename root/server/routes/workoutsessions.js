@@ -114,28 +114,30 @@ router.put('/:id/exercises', async (req, res) => {
         res.status(500).send('Something went wrong.');
     }
 });
-
+ 
 // Delete an exercise in the exercises array in a workout session
 router.delete('/:workoutID/exercises', async (req, res) => {
     const { workoutID } = req.params;
     const { exerciseID } = req.body;
-
-    try {
+    try { 
         // Remove the exercise from the workout's exercises array
         await WorkoutSession.findByIdAndUpdate(
             workoutID,
-            { $pull: { exercises: exerciseID } }, // Removes exerciseID from the exercises array
-            { new: true }
+            { $pull: { exercises: exerciseID } },
+            { new: true } 
         );
 
-        // Delete the exercise itself
+        // Delete the exercise itself 
         await Exercise.findByIdAndDelete(exerciseID);
 
+        // Re-fetch the updated workout session
+        const updatedWorkoutSession = await WorkoutSession.findById(workoutID).populate('exercises');
+        console.log(updatedWorkoutSession)
         res.status(200).json({ message: 'Exercise removed from workout session and deleted' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-});
+}); 
 
 
 // Delete a workout

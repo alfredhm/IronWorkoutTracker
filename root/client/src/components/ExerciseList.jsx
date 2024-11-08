@@ -13,27 +13,35 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
   const exerciseRefs = useRef([]);
 
   const onDeleteExercise = async (exerciseID) => {
-    console.log('Delete')
     try {
-      // Call the backend to remove the exercise from the workout and delete the exercise
-      const res = await axios.delete(`http://localhost:5000/api/${apiParam}/${workoutID}/exercises`, {
-        exerciseID
-      });
-      console.log(res)
-      
-      // Update the state to reflect the deletion
-      setDeletedExercise(exerciseID); // Set deleted exercise ID for useEffect to handle
+        console.log('deleting exercise');
+        console.log(exerciseID);
+
+        // Correctly send exerciseID in the data property for axios.delete
+        await axios.delete(`http://localhost:5000/api/${apiParam}/${workoutID}/exercises`, {
+            data: { exerciseID }
+        });
+
+        // Log the updated workout after deletion
+        console.log(await axios.get(`http://localhost:5000/api/${apiParam}/${workoutID}`));
+
+        // Update the state to reflect the deletion
+        setDeletedExercise(exerciseID);
+        setExercises((prevExercises) => prevExercises.filter((exercise) => exercise._id !== exerciseID));
     } catch (err) {
-      setError(err.message);
+        console.log(err);
+        setError(err.message);
     }
-  };
+};
+
+  const handleClose = async () => {
+    await Promise.all(exerciseRefs.current.map(exerciseRef => exerciseRef?.handleClose()));
+    setExercises(exercises)
+  }
   
   // Forward `handleClose` to allow `EditSessionModal` to trigger it
   useImperativeHandle(ref, () => ({
-    async handleClose() {
-      // Call handleClose on each Exercise component
-      await Promise.all(exerciseRefs.current.map(exerciseRef => exerciseRef?.handleClose()));
-    }
+    handleClose
   }));
 
   // Handle the deletion of exercises from state
@@ -42,7 +50,6 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
       setExercises((prevExercises) => prevExercises.filter((exercise) => exercise._id !== deletedExercise));
       setDeletedExercise(null); // Reset deletedExercise after updating state
     }
-    console.log(exercises)
   }, [deletedExercise]);
 
   // Fetch exercises when component mounts or refresh changes
@@ -63,6 +70,7 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
         }
 
         setExercises(currExercises);
+        console.log(exercises)
       } catch (err) {
         setError(err.message);
       }
@@ -71,7 +79,8 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
     if (workoutID) {
       getExercises();
     }
-  }, [refresh, apiParam, workoutID]);
+  }, [refresh, apiParam, workoutID ]);
+  
 
   return (
     session ? (
@@ -101,6 +110,7 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
                   session={session}
                   ref={el => (exerciseRefs.current[index] = el)}
                   exercise={exercise}
+                  exercises={exercises}
                   onDeleteExercise={onDeleteExercise}
                 />
             )}

@@ -107,14 +107,15 @@ router.delete('/:id/exercises', async (req, res) => {
     const { exerciseID } = req.body;
     try {
         // Remove the exercise from the workout's exercises array
-        const x = await Workout.findByIdAndUpdate(
+        await Workout.findByIdAndUpdate(
             workoutID,
             { $pull: { exercises: exerciseID } }, // Removes exerciseID from the exercises array
             { new: true }
         );
         // Delete the exercise itself
         await Exercise.findByIdAndDelete(exerciseID);
-        res.status(200).json({ message: 'Exercise removed from workout session' });
+
+        res.status(200).json({ message: 'Exercise removed from workout session and deleted' });
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: error.message });

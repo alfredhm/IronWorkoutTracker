@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useAuthUser } from 'react-auth-kit'
 
-const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
+const ExerciseCategories = ({ session, workoutID, onChildClose, exercises, setExercises }) => {
     const [category, setCategory] = useState('')
     const [categoryExercises, setCategoryExercises] = useState([])
     const [updated, setUpdated] = useState(false)
@@ -37,15 +37,15 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
                 delete newExercise.__v
                 delete newExercise.isTemplate
 
-                const response = await axios.post(`http://localhost:5000/api/exercises`, newExercise)
-
                 // If there is a workoutID, the exercise is being added to a precreated workout session, if not, the session is currently being created
                 if (workoutID) {
+                    const response = await axios.post(`http://localhost:5000/api/exercises`, newExercise)
                     await axios.put(`http://localhost:5000/api/workoutsessions/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })
                 } else {
-
+                    console.log(exercises, newExercise)
+                    setExercises([...exercises, newExercise])
                 }
             
             // Otherwise, use the workout API to add
@@ -63,14 +63,15 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
                 delete newExerciseTemplate.sets
                 delete newExerciseTemplate.isTemplate
 
-                const response = await axios.post(`http://localhost:5000/api/exercises`, newExerciseTemplate)
 
                 // If there is a workoutID, the exercise is being added to a precreated workout, if not, the workout is currently being created
                 if (workoutID) {
+                    const response = await axios.post(`http://localhost:5000/api/exercises`, newExerciseTemplate)
                     await axios.put(`http://localhost:5000/api/workouts/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })
                 } else {
+                    setExercises([...exercises, newExerciseTemplate])
                 }
             }
 
@@ -104,7 +105,8 @@ const ExerciseCategories = ({ session, workoutID, onChildClose }) => {
         }
         getCategoryExercises()
         setUpdated(false)
-    },[category, updated])
+        console.log(exercises)
+    },[category, updated, exercises])
 
     return (
         <Box>
