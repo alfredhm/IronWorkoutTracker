@@ -19,6 +19,7 @@ const AddSessionModal = forwardRef(({ handleClose }, ref) => {
     const [loading, setLoading] = useState(false)
     const [workoutID, setWorkoutID] = useState("")
     const [isOn, setIsOn] = useState(false);
+    const [exercises, setExercises] = useState([])
     const [refresh, setRefresh] = useState(0)
 
     // Grabs the id of the current user
@@ -149,7 +150,7 @@ const AddSessionModal = forwardRef(({ handleClose }, ref) => {
                         </FormControl>
                         <TimeSlider onTimeChange={handleChildTimeChange} />
                         <ExerciseList ref={ref} handleModalClose={handleClose} session={true} refresh={refresh}/>
-                        <AddExercise workoutID={workoutID} setWorkoutID={handleSetWorkoutID} onSecondChildClose={handleSecondChildClose} session={true} />
+                        <AddExercise exercises={exercises} setExercises={setExercises} workoutID={workoutID} setWorkoutID={handleSetWorkoutID} onSecondChildClose={handleSecondChildClose} session={true} />
                         <FocusSelect formik={formik} />
                         <FormControl pt={0} display="flex" justifyContent="center">
                             <FormLabel htmlFor="switch" mb="0" color="white">

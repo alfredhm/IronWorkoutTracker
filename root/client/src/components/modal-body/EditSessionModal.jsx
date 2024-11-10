@@ -69,7 +69,6 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
 
     // Submit function for formik
     const onSubmit = async (values) => {
-        console.log("Submitting values:", values)
         setError('')
         setLoading(true)
 
@@ -134,7 +133,6 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
     // Expose handleClose function to be accessed via the ref
     useImperativeHandle(ref, () => ({
         async handleClose() {
-          console.log("handleClose in EditSessionModal called");
       
           // Ensure Exercise component handleClose is called first
           try {
@@ -147,10 +145,7 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
       
           // Ensure validation completes before submitting
           try {
-            console.log("Validating form...");
             const res = await formik.validateForm();
-            console.log(res)
-            console.log("Validation complete, submitting form.");
             formik.handleSubmit();
           } catch (validationError) {
           }

@@ -15,7 +15,7 @@ import * as Yup from 'yup'
 import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
 
-const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
+const EditWorkoutModal = forwardRef(({ handleClose, data, setTabIndex, setStartedWorkout }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
@@ -119,9 +119,6 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
     };
 
     const handleStartWorkout = async () => {
-        console.log("Start workout");
-        console.log(data);
-        console.log(formik.values);
     
         try {
             // Ensure validation completes before submitting
@@ -165,15 +162,13 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
                         restTimeSec: 0,
                         ghost: false
                     });
-                    console.log("Exercise: ", formik.values.exercises[i].name, "Set: ", j);
                 }
             }
-    
-            console.log("Workout session and sets created successfully");
             
             handleClose();
-            window.location.reload();
-    
+            setTabIndex(0);
+            setStartedWorkout(res.data);
+            
         } catch (err) {
             setError(err.message);
             console.log(err);
@@ -184,8 +179,6 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
     // Expose handleClose function to be accessed via the ref
     useImperativeHandle(ref, () => ({
         async handleClose() {
-          console.log("handleClose in EditWorkoutModal called");
-          console.log(ref.current)
       
           // Ensure Exercise component handleClose is called first
           try {
@@ -198,12 +191,8 @@ const EditWorkoutModal = forwardRef(({ handleClose, data }, ref) => {
       
           // Ensure validation completes before submitting
           try {
-            console.log("Validating form...");
-            const res = await formik.validateForm();
-            console.log(formik.values, res)
-            console.log("Validation complete, submitting form.");
-            const res1 = formik.handleSubmit();
-            console.log(formik.values, res1)
+            await formik.validateForm();
+            formik.handleSubmit();
           } catch (validationError) {
             console.error("Validation failed:", validationError);
           }

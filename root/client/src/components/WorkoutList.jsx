@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import muscleIcons from '../resources/muscleIcons'
 import EditWorkoutModal from './modal-body/EditWorkoutModal'
 
-const WorkoutList = forwardRef(({ refresh, handleClose }, ref) => {
+const WorkoutList = forwardRef(({ refresh, handleClose, setTabIndex, setStartedWorkout }, ref) => {
     const [workouts, setWorkouts] = useState([])
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [error, setError] = useState("")
@@ -101,7 +101,7 @@ const WorkoutList = forwardRef(({ refresh, handleClose }, ref) => {
                                             <Box minW="50px">{workout.name}</Box>
                                             {window.screen.width > 800 ? (
                                                 workout.notes ? (
-                                                    <Box opacity="45%" fontSize="small">{workout.notes.length > 50 ? workout.notes.slice(0, 50) + '...' : workout.notes}</Box>
+                                                    <Box opacity="45%" fontSize="small">{workout.notes.length > 50 ? workout.notes.slice(0, 50) + '...': workout.notes}</Box>
                                                 ) : (
                                                     <Box opacity="0%" fontSize="small">{"_"}</Box>
                                                 )
@@ -126,7 +126,7 @@ const WorkoutList = forwardRef(({ refresh, handleClose }, ref) => {
                                 <ModalContent aria-hidden="false" bgColor="gray.700" borderRadius="10px">
                                     <ModalCloseButton color="white" />
                                     <ModalBody>
-                                        <EditWorkoutModal ref={ref} handleClose={handleEditClose} data={selectedWorkout} />
+                                        <EditWorkoutModal setTabIndex={setTabIndex} setStartedWorkout={setStartedWorkout} ref={ref} handleClose={handleEditClose} data={selectedWorkout} />
                                     </ModalBody>
                                 </ModalContent>
                             </Modal>

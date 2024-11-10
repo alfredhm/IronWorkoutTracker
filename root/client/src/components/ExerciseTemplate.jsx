@@ -4,7 +4,7 @@ import { ChevronRightIcon, DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 
-const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, last }, ref) => {
+const ExerciseTemplate = ({ exercise, exercises, onDeleteExercise, last }) => {
     const [error, setError] = useState('');
     const [sets, setSets] = useState([]);
 
@@ -23,11 +23,6 @@ const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, la
         setSets(exercise.numOfSets);
     }, [exercise._id]);
 
-    useImperativeHandle(ref, () => ({
-        async handleClose() {
-            console.log(ref.current)
-        }
-    }));
 
     return (
         <Flex key={exercise._id} w="100%"  bg="gray.600">
@@ -63,6 +58,6 @@ const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, la
             </Flex>
         </Flex>
     );
-});
+};
 
 export default ExerciseTemplate;

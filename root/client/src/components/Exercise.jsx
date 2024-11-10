@@ -4,7 +4,7 @@ import { DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 
-const Exercise = forwardRef(({ exercise, onDeleteExercise, session, workoutID }, ref) => {
+const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => {
     const [error, setError] = useState('');
     const [sets, setSets] = useState([]);
     const [deletedSets, setDeletedSets] = useState([]); // Track sets to delete from backend

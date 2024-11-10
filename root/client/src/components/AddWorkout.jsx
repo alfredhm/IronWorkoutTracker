@@ -15,7 +15,7 @@ import {
 import AddWorkoutModal from './modal-body/AddWorkoutModal'
 import WorkoutList from './WorkoutList';
 
-const AddWorkout = () => {
+const AddWorkout = ({ setTabIndex, setStartedWorkout }) => {
     const [modalClosed, setModalClosed] = useState(0)
 
     const { isOpen, onOpen, onClose } = useDisclosure() 
@@ -24,9 +24,7 @@ const AddWorkout = () => {
      // This function will be used to handle modal close, and will invoke the child function first
      const handleModalClose = async () => {
         try {
-            console.log("handleModalClose called in parent"); // Log for confirmation
             if (editWorkoutModalRef.current) {
-                console.log("Calling child handleClose"); // Log for confirmation
                 await editWorkoutModalRef.current.handleClose();
             }
             onClose(); // Close modal afterward
@@ -54,7 +52,7 @@ const AddWorkout = () => {
                     </ModalContent>
                 </Modal>
             </Flex>
-            <WorkoutList ref={editWorkoutModalRef} refresh={modalClosed} handleClose={handleModalClose}/>
+            <WorkoutList setTabIndex={setTabIndex} setStartedWorkout={setStartedWorkout} ref={editWorkoutModalRef} refresh={modalClosed} handleClose={handleModalClose}/>
         </Box>
     )
 }

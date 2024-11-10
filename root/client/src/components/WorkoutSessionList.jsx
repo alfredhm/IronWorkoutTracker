@@ -1,6 +1,6 @@
-import { Box, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, Spinner, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, Flex, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, Spinner, useDisclosure } from '@chakra-ui/react'
 import axios from 'axios'
-import React, { forwardRef, useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { useNavigate } from 'react-router-dom'
 import EditSessionModal from './modal-body/EditSessionModal'
@@ -8,18 +8,62 @@ import formatTime from '../resources/formatTime'
 import daysOfWeek from '../resources/daysOfWeek'
 
 
-const WorkoutSessionList = forwardRef(({ refresh, handleClose }, ref) => {
+const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}) => {
     const [workouts, setWorkouts] = useState([])
     const [selectedWorkout, setSelectedWorkout] = useState(null);
+    const [newWorkoutId, setNewWorkoutId] = useState(null)
+    const [refresh, setRefresh] = useState(0);
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
 
     const { isOpen, onOpen, onClose } = useDisclosure()
+    
+    const handleClose = () => { 
+        onClose()
+        setStartedWorkout(null)
+        setSelectedWorkout(null)
+    }
+
+    const editSessionModalRef = useRef()
 
     // Grabs the user's id
     const auth = useAuthUser()
     const uid = auth()?.uid
     const navigate = useNavigate()
+
+    // Converts timestamp to time of day
+    const getTimeOfDay = (timestamp) => {
+        const date = new Date(timestamp);
+        const hour = date.getHours();
+      
+        if (hour >= 5 && hour < 12) {
+          return "Morning";
+        } else if (hour >= 12 && hour < 18) {
+          return "Afternoon";
+        } else {
+          return "Evening";
+        }
+      };
+
+    // Adds a new workout session to the database
+    const handleAddSession = async () => {
+        setLoading(true)
+        const currentDate = new Date()
+        const currTimeOfDay = getTimeOfDay(currentDate)
+        try {
+            const res = await axios.post(`http://localhost:5000/api/workoutsessions`, {
+                userId: uid,
+                name: `${currTimeOfDay} Workout`,
+                durationSec: 0,
+            })
+            setLoading(false)
+            setNewWorkoutId(res.data._id)
+            setRefresh((prev) => prev + 1)
+        } catch (err) {
+            console.error("Error during modal close:", err);
+            setError(err.message)
+        }
+    }
 
     // Sets selected workout to the workout clicked and opens the modal
     const handleWorkoutClick = (workout) => {
@@ -29,9 +73,23 @@ const WorkoutSessionList = forwardRef(({ refresh, handleClose }, ref) => {
 
     // When the edit modal is closed, its parent component (AddWorkoutSession.jsx) is refreshed
     const handleEditClose = async () => {
+        if (editSessionModalRef.current) {
+            await editSessionModalRef.current.handleClose();
+        }
         handleClose()
-        onClose()
     }
+
+
+    useEffect(() => {
+        if (newWorkoutId && workouts.length > 0) {
+            const newWorkout = workouts.find((workout) => workout._id === newWorkoutId);
+            if (newWorkout) {
+                setSelectedWorkout(newWorkout);
+                onOpen();
+                setNewWorkoutId(null);
+            }
+        }
+    }, [newWorkoutId, workouts, onOpen]);
 
     useEffect(() => {
         // If no uid, user is not logged in and sent to login page
@@ -67,15 +125,37 @@ const WorkoutSessionList = forwardRef(({ refresh, handleClose }, ref) => {
         };
 
         getWorkoutSessions();
-    }, [refresh, uid, navigate]);
+    }, [refresh, uid, navigate, parentRefresh]);
+
+    // Open the modal automatically for the started workout
+    useEffect(() => {
+        if (startedWorkout && workouts.length > 0) {
+            const workoutToSelect = workouts.find(workout => workout._id === startedWorkout._id)
+            if (workoutToSelect) {
+                setSelectedWorkout(workoutToSelect)
+                console.log(selectedWorkout)
+                onOpen()
+            }
+        }
+    }, [startedWorkout, workouts, onOpen])
 
     return (
         <Flex flexDir="column" gap="10px" overflowY="auto" maxH="65vh">
+            <Flex w="100%s" justifyContent='flex-end'>
+                <Button p={0} width="30px" height="40px" bg="gray.800" onClick={handleAddSession}>
+                    <Image maxHeight="13px" src={process.env.PUBLIC_URL + '/assets/plus.png'}></Image>
+                </Button>
+            </Flex>
             {loading ? (
                 <Flex justifyContent="center" alignItems="center" minH="100px">
                     <Spinner size="xl" color="white" />
                 </Flex>
             ) : (
+                workouts.length === 0 && !loading ? (
+                    <>
+                        <Box color="white" textAlign="center" fontSize="lg" fontWeight="600">No better time to start than now!</Box>
+                    </>
+                ) : (
                 workouts.slice().reverse().map(workout => (
                     <Box key={workout._id}>
                         <Flex onClick={() => handleWorkoutClick(workout)} bg="gray.800" width="100%" minH="60px" borderRadius="12px" p={3} justify="space-between" _hover={{ cursor: "pointer", bg: "gray.600" }}>
@@ -111,13 +191,13 @@ const WorkoutSessionList = forwardRef(({ refresh, handleClose }, ref) => {
                                 <ModalContent aria-hidden="false" bgColor="gray.700" borderRadius="10px">
                                     <ModalCloseButton color="white" />
                                     <ModalBody>
-                                        <EditSessionModal ref={ref} handleClose={handleEditClose} data={selectedWorkout} />
+                                        <EditSessionModal ref={editSessionModalRef} handleClose={handleEditClose} data={selectedWorkout} />
                                     </ModalBody>
                                 </ModalContent>
                             </Modal>
                         )}
                     </Box>
-                ))
+                )))
             )}
         </Flex>
     )
