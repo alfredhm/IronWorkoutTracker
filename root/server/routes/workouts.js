@@ -101,26 +101,44 @@ router.put('/:id/exercises', async (req, res) => {
     }
 });
 
+const mongoose = require('mongoose');
+
 // Delete an exercise in the exercises array in a workout
-router.delete('/:id/exercises', async (req, res) => {
+router.delete('/:workoutID/exercises', async (req, res) => {
     const { workoutID } = req.params;
     const { exerciseID } = req.body;
+
     try {
+        // Verify if workout exists
+        const workout = await Workout.findById(workoutID);
+        if (!workout) {
+            return res.status(404).json({ message: `Workout with ID ${workoutID} not found` });
+        }
+
+        // Ensure exerciseID is in the correct format
+        const exerciseObjectId = new mongoose.Types.ObjectId(exerciseID);
+
         // Remove the exercise from the workout's exercises array
         await Workout.findByIdAndUpdate(
             workoutID,
-            { $pull: { exercises: exerciseID } }, // Removes exerciseID from the exercises array
+            { $pull: { exercises: exerciseObjectId } }, // Ensure ObjectId conversion here
             { new: true }
-        );
-        // Delete the exercise itself
-        await Exercise.findByIdAndDelete(exerciseID);
+        ); 
 
-        res.status(200).json({ message: 'Exercise removed from workout session and deleted' });
+        // Delete the exercise document itself
+        const deletedExercise = await Exercise.findByIdAndDelete(exerciseObjectId);
+        if (!deletedExercise) {
+            return res.status(404).json({ message: 'Exercise not found or already deleted' });
+        }
+
+        // Re-fetch the updated workout session with populated exercises
+        const updatedWorkoutSession = await Workout.findById(workoutID).populate('exercises');
+        res.status(200).json({ message: 'Exercise removed from workout session and deleted', updatedWorkoutSession });
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: error.message });
     }
 });
+
 
 // Delete a workout
 router.delete('/:id', getWorkout, async (req, res) => {

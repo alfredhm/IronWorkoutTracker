@@ -119,16 +119,21 @@ router.put('/:id/exercises', async (req, res) => {
 router.delete('/:workoutID/exercises', async (req, res) => {
     const { workoutID } = req.params;
     const { exerciseID } = req.body;
+
     try { 
+
+        // Ensure exerciseID is in the correct format
+        const exerciseObjectId = new mongoose.Types.ObjectId(exerciseID);
+
         // Remove the exercise from the workout's exercises array
         await WorkoutSession.findByIdAndUpdate(
             workoutID,
-            { $pull: { exercises: exerciseID } },
+            { $pull: { exercises: exerciseObjectId } },
             { new: true } 
         );
 
         // Delete the exercise itself 
-        await Exercise.findByIdAndDelete(exerciseID);
+        await Exercise.findByIdAndDelete(exerciseObjectId);
 
         // Re-fetch the updated workout session
         const updatedWorkoutSession = await WorkoutSession.findById(workoutID).populate('exercises');

@@ -21,8 +21,8 @@ const AddWorkout = ({ setTabIndex, setStartedWorkout }) => {
     const { isOpen, onOpen, onClose } = useDisclosure() 
     const editWorkoutModalRef = useRef()
 
-     // This function will be used to handle modal close, and will invoke the child function first
-     const handleModalClose = async () => {
+    // This function will be used to handle modal close, and will invoke the child function first
+    const handleModalClose = async () => {
         try {
             if (editWorkoutModalRef.current) {
                 await editWorkoutModalRef.current.handleClose();

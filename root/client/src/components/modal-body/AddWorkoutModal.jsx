@@ -104,6 +104,7 @@ const AddWorkoutModal = ({ handleClose }) => {
             )
             setExercises([])
             setUpdated(true)
+            setRefresh(prev => prev + 1)
         } catch (error) {
             console.log(error)
             setError(error.message)

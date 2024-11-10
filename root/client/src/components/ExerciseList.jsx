@@ -16,14 +16,16 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
   const onDeleteExercise = async (exerciseID) => {
     setLoading(true);
     try {
-        // Correctly send exerciseID in the data property for axios.delete
+        console.log('deleting exercise');
+        console.log(exerciseID);
+
+        // Delete the exercise from the backend
         await axios.delete(`http://localhost:5000/api/${apiParam}/${workoutID}/exercises`, {
             data: { exerciseID }
         });
 
         // Log the updated workout after deletion
         await axios.get(`http://localhost:5000/api/${apiParam}/${workoutID}`);
-
         // Update the state to reflect the deletion
         setDeletedExercise(exerciseID);
         setExercises((prevExercises) => prevExercises.filter((exercise) => exercise._id !== exerciseID));
@@ -31,15 +33,13 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
     } catch (err) {
         console.log(err);
         setError(err.message);
-        setLoading(false);
+        setLoading(false)
     }
 };
 
   const handleClose = async () => {
-    setLoading(true);
     await Promise.all(exerciseRefs.current.map(exerciseRef => exerciseRef?.handleClose()));
     setExercises(exercises)
-    setLoading(false);
   }
   
   // Forward `handleClose` to allow `EditSessionModal` to trigger it
@@ -50,17 +50,14 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
   // Handle the deletion of exercises from state
   useEffect(() => {
     if (deletedExercise) {
-      setLoading(true);
       setExercises((prevExercises) => prevExercises.filter((exercise) => exercise._id !== deletedExercise));
       setDeletedExercise(null); // Reset deletedExercise after updating state
-      setLoading(false);
     }
   }, [deletedExercise]);
 
   // Fetch exercises when component mounts or refresh changes
   useEffect(() => {
     const getExercises = async () => {
-      setLoading(true);
       try {
         const response = await axios.get(`http://localhost:5000/api/${apiParam}/${workoutID}`);
         const currExerciseIDs = response.data.exercises;
@@ -76,10 +73,9 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
         }
 
         setExercises(currExercises);
-        setLoading(false);
+        console.log(exercises)
       } catch (err) {
         setError(err.message);
-        setLoading(false);
       }
     };
 

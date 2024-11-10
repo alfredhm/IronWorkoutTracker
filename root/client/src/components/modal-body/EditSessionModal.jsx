@@ -145,9 +145,10 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
       
           // Ensure validation completes before submitting
           try {
-            const res = await formik.validateForm();
+            await formik.validateForm();
             formik.handleSubmit();
           } catch (validationError) {
+            console.error("Error in formik validation:", validationError);
           }
         },
     }), [formik]);

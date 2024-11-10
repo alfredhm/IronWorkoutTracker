@@ -63,36 +63,34 @@ const EditWorkoutModal = forwardRef(({ handleClose, data, setTabIndex, setStarte
     });
 
     // Submit function for formik
-    const onSubmit = async (values) => {
-        setError('');
-        setLoading(true);
+const onSubmit = async (values) => {
+    setError('');
+    setLoading(true);
 
-        // If the values are unchanged, close form with no submission
-        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            setLoading(false)
-            return
-        }
+    try {
+        // Construct payload without modifying exercises unless specified
+        const updatedValues = {
+            userId: uid,
+            name: values.name,
+            focusGroup: values.focusGroup,
+            notes: values.notes,
+        };
 
-        values.userId = uid;
-        values.exercises = values.exercises.map(exercise => exercise._id);
+        // Update workout
+        await axios.put(
+            `http://localhost:5000/api/workouts/${data._id}`,
+            updatedValues
+        );
 
-        try {
-            // Update workout
-            let workoutValues = { ...values }
-            delete workoutValues.durationSec
-            await axios.put(
-                `http://localhost:5000/api/workouts/${data._id}`,
-                workoutValues
-            )
-            setLoading(false);
-            handleClose();
-            formik.resetForm();
-        } catch (err) {
-            setError(err.message);
-            setLoading(false);
-            console.log("Error: ", err);
-        }
+        setLoading(false);
+        handleClose();
+        formik.resetForm();
+    } catch (err) {
+        setError(err.message);
+        setLoading(false);
+        console.log("Error: ", err);
     }
+};
 
     // Formik creation
     const formik = useFormik({
@@ -252,6 +250,20 @@ const EditWorkoutModal = forwardRef(({ handleClose, data, setTabIndex, setStarte
         loadExercises();
         adjustHeight();
     }, [uid, navigate, formik.values]);
+
+    useEffect(() => {
+        const fetchExercisesForWorkout = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/api/workouts/${data._id}`);
+                setExercises(response.data.exercises);
+            } catch (error) {
+                console.log("Error fetching exercises:", error);
+                setError(error.message);
+            }
+        };
+    
+        fetchExercisesForWorkout();
+    }, [data._id, refresh]);
 
     return (
         <Box width="100%" display="flex" flexDirection="column">

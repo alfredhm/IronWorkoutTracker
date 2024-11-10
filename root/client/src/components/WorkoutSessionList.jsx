@@ -17,14 +17,19 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
     const [loading, setLoading] = useState(false)
 
     const { isOpen, onOpen, onClose } = useDisclosure()
-    
-    const handleClose = () => { 
-        onClose()
-        setStartedWorkout(null)
-        setSelectedWorkout(null)
-    }
-
     const editSessionModalRef = useRef()
+
+    // This function will be used to handle modal close, and will invoke the child function first
+    const handleModalClose = async () => {
+        try {
+            if (editSessionModalRef.current) {
+                await editSessionModalRef.current.handleClose();
+            }
+            onClose(); // Close modal afterward
+        } catch (err) {
+            console.error("Error during modal close:", err);
+        }
+    };
 
     // Grabs the user's id
     const auth = useAuthUser()
@@ -71,14 +76,14 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
         onOpen();
     };
 
-    // When the edit modal is closed, its parent component (AddWorkoutSession.jsx) is refreshed
     const handleEditClose = async () => {
-        if (editSessionModalRef.current) {
-            await editSessionModalRef.current.handleClose();
+        try {
+            await handleModalClose(); // Close the modal and handle child close
+            setRefresh((prev) => prev + 1); // Trigger refresh after modal closes
+        } catch (err) {
+            console.error("Error in handleEditClose:", err);
         }
-        handleClose()
-    }
-
+    };
 
     useEffect(() => {
         if (newWorkoutId && workouts.length > 0) {
@@ -129,15 +134,15 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
 
     // Open the modal automatically for the started workout
     useEffect(() => {
-        if (startedWorkout && workouts.length > 0) {
-            const workoutToSelect = workouts.find(workout => workout._id === startedWorkout._id)
+        if (startedWorkout) {
+            const workoutToSelect = workouts.find(workout => workout._id === startedWorkout._id);
             if (workoutToSelect) {
-                setSelectedWorkout(workoutToSelect)
-                console.log(selectedWorkout)
-                onOpen()
+                setSelectedWorkout(workoutToSelect);
+                onOpen();
+                setStartedWorkout(null); // Reset startedWorkout after opening the modal
             }
         }
-    }, [startedWorkout, workouts, onOpen])
+    }, [startedWorkout, workouts, onOpen, setStartedWorkout]);
 
     return (
         <Flex flexDir="column" gap="10px" overflowY="auto" maxH="65vh">
@@ -151,7 +156,7 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
                     <Spinner size="xl" color="white" />
                 </Flex>
             ) : (
-                workouts.length === 0 && !loading ? (
+                workouts.length === 0 ? (
                     <>
                         <Box color="white" textAlign="center" fontSize="lg" fontWeight="600">No better time to start than now!</Box>
                     </>
