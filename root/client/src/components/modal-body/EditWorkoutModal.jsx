@@ -104,7 +104,7 @@ const onSubmit = async (values) => {
         the exercise list, creating a refresh of this page and its exercises
     */
     const handleSecondChildClose = () => {
-        setRefresh(prev => prev + 1)
+        setRefresh((prev) => prev + 1)
     }
 
     // Adjust height based on content
@@ -116,9 +116,16 @@ const onSubmit = async (values) => {
         }
     };
 
-    const handleStartWorkout = async () => {
     
+
+    const handleStartWorkout = async () => {
         try {
+
+            // Ensure ExerciseList `handleClose` finalizes any updates
+            if (exerciseListRef.current) {
+                await exerciseListRef.current.handleClose();
+            }
+
             // Ensure validation completes before submitting
             await formik.validateForm();
     
@@ -249,6 +256,7 @@ const onSubmit = async (values) => {
         // Reload exercises
         loadExercises();
         adjustHeight();
+        console.log(exercises)
     }, [uid, navigate, formik.values]);
 
     useEffect(() => {
@@ -261,7 +269,7 @@ const onSubmit = async (values) => {
                 setError(error.message);
             }
         };
-    
+        
         fetchExercisesForWorkout();
     }, [data._id, refresh]);
 
@@ -289,10 +297,7 @@ const onSubmit = async (values) => {
                                 border={0}
                                 borderBottom={'1px solid gray'}
                                 borderRadius={0}
-                                _focus={{
-                                    outline: 'none',
-                                    border: 'none'
-                                }}
+                                _focus={{ boxShadow: 'none' }}
                             />
                            <FormControl>
                                 <Textarea
@@ -311,10 +316,11 @@ const onSubmit = async (values) => {
                                     mt={1}
                                     border={0}
                                     borderRadius={0}
+                                    _focus={{ boxShadow: 'none' }}
                                 />
                             </FormControl>
                         </FormControl>
-                        <ExerciseList ref={exerciseListRef} session={false} workoutID={data._id} refresh={refresh} />
+                        <ExerciseList setRefresh={setRefresh} ref={exerciseListRef} session={false} workoutID={data._id} refresh={refresh} formik={formik}/>
                         <Flex w="100%" justify='space-between'>
                             <AddExercise onSecondChildClose={handleSecondChildClose} setExercises={setExercises} session={false} workoutID={data._id}/>
                             <Button onClick={handleStartWorkout}>Start Workout</Button>

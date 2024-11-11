@@ -31,7 +31,8 @@ const ExerciseCategories = ({ session, workoutID, onChildClose, exercises, setEx
                 const newExercise = {
                     ...exercise, 
                     isPreset: false,
-                    userId: uid
+                    userId: uid,
+                    category: exercise.category,
                 }
                 delete newExercise._id
                 delete newExercise.__v
@@ -54,7 +55,8 @@ const ExerciseCategories = ({ session, workoutID, onChildClose, exercises, setEx
                 // Create new exerciseTemplate in database
                 const newExerciseTemplate = {
                     ...exercise, 
-                    userId: uid
+                    userId: uid,
+                    category: exercise.category,
                 }
                 delete newExerciseTemplate._id
                 delete newExerciseTemplate.__v

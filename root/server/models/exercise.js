@@ -22,9 +22,7 @@ const exerciseSchema = new mongoose.Schema({
     category: {
         type: [String],
         enum: muscleCategories,
-        length: 1,
-        required: true
-    },
+    }, 
     notes: {
         type: String,
         max: 500 
@@ -40,13 +38,13 @@ const exerciseSchema = new mongoose.Schema({
     isSingle: {
         type: Boolean,
         default: false
-    },
+    }, 
     isPreset: {
         type: Boolean,
         default: false
     }
 })
-
+ 
 const Exercise = mongoose.model('Exercise', exerciseSchema)
 
 // Validator function
@@ -66,7 +64,7 @@ async function validateExercise(exercise) {
             return errors
         }),
         name: Joi.string().min(2).max(30).required().error(errors => {
-            errors.forEach(err => {
+            errors.forEach(err => { 
                 switch (err.code) { 
                     case "any.empty":
                       err.message = "Name Is Required";
@@ -77,29 +75,24 @@ async function validateExercise(exercise) {
                     case "string.max":
                       err.message = `Name should not be more than ${err.local.limit} characters!`;
                       break;
-                    default:
-                      break;
+                    default: 
+                      break; 
                   } 
-            })
-            return errors
-        }),
+            })  
+            return errors 
+        }),  
         category: Joi.array()
             .items(Joi.string().valid(...muscleCategories))
-            .min(1)
-            .max(1)
             .error(errors => {
                 errors.forEach(err => {
                     switch (err.code) {
-                        case "any.empty":
-                            err.message = "Category is Required"
-                            break
                         case "any.only":
                             err.message = "Must Be a Valid Category"
                             break
                         case "any.max":
                             err.message = "Only 1 Category"
                             break
-                    }
+                    } 
                 })
             return errors
         }),

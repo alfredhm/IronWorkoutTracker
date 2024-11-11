@@ -168,10 +168,7 @@ const AddWorkoutModal = ({ handleClose }) => {
                                     border={0}
                                     borderBottom={'1px solid gray'}
                                     borderRadius={0}
-                                    _focus={{
-                                        outline: 'none',
-                                        border: 'none',
-                                    }}
+                                    _focus={{ boxShadow: 'none' }}
                                 />
                             </FormControl>
                             <FormControl>
@@ -186,6 +183,7 @@ const AddWorkoutModal = ({ handleClose }) => {
                                         formik.handleChange(e); // Update Formik value
                                         adjustHeight(); // Adjust textarea height
                                     }}
+                                    _focus={{ boxShadow: 'none' }}
                                     bgColor="gray.600"
                                     paddingLeft="10px"
                                     mt={1}

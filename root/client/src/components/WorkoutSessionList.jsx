@@ -145,66 +145,68 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
     }, [startedWorkout, workouts, onOpen, setStartedWorkout]);
 
     return (
-        <Flex flexDir="column" gap="10px" overflowY="auto" maxH="65vh">
-            <Flex w="100%s" justifyContent='flex-end'>
+        <>
+            <Flex w="100%" justifyContent='flex-end' pb={4}>
                 <Button p={0} width="30px" height="40px" bg="gray.800" onClick={handleAddSession}>
                     <Image maxHeight="13px" src={process.env.PUBLIC_URL + '/assets/plus.png'}></Image>
                 </Button>
             </Flex>
-            {loading ? (
-                <Flex justifyContent="center" alignItems="center" minH="100px">
-                    <Spinner size="xl" color="white" />
-                </Flex>
-            ) : (
-                workouts.length === 0 ? (
-                    <>
-                        <Box color="white" textAlign="center" fontSize="lg" fontWeight="600">No better time to start than now!</Box>
-                    </>
+            <Flex flexDir="column" gap="10px" overflowY="auto" maxH="65vh">
+                {loading ? (
+                    <Flex justifyContent="center" alignItems="center" minH="100px">
+                        <Spinner size="xl" color="white" />
+                    </Flex>
                 ) : (
-                workouts.slice().reverse().map(workout => (
-                    <Box key={workout._id}>
-                        <Flex onClick={() => handleWorkoutClick(workout)} bg="gray.800" width="100%" minH="60px" borderRadius="12px" p={3} justify="space-between" _hover={{ cursor: "pointer", bg: "gray.600" }}>
-                            <Flex gap="20px">
-                                <Flex width="45px" height="45px" flexDir="column">
-                                    <Box pb={1} bg="gray.700" height="45%" borderBottom="1px solid black" borderRadius="12px 12px 0px 0px" color="gray.400" textAlign="center" fontSize="xs" fontWeight="500">
-                                        {workout.date.day} 
-                                    </Box>
-                                    <Box bg="gray.400" height="55%" textAlign="center" borderRadius="0px 0px 12px 12px" color="gray.100" fontSize="lg" fontWeight="600">
-                                        {workout.date.date}
-                                    </Box>
+                    workouts.length === 0 ? (
+                        <>
+                            <Box color="white" textAlign="center" fontSize="lg" fontWeight="600">No better time to start than now!</Box>
+                        </>
+                    ) : (
+                    workouts.slice().reverse().map(workout => (
+                        <Box key={workout._id}>
+                            <Flex onClick={() => handleWorkoutClick(workout)} bg="gray.800" width="100%" minH="60px" borderRadius="12px" p={3} justify="space-between" _hover={{ cursor: "pointer", bg: "gray.600" }}>
+                                <Flex gap="20px">
+                                    <Flex width="45px" height="45px" flexDir="column">
+                                        <Box pb={1} bg="gray.700" height="45%" borderBottom="1px solid black" borderRadius="12px 12px 0px 0px" color="gray.400" textAlign="center" fontSize="xs" fontWeight="500">
+                                            {workout.date.day} 
+                                        </Box>
+                                        <Box bg="gray.400" height="55%" textAlign="center" borderRadius="0px 0px 12px 12px" color="gray.100" fontSize="lg" fontWeight="600">
+                                            {workout.date.date}
+                                        </Box>
+                                    </Flex>
+                                    <Flex justify="center" flexDir="column" color="white" minW="40px">
+                                        <Box>{workout.name}</Box>
+                                        <Box>
+                                            {window.screen.width > 800 ? (
+                                                <Flex flexDir="column" opacity="45%" color="white">
+                                                    <Box fontSize="small">{workout.notes.length > 50 ? workout.notes.slice(0, 50) + '...' : workout.notes}</Box>
+                                                    <Box></Box>
+                                                </Flex>
+                                            ) : (<></>)}
+                                        </Box>
+                                    </Flex>
                                 </Flex>
-                                <Flex justify="center" flexDir="column" color="white" minW="40px">
-                                    <Box>{workout.name}</Box>
-                                    <Box>
-                                        {window.screen.width > 800 ? (
-                                            <Flex flexDir="column" opacity="45%" color="white">
-                                                <Box fontSize="small">{workout.notes.length > 50 ? workout.notes.slice(0, 50) + '...' : workout.notes}</Box>
-                                                <Box></Box>
-                                            </Flex>
-                                        ) : (<></>)}
-                                    </Box>
+                                <Flex flexDir="column" alignItems="flex-end" color="white">
+                                    <Box fontSize="xs">{formatTime(workout.durationSec)}</Box>
+                                    <Box></Box>
                                 </Flex>
                             </Flex>
-                            <Flex flexDir="column" alignItems="flex-end" color="white">
-                                <Box fontSize="xs">{formatTime(workout.durationSec)}</Box>
-                                <Box></Box>
-                            </Flex>
-                        </Flex>
-                        {selectedWorkout && selectedWorkout._id === workout._id && (
-                            <Modal isOpen={isOpen} onClose={handleEditClose}>
-                                <ModalOverlay />
-                                <ModalContent aria-hidden="false" bgColor="gray.700" borderRadius="10px">
-                                    <ModalCloseButton color="white" />
-                                    <ModalBody>
-                                        <EditSessionModal ref={editSessionModalRef} handleClose={handleEditClose} data={selectedWorkout} />
-                                    </ModalBody>
-                                </ModalContent>
-                            </Modal>
-                        )}
-                    </Box>
-                )))
-            )}
-        </Flex>
+                            {selectedWorkout && selectedWorkout._id === workout._id && (
+                                <Modal isOpen={isOpen} onClose={handleEditClose}>
+                                    <ModalOverlay />
+                                    <ModalContent aria-hidden="false" bgColor="gray.700" borderRadius="10px">
+                                        <ModalCloseButton color="white" />
+                                        <ModalBody>
+                                            <EditSessionModal ref={editSessionModalRef} handleClose={handleEditClose} data={selectedWorkout} />
+                                        </ModalBody>
+                                    </ModalContent>
+                                </Modal>
+                            )}
+                        </Box>
+                    )))
+                )}
+            </Flex>
+        </>
     )
 })
 

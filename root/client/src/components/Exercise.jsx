@@ -18,7 +18,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
             setError(err.message);
         }
     };
-
+  
     const handleDeleteSet = (index) => {
         setSets((prevSets) => {
             const updatedSets = [...prevSets];
@@ -27,7 +27,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
             // Track deleted sets for backend deletion
             if (removedSet && removedSet._id) {
                 setDeletedSets((prevDeleted) => [...prevDeleted, removedSet._id]);
-            }
+            } 
 
             // If no sets remain, delete the exercise itself
             if (updatedSets.length === 0) {

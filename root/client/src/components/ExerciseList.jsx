@@ -4,7 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import Exercise from "./Exercise";
 import ExerciseTemplate from "./ExerciseTemplate";
 
-const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
+const ExerciseList = forwardRef(({ workoutID, session, refresh, setRefresh, formik }, ref) => {
   const apiParam = session ? "workoutsessions" : "workouts";
   const [exercises, setExercises] = useState([]);
   const [deletedExercise, setDeletedExercise] = useState(null); // Track deleted exercise
@@ -41,11 +41,12 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
     await Promise.all(exerciseRefs.current.map(exerciseRef => exerciseRef?.handleClose()));
     setExercises(exercises)
   }
-  
+
+
   // Forward `handleClose` to allow `EditSessionModal` to trigger it
   useImperativeHandle(ref, () => ({
     handleClose
-  }));
+  }), [formik]);
 
   // Handle the deletion of exercises from state
   useEffect(() => {
@@ -65,7 +66,7 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
 
         for (let i = 0; i < currExerciseIDs.length; i++) {
           try {
-            const res = await axios.get(`http://localhost:5000/api/exercises/${currExerciseIDs[i]}`);
+            const res = await axios.get(`http://localhost:5000/api/exercises/${currExerciseIDs[i]._id}`);
             currExercises.push(res.data);
           } catch {
             continue;
@@ -73,15 +74,14 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
         }
 
         setExercises(currExercises);
-        console.log(exercises)
+        setLoading(false);
       } catch (err) {
         setError(err.message);
       }
     };
-
-    if (workoutID) {
-      getExercises();
-    }
+    
+    getExercises();
+    console.log(exercises)
   }, [refresh, apiParam, workoutID ]);
   
 
@@ -108,9 +108,11 @@ const ExerciseList = forwardRef(({ workoutID, session, refresh }, ref) => {
                 <ExerciseTemplate
                   key={exercise._id}
                   last={index === exercises.length - 1}
+                  ref={el => (exerciseRefs.current[index] = el)}
                   exercise={exercise}
                   exercises={exercises}
                   onDeleteExercise={onDeleteExercise}
+                  setRefresh={setRefresh}
                 />
             )}
           </Flex>

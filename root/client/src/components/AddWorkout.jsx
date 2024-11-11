@@ -47,8 +47,6 @@ const AddWorkout = ({ setTabIndex, setStartedWorkout }) => {
                         <ModalBody>
                             <AddWorkoutModal handleClose={handleModalClose} />
                         </ModalBody>
-                        <ModalFooter display="flex" justifyContent="center" alignItems="center">
-                        </ModalFooter>
                     </ModalContent>
                 </Modal>
             </Flex>

@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
-    "@chakra-ui/react": "^2.10.3",
+    "@chakra-ui/react": "^2.10.4",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@tanstack/react-query": "^5.17.10",
@@ -19,6 +19,7 @@
     "envelope": "^2.1.0",
     "formik": "^2.4.6",
     "framer-motion": "^10.18.0",
+    "next-themes": "^0.4.3",
     "react": "^18.2.0",
     "react-auth-kit": "^2.12.7",
     "react-dom": "^18.2.0",

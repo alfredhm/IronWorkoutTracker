@@ -233,10 +233,7 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
                                 border={0}
                                 borderBottom={'1px solid gray'}
                                 borderRadius={0}
-                                _focus={{
-                                    outline: 'none',
-                                    border: 'none',
-                                }}
+                                _focus={{ boxShadow: 'none' }}
                             />
                             <FormControl borderBottom={'1px solid gray'}>
                                 <Textarea
@@ -255,6 +252,7 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
                                     mt={1}
                                     border={0}
                                     borderRadius={0}
+                                    _focus={{ boxShadow: 'none' }}
                                 />
                             </FormControl>
                             <TimeSlider initial={typeof formik.values.durationSec === "number" ? formik.values.durationSec : 0} onTimeChange={handleChildTimeChange} />

@@ -132,7 +132,7 @@ router.put('/:id', getExercise, async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-})
+}) 
 
 // Delete an exercise
 router.delete('/:id', getExercise, async (req, res) => {
@@ -143,7 +143,7 @@ router.delete('/:id', getExercise, async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
-
+ 
 module.exports = router;
  
 
