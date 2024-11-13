@@ -1,59 +1,53 @@
-import { Box, Button, Flex, Input, List, ListItem, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, Textarea, useDisclosure } from "@chakra-ui/react";
-import Set from "./Set";
-import { ChevronRightIcon, DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { Box, Flex, Input, 
+    Modal, ModalBody, ModalCloseButton,
+    ModalContent, ModalFooter, ModalHeader,
+    ModalOverlay, Text, Textarea, useDisclosure 
+} from "@chakra-ui/react";
+import { ChevronRightIcon } from "@chakra-ui/icons";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
-const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, last, setRefresh }, ref) => {
+const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, editModalRefresh }) => {
     const [error, setError] = useState('');
-    const [sets, setSets] = useState([]);
-    const [notes, setNotes] = useState('');
-
+    const [setCount, setSetCount] = useState(exercise.numOfSets || 0); // Initialize from exercise.numOfSets
+    const [notes, setNotes] = useState(exercise.notes || ''); // Initialize notes
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    // Function to delete the entire exercise
-    const deleteExercise = async () => {
-        try {
-            // Notify parent to remove exercise from frontend state immediately
-            await onDeleteExercise(exercise._id);
-        } catch (err) {
-            setError(err.message);
-        }
-        console.log(exercises)
+    // Open modal and ensure data is loaded
+    const handleOpen = () => {
+        onOpen();
     };
 
+    // Save updates and close the modal
     const handleClose = async () => {
-        const input = { ...exercise };
-        delete input._id;
-        delete input.__v;
-    
-        await axios.put(`http://localhost:5000/api/exercises/${exercise._id}`, {
-            ...input,
-            category: input.category,
-            numOfSets: sets,
-            notes: notes
-        });
-    
-        setRefresh((prev) => prev + 1); // Trigger refresh in parent
-        onClose();
+        try {
+            // Update the exercise with new set count and notes
+            const updatedExercise = { ...exercise, numOfSets: setCount, notes };
+            delete updatedExercise._id;
+            delete updatedExercise.__v;
+            await axios.put(`http://localhost:5000/api/exercises/${exercise._id}`, updatedExercise);
+
+            onExerciseUpdate(updatedExercise);
+            if (typeof editModalRefresh === "function") {
+                editModalRefresh();
+            }
+            onClose();
+        } catch (err) {
+            setError("Could not save updates.");
+            console.error(err);
+        }
     };
-    
-    const handleEditExerciseTemplate = () => {
-        console.log('edit exercise template');
-        onOpen()
-    }
 
-    useEffect(() => {
-        setSets(exercise.numOfSets);
-        setNotes(exercise.notes);
-    }, [exercise._id]);
+    // Handle change in set count
+    const handleSetCountChange = (e) => {
+        const newCount = parseInt(e.target.value, 10) || 0; // Convert to integer, default to 0
+        setSetCount(newCount); // Update the displayed count
 
-    useImperativeHandle(ref, () => ({
-        handleClose
-    }));
+        onExerciseUpdate({ ...exercise, numOfSets: newCount }); // Update the exercise in the parent
+    };
 
     return (
-        <Flex key={exercise._id} w="100%"  bg="gray.600">
+        <Flex key={exercise._id} w="100%" bg="gray.600">
             <Flex w="100%">
                 <Flex px={4} flexDir="column" w="100%">
                     <Flex
@@ -64,16 +58,16 @@ const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, la
                         borderBottom={last ? "none" : "1px solid"}
                         borderColor="rgba(256, 256, 256, 0.3)"
                     >
-                        <Flex flexDirection='column'>
+                        <Flex flexDirection="column">
                             <Text fontSize="small" fontWeight="650">
                                 {exercise.name}
                             </Text>
                             <Text>
-                                {sets} sets
+                                {setCount} sets
                             </Text>
                         </Flex>
                         <Box 
-                            onClick={handleEditExerciseTemplate}
+                            onClick={handleOpen}
                             _hover={{ 
                                 cursor: 'pointer', 
                                 color: 'blue.200'
@@ -84,7 +78,7 @@ const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, la
                     </Flex>
                     <Modal isOpen={isOpen} onClose={handleClose}>
                         <ModalOverlay />
-                        <ModalContent mx="auto" my="auto"color="white" bgColor="gray.700" borderRadius="10px">
+                        <ModalContent mx="auto" my="auto" color="white" bgColor="gray.700" borderRadius="10px">
                             <ModalHeader>{exercise.name}</ModalHeader>
                             <ModalCloseButton color="white" />
                             <ModalBody>
@@ -101,16 +95,18 @@ const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, la
                                             w="100%"
                                             textAlign="right"
                                             border="none"
-                                            type="number" value={sets} 
-                                            onChange={(e) => setSets(e.target.value)} 
+                                            required
+                                            type="number"
+                                            value={setCount} // Display the current count
+                                            onChange={handleSetCountChange} 
                                             _focus={{ boxShadow: 'none' }}
                                         />
                                     </Flex>
                                 </Flex>
-                                <Flex flexDir="column">
-                                    <Text fontSize="small" color="gray.400">{exercise.name}</Text>
+                                <Flex flexDir="column" mt={4}>
+                                    <Text fontSize="small" color="gray.400">Notes</Text>
                                     <Textarea 
-                                        px={3} placeholder={exercise.notes ? "" : "Add Note"} 
+                                        px={3} placeholder="Add Note" 
                                         border="none" bg="gray.600" 
                                         value={notes}
                                         onChange={(e) => setNotes(e.target.value)}
@@ -119,26 +115,14 @@ const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, la
                                 </Flex>
                             </ModalBody>
                             <ModalFooter>
-                                <Flex w="100%" bgColor="gray.600" flexDir="column" borderRadius="10px" >
-                                    {/*
-                                        TODO: ADD REPLACE EXERCISE FUNCTIONALITY
-                                        <Box 
-                                            borderTopRadius="10px"
-                                            borderBottom="1px solid gray" 
-                                            px={4} py={2} 
-                                            _hover={{ cursor: 'pointer', color: 'blue.200', bgColor: 'gray.500' }}
-                                            onClick={() => alert('Action performed!')}
-                                        >
-                                            Replace
-                                        </Box>
-                                    */}
+                                <Flex w="100%" bgColor="gray.600" flexDir="column" borderRadius="10px">
                                     <Flex w="100%">
                                         <Box 
                                             borderRadius="10px"
                                             color="red.400" 
                                             px={4} py={2} w="100%" 
                                             _hover={{ cursor: 'pointer', color: 'blue.200', bgColor: 'gray.500' }}
-                                            onClick={deleteExercise}
+                                            onClick={() => onDeleteExercise(exercise._id)}
                                         >
                                             Delete
                                         </Box>
@@ -151,6 +135,6 @@ const ExerciseTemplate = forwardRef(({ exercise, exercises, onDeleteExercise, la
             </Flex>
         </Flex>
     );
-});
+};
 
 export default ExerciseTemplate;

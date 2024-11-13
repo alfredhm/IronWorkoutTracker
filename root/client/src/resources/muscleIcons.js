@@ -14,4 +14,4 @@ const muscleIcons = {
     "Calves": process.env.PUBLIC_URL + '/assets/calves.png'
 }
 
-export default muscleIcons
+export default muscleIcons 

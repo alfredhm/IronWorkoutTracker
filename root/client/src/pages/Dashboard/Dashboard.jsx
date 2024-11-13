@@ -12,16 +12,15 @@ import { useEffect, useState } from "react"
 
 const Dashboard = () => {
     const [tabIndex, setTabIndex] = useState(0); // State to control selected tab
-    const [refresh, setRefresh] = useState(0); // State to refresh components when needed
+    const [dashboardRefresh, setDashboardRefresh] = useState(0); // State to refresh components when needed
     const [startedWorkout, setStartedWorkout] = useState("");
 
     const handleTabChange = (index) => {
         setTabIndex(index); // Update state when a tab is clicked
-        setRefresh((prev) => prev + 1); // Increment refresh state to refresh components
+        if (index === 0) { // Only refresh when returning to "Log" tab for example
+            setDashboardRefresh((prev) => prev + 1);
+        } // Increment refresh state to refresh components
     };
-    
-    useEffect(() => {
-    }, [refresh]);
 
     return (
         <Box display="flex" flexDir="column" alignItems="center" w="100vw" minH="100vh" bgColor="gray.700">
@@ -30,7 +29,7 @@ const Dashboard = () => {
                 <Tabs index={tabIndex} variant="soft-rounded" width="100%" isFitted display="flex" flexDirection="column" justifyContent="space-between">
                     <TabPanels>
                         <TabPanel>
-                            <Log startedWorkout={startedWorkout} setStartedWorkout={setStartedWorkout} parentRefresh={refresh} />
+                            <Log startedWorkout={startedWorkout} setStartedWorkout={setStartedWorkout} dashboardRefresh={dashboardRefresh} />
                         </TabPanel>
                         <TabPanel>
                             <Workouts setStartedWorkout={setStartedWorkout} setTabIndex={handleTabChange}/>

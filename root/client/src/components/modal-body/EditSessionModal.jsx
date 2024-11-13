@@ -1,12 +1,11 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import {
-    Box, VStack, Text, Center, FormControl, Input, Textarea,
-    Button, FormLabel, Switch,
-    Heading,
+    Box, VStack, Text, 
+    Center, FormControl, 
+    Input, Textarea, Heading,
 } from '@chakra-ui/react';
-import { Form, useFormik } from "formik"
+import { useFormik } from "formik"
 import { useAuthUser } from 'react-auth-kit'
-import { useNavigate } from 'react-router-dom';
 import TimeSlider from '../TimeSlider'
 import axios from 'axios'
 import muscleGroups from '../../resources/muscle-groups';
@@ -15,28 +14,26 @@ import FocusSelect from '../FocusSelect';
 import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
 
-const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
+const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
     const [refresh, setRefresh] = useState(0)
 
-    const textareaRef = useRef(null);
-    const exerciseListRef = useRef(null);
+    const exerciseListRef = useRef()
+    const exerciseRefs = useRef([])
 
     // Grabs the id of the current user
     const auth = useAuthUser();
     const uid = auth()?.uid; 
-    const navigate = useNavigate(); 
-
+    
     // Initial values used for formik and checking if anything has been edited
     const initialValues = {
         userId: uid || "",
-        name: data.name || "",
-        focusGroup: data.focusGroup || [],
-        notes: data.notes || "",
-        durationSec: data.durationSec || 0,
-        exercises: data.exercises || [],
+        name: selectedWorkout.name || "",
+        focusGroup: selectedWorkout.focusGroup || [],
+        notes: selectedWorkout.notes || "",
+        durationSec: selectedWorkout.durationSec || 0,
     }
 
     // Schema for a workout session for front-end validation
@@ -48,17 +45,6 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
           .of(Yup.string().oneOf(muscleGroups, 'Invalid muscle group'))
           .optional(),
         workoutTemplate: Yup.string(),
-        exercises: Yup.array().of(Yup.object({
-            name: Yup.string(),
-            _id: Yup.string().required('Exercise ID is required.'),
-            __v: Yup.number().required('Version number is required.'),
-            userId: Yup.string().required('User ID is required.'),
-            sets: Yup.array().of(Yup.object({
-                weight: Yup.number(),
-                reps: Yup.number(),
-                notes: Yup.string().optional(),
-            })),
-        })),
         durationSec: Yup.number()
           .integer('Duration must be an integer.')
           .optional(),
@@ -70,144 +56,86 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
     // Submit function for formik
     const onSubmit = async (values) => {
         setError('')
-        setLoading(true)
+        setLoading(true)    
 
-        // If the values are unchanged, close form with no submission
-        if (JSON.stringify(values) === JSON.stringify(initialValues)) {
-            setLoading(false)
-            return
-        }
-
-        values.userId = uid;
-        values.exercises = values.exercises.map(exercise => exercise._id);
 
         try {
-            // Update session
             await axios.put(
-                `http://localhost:5000/api/workoutsessions/${data._id}`,
-                values
-            )
-            setLoading(false)
-            handleClose()
-            formik.resetForm()
+                `http://localhost:5000/api/workoutsessions/${selectedWorkout._id}`,{
+                ...values,
+                userId: uid,
+                exercises: exercises.map(exercise => exercise._id),
+            
+            })
 
+            // Call saveSetsToDatabase on each Exercise component using refs
+            await Promise.all(exerciseRefs.current.map(ref => ref?.saveSetsToDatabase?.()));
+
+            // Persist deleted exercises
+            await exerciseListRef.current?.persistDeletedExercises?.();
+
+            formik.resetForm()
+            closeSessionList()
         } catch (err) {
             setError(err.message)
-            setLoading(false);
             console.log("Error: ", err)
+        } finally {
+            setLoading(false)   
         }
+
     }
 
     // Formik creation
     const formik = useFormik({
         initialValues: initialValues,
         onSubmit: onSubmit,
-        validationSchema: WorkoutSessionSchema
+        validationSchema: WorkoutSessionSchema,
+        enableReinitialize: true,
        
     })
 
-    /* 
-        Function that responds to the closing of its child component, 
-        the exercise list, creating a refresh of this page and its exercises
-    */
-    const handleSecondChildClose = () => {
-        setRefresh(prev => prev + 1)
-    }
+    const memoizedEditModalRefresh = useCallback(() => setRefresh((prev) => prev + 1), []);
 
-    // When the time changes, update the duration (input is a slider)
-    const handleChildTimeChange = (data) => {
-        formik.setFieldValue('durationSec', data);
-    };
-
-    
-    // Adjust height based on content
-    const adjustHeight = () => {
-        const textarea = textareaRef.current;
-        if (textarea) {
-            textarea.style.height = 'auto'; // Reset height to auto to get scrollHeight
-            textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scrollHeight
+    // Adjusts textarea height based on content
+    const textareaRef = useRef();
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
         }
-    };
-
-
-    // Expose handleClose function to be accessed via the ref
-    useImperativeHandle(ref, () => ({
-        async handleClose() {
-      
-          // Ensure Exercise component handleClose is called first
-          try {
-            if (exerciseListRef.current) {
-              await exerciseListRef.current.handleClose();
-            }
-          } catch (error) {
-            console.error("Error in Exercise component handleClose:", error);
-          } 
-      
-          // Ensure validation completes before submitting
-          try {
-            await formik.validateForm();
-            formik.handleSubmit();
-          } catch (validationError) {
-            console.error("Error in formik validation:", validationError);
-          }
-        },
-    }), [formik]);
+    }, [formik.values.notes]);
 
     useEffect(() => {
-        // If there is no uid, the user is not logged in and is redirected to the login page
-        if (!uid) {
-            navigate('/login');
-            return;
-        }
-
-        // Async function that fetches the preset exercises 
-        const getPresets = async () => {
+        const fetchExercises = async () => {
             try {
-
-                // Filters all the preset exercises
-                const presetRes = await axios.get(`http://localhost:5000/api/exercises`);
-                const presetExercises = presetRes.data.filter(exercise => exercise.isPreset);
-
-                return presetExercises;
-            } catch (err) {
-                setError(err.message);
-                return [];
-            }
-        };
-
-        // Async function that fetches the user's saved exercises 
-        const getUserExercises = async () => {
-            try {
-                // Filters all the user's exercises for the ones saved as a template
-                const response = await axios.get(`http://localhost:5000/api/exercises/user/${uid}`);
-                const userExercises = response.data.filter(exercise => exercise.isTemplate);
-
-                return userExercises;
-            } catch (err) {
-                setError(err.message);
-                return [];
-            }
-        };
-
-        // Async function that calls both above functions to get all the exercises
-        const loadExercises = async () => {
-            setLoading(true);
-            try {
-                const [presetExercises, userExercises] = await Promise.all([getPresets(), getUserExercises()]);
-                const combinedExercises = [...presetExercises, ...userExercises];
-                setExercises(combinedExercises);
+                setLoading(true);
+                const response = await axios.get(`http://localhost:5000/api/workoutsessions/${selectedWorkout._id}`);
+                const exerciseIDs  = response.data.exercises;
+        
+                // Fetch each exercise’s details by ID
+                const fetchedExercises = await Promise.all(
+                    exerciseIDs.map(async (exerciseID) => {
+                        try {
+                            const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID._id}`);
+                            return exerciseResponse.data;
+                        } catch {
+                            return null;
+                        }
+                    })
+                );
+                setExercises(fetchedExercises.filter((exercise) => exercise !== null));
             } catch (err) {
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
-        };
+        }
+        fetchExercises();
+    }, [selectedWorkout])
 
-        // Reload exercises
-        loadExercises();
-        adjustHeight();
-    }, [uid, navigate, formik.values]);
-    
+    useImperativeHandle(ref, () => ({  
+        submitForm: formik.submitForm,
+    }));
 
     return (
         <Box width="100%" display="flex" flexDirection="column">
@@ -243,10 +171,7 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
                                     maxHeight="150px"
                                     value={formik.values.notes}
                                     ref={textareaRef}
-                                    onChange={(e) => {
-                                        formik.handleChange(e); // Update Formik value
-                                        adjustHeight(); // Adjust textarea height
-                                    }}
+                                    onChange={(e) => formik.handleChange(e)}
                                     bgColor="gray.600"
                                     paddingLeft="10px"
                                     mt={1}
@@ -255,10 +180,24 @@ const EditSessionModal = forwardRef(({ handleClose, data }, ref) => {
                                     _focus={{ boxShadow: 'none' }}
                                 />
                             </FormControl>
-                            <TimeSlider initial={typeof formik.values.durationSec === "number" ? formik.values.durationSec : 0} onTimeChange={handleChildTimeChange} />
+                            <TimeSlider initial={typeof formik.values.durationSec === "number" ? formik.values.durationSec : 0} onTimeChange={(val) => formik.setFieldValue('durationSec', val)} />
                         </FormControl>
-                        <ExerciseList ref={exerciseListRef} session={true} workoutID={data._id} refresh={refresh}  />
-                        <AddExercise onSecondChildClose={handleSecondChildClose} session={true} workoutID={data._id} />
+                        <ExerciseList 
+                            session={true} 
+                            workoutID={selectedWorkout._id} 
+                            editModalRefresh={refresh}  
+                            exerciseRefs={exerciseRefs}
+                            ref={exerciseListRef}
+                            exercises={exercises}
+                            setExercises={setExercises}
+                        />
+                        <AddExercise 
+                            refreshModal={memoizedEditModalRefresh} 
+                            exercises={exercises}
+                            setExercises={setExercises}
+                            session={true} 
+                            workoutID={selectedWorkout._id} 
+                        />
                         <Box>
                             <Text textAlign="center" color="red.300">{error}</Text>
                         </Box>

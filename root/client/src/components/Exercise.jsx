@@ -1,153 +1,115 @@
 import { Box, Flex, List, ListItem, Text } from "@chakra-ui/react";
 import Set from "./Set";
-import { DeleteIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { DeleteIcon } from "@chakra-ui/icons";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 
 const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => {
     const [error, setError] = useState('');
     const [sets, setSets] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [deletedSets, setDeletedSets] = useState([]); // Track sets to delete from backend
+    const [modified, setModified] = useState(false);
 
-    // Function to delete the entire exercise
-    const deleteExercise = async () => {
-        try {
-            // Notify parent to remove exercise from frontend state immediately
-            onDeleteExercise(exercise._id);
-        } catch (err) {
-            setError(err.message);
-        }
+    // Add a new empty set to the list
+    const handleAddSet = () => {
+        setModified(true);
+        const newSet = { exerciseId: exercise._id, sessionId: workoutID, ghost: true };
+        setSets(prevSets => [...prevSets, newSet]);
     };
-  
+
+    // Update set values in real-time
+    const handleUpdateSet = (index, updatedData) => {
+        setModified(true);
+        setSets(prevSets =>
+            prevSets.map((set, i) => i === index ? { ...set, ...updatedData, ghost: false } : set)
+        );
+    };
+
+    // Handle set deletion
     const handleDeleteSet = (index) => {
-        setSets((prevSets) => {
+        setSets(prevSets => {
             const updatedSets = [...prevSets];
             const [removedSet] = updatedSets.splice(index, 1);
 
-            // Track deleted sets for backend deletion
-            if (removedSet && removedSet._id) {
-                setDeletedSets((prevDeleted) => [...prevDeleted, removedSet._id]);
-            } 
+            if (removedSet?._id) {
+                setDeletedSets(prev => [...prev, removedSet._id]);
+            }
 
-            // If no sets remain, delete the exercise itself
+            // If no sets remain, add a ghost set
             if (updatedSets.length === 0) {
-                deleteExercise();
+                onDeleteExercise(exercise._id);
             }
 
             return updatedSets;
         });
     };
 
-    const handleAddSet = () => {
-        const newSet = {
-            exerciseId: exercise._id,
-            sessionId: workoutID,
-            weight: undefined,
-            reps: undefined,
-            notes: undefined,
-        };
-
-        setSets((prevSets) => {
-            const updatedSets = prevSets.map((set) =>
-                // if there is a ghost set, replace it with the new set
-                set.ghost ? { ...set, ghost: false } : set
-            );
-            return [...updatedSets, newSet];
-        });
-    };
-
-    
-    const handleUpdateSet = (index, updatedData) => {
-        setSets((prevSets) =>
-            prevSets.map((set, i) =>
-                i === index ? { ...set, ...updatedData, ghost: false } : set // Remove `ghost` flag on update
-            )
-        );
-    };
-
-    const postSetsToDatabase = async () => {
+    // Save all sets to the database
+    const saveSetsToDatabase = async () => {
         try {
-            // Filters sets to only include those with weight, reps, notes, or ghost set to false
-            const filteredSets = sets.filter(
-                (set) => set.weight || set.reps || set.notes || set.ghost === false
-            );
-
             await Promise.all(
-                filteredSets.map(async (set) => {
-                    // Skip ghost sets
-                    if (set.ghost) return;
+                sets.map(async (set) => {
 
-                    const processedSet = {
+                // If the exercise was modified, convert ghost sets to non-ghost and save them
+                if (modified || !set.ghost) {
+                    const setData = {
                         exerciseId: set.exerciseId,
                         sessionId: workoutID,
-                        weight: set.weight || undefined,
-                        reps: set.reps || undefined,
-                        notes: set.notes || undefined,
+                        weight: set.weight ?? 0,
+                        reps: set.reps ?? 0,
+                        notes: set.notes ?? "",
                     };
-
-                    // If set has no ID, it is a new set
+                
                     if (!set._id) {
-                        const response = await axios.post(`http://localhost:5000/api/sets`, processedSet);
+                        const response = await axios.post(`http://localhost:5000/api/sets`, setData);
                         set._id = response.data._id;
-                    // Otherwise, update the existing set
                     } else {
-                        await axios.put(`http://localhost:5000/api/sets/${set._id}`, processedSet);
+                        await axios.put(`http://localhost:5000/api/sets/${set._id}`, setData);
                     }
+                
+                    // After saving, convert it to a non-ghost set
+                    set.ghost = false;
+                }
                 })
             );
 
-            // Delete sets that were removed from the frontend
-            await Promise.all(
-                deletedSets.map(async (setId) => {
-                    await axios.delete(`http://localhost:5000/api/sets/${setId}`);
-                })
-            );
+            // Delete removed sets
+            await Promise.all(deletedSets.map(async setId => {
+                await axios.delete(`http://localhost:5000/api/sets/${setId}`);
+            }));
 
-            setDeletedSets([]);
+            setDeletedSets([]); // Clear deleted sets after successful save
+            setModified(false); // Reset modified state
         } catch (err) {
             setError(err.message);
         }
     };
 
-    const handleClose = async () => {
-        await postSetsToDatabase();
-    };
+    useImperativeHandle(ref, () => ({
+        saveSetsToDatabase,
+    }));
 
+    // Fetch existing sets on mount
     useEffect(() => {
-        const loadSetsAndAddGhost = async () => {
+        const fetchSets = async () => {
             try {
+                setLoading(true);
                 const response = await axios.get(`http://localhost:5000/api/sets/exercise/${exercise._id}`);
-                
-                // Filter sets to include only those that match the provided workoutID
-                let loadedSets = response.data.filter(
-                    (set) => set.sessionId === workoutID && (set.weight || set.reps || set.notes || set.ghost === false)
-                );
-    
-                // Check if a ghost set is present; if not and no sets exist, add a ghost set
-                const hasGhostSet = loadedSets.some((set) => set.ghost);
-                if (!hasGhostSet && loadedSets.length === 0) {
-                    loadedSets.push({
-                        exerciseId: exercise._id,
-                        sessionId: workoutID,
-                        weight: '',
-                        reps: '',
-                        notes: '',
-                        ghost: true,
-                    });
-                }
-    
+                const loadedSets = response.data.filter(set => set.sessionId === workoutID);    
+                if (loadedSets.length === 0) {
+                    // Add an initial ghost set if no sets exist
+                    loadedSets.push({ exerciseId: exercise._id, sessionId: workoutID, ghost: true });
+                }    
                 setSets(loadedSets);
             } catch (err) {
                 setError(err.message);
+            } finally {
+                setLoading(false);
             }
         };
-    
-        loadSetsAndAddGhost();
-    }, [exercise._id]);
-
-    useImperativeHandle(ref, () => ({
-        handleClose
-    }));
+        fetchSets();
+    }, [exercise._id, workoutID]);
 
     return (
         <Flex key={exercise._id} w="100%" borderRadius={7} bg="gray.600">
@@ -161,46 +123,33 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
                         borderBottom="1px solid"
                         borderColor="rgba(256, 256, 256, 0.3)"
                     >
-                        <Text fontSize="small" fontWeight="650">
-                            {exercise.name}
-                        </Text>
-                        <Box 
-                            onClick={() => deleteExercise(exercise._id)}
-                            _hover={{ 
-                                cursor: 'pointer', 
-                                color: 'red.300'
-                            }}
-                        >
-                            <DeleteIcon boxSize={4}/>
+                        <Text fontSize="small" fontWeight="650">{exercise.name}</Text>
+                        <Box onClick={() => onDeleteExercise(exercise._id)} _hover={{ cursor: 'pointer', color: 'red.300' }}>
+                            <DeleteIcon boxSize={4} />
                         </Box>
                     </Flex>
                     <List>
                         {sets.map((set, index) => (
                             <ListItem key={set._id || `set-${index}`}>
                                 <Set
-                                    set={set}
                                     index={index}
+                                    set={set}
                                     onChange={(updatedData) => handleUpdateSet(index, updatedData)}
                                     onDelete={() => handleDeleteSet(index)}
                                 />
                             </ListItem>
                         ))}
                     </List>
-                    <Flex>
-                        <Flex py={2}>
-                            <Text
-                                color='blue.300'
-                                fontSize="small"
-                                fontWeight="600"
-                                _hover={{
-                                    cursor: 'pointer',
-                                    color: 'blue.100'
-                                }}
-                                onClick={handleAddSet}
-                            >
-                                Add Set
-                            </Text>
-                        </Flex>
+                    <Flex py={2}>
+                        <Text
+                            color="blue.300"
+                            fontSize="small"
+                            fontWeight="600"
+                            _hover={{ cursor: 'pointer', color: 'blue.100' }}
+                            onClick={handleAddSet}
+                        >
+                            Add Set
+                        </Text>
                     </Flex>
                 </Flex>
             </Flex>

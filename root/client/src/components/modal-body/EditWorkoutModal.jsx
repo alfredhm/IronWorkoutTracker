@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import {
     Box, VStack, Text, Center, 
     FormControl, Input, Textarea, 
@@ -15,26 +15,32 @@ import * as Yup from 'yup'
 import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
 
-const EditWorkoutModal = forwardRef(({ handleClose, data, setTabIndex, setStartedWorkout }, ref) => {
+const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTabIndex, setStartedWorkout, refreshWorkouts }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
     const [refresh, setRefresh] = useState(0)
 
-    const textareaRef = useRef(null);
-    const exerciseListRef = useRef(null);
+    const exerciseListRef = useRef()
+    const exerciseRefs = useRef([])
 
     // Grabs the id of the current user
     const auth = useAuthUser();
     const uid = auth()?.uid;
-    const navigate = useNavigate();
+
+     // Initial values for other fields, stored in state
+     const [workoutFields, setWorkoutFields] = useState({
+        name: selectedWorkout.name || "",
+        focusGroup: selectedWorkout.focusGroup || [],
+        notes: selectedWorkout.notes || "",
+    });
 
     // Initial values used for formik and checking if anything has been edited
     const initialValues = {
-        name: data.name || "",
-        focusGroup: data.focusGroup || [],
-        notes: data.notes || "",
-        exercises: data.exercises || [],
+        name: workoutFields.name || "",
+        focusGroup: workoutFields.focusGroup || [],
+        notes: workoutFields.notes || "",
+        exercises: exercises || [],
     }
 
     // Schema for a workout for front-end validation
@@ -63,93 +69,88 @@ const EditWorkoutModal = forwardRef(({ handleClose, data, setTabIndex, setStarte
     });
 
     // Submit function for formik
-const onSubmit = async (values) => {
-    setError('');
-    setLoading(true);
+    const onSubmit = async (values) => {
+        setError('');
+        setLoading(true);
 
-    try {
-        // Construct payload without modifying exercises unless specified
-        const updatedValues = {
-            userId: uid,
-            name: values.name,
-            focusGroup: values.focusGroup,
-            notes: values.notes,
-        };
+        try {
+            // Construct payload without modifying exercises unless specified
+            const updatedValues = {
+                userId: uid,
+                name: values.name,
+                focusGroup: values.focusGroup,
+                notes: values.notes,
+            };
 
-        // Update workout
-        await axios.put(
-            `http://localhost:5000/api/workouts/${data._id}`,
-            updatedValues
-        );
+            // Update workout
+            await axios.put(
+                `http://localhost:5000/api/workouts/${selectedWorkout._id}`,
+                updatedValues
+            );
 
-        setLoading(false);
-        handleClose();
-        formik.resetForm();
-    } catch (err) {
-        setError(err.message);
-        setLoading(false);
-        console.log("Error: ", err);
-    }
-};
+            // Call saveSetsToDatabase on each Exercise component using refs
+            await Promise.all(exerciseRefs.current.map(ref => ref?.saveSetsToDatabase?.()));
+
+            // Persist deleted exercises
+            await exerciseListRef.current?.persistDeletedExercises?.();
+
+            formik.resetForm();
+            closeWorkoutList();
+        } catch (err) {
+            setError(err.message);
+            console.log("Error: ", err);
+        } finally {
+            setLoading(false);  
+        }
+    };
 
     // Formik creation
     const formik = useFormik({
         initialValues: initialValues,
         onSubmit: onSubmit,
-        validationSchema: WorkoutSchema
+        validationSchema: WorkoutSchema,
+        enableReinitialize: true,
     });
 
-    /* 
-        Function that responds to the closing of its child component, 
-        the exercise list, creating a refresh of this page and its exercises
-    */
-    const handleSecondChildClose = () => {
-        setRefresh((prev) => prev + 1)
-    }
-
-    // Adjust height based on content
-    const adjustHeight = () => {
-        const textarea = textareaRef.current;
-        if (textarea) {
-            textarea.style.height = 'auto'; // Reset height to auto to get scrollHeight
-            textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scrollHeight
+    // Function to fetch latest workout data and update state
+    const loadWorkoutData = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/workouts/${selectedWorkout._id}`);
+            const { name, focusGroup, notes, exercises: fetchedExercises } = response.data;                
+            setWorkoutFields({ name, focusGroup, notes });
+            setExercises(fetchedExercises); // Sync exercises with latest data
+        } catch (err) {
+            console.error("Error loading workout data:", err);
         }
     };
-
-    
 
     const handleStartWorkout = async () => {
         try {
 
-            // Ensure ExerciseList `handleClose` finalizes any updates
-            if (exerciseListRef.current) {
-                await exerciseListRef.current.handleClose();
-            }
+            await loadWorkoutData();
 
             // Ensure validation completes before submitting
             await formik.validateForm();
     
             // Step 1: Duplicate each exercise to create independent entries for this session
             const duplicatedExerciseIds = [];
-            for (let i = 0; i < formik.values.exercises.length; i++) {
-                const exercise = formik.values.exercises[i];
+            for (let exercise of exercises) {
                 const duplicatedExercise = await axios.post(`http://localhost:5000/api/exercises`, {
                     userId: uid,
                     name: exercise.name,
                     description: exercise.description,
                     focusGroup: exercise.focusGroup,
                     numOfSets: exercise.numOfSets,
-                    // Add any other properties you need to duplicate
                 });
                 duplicatedExerciseIds.push(duplicatedExercise.data._id);
             }
     
             // Step 2: Create the workout session with duplicated exercise IDs
             const res = await axios.post(`http://localhost:5000/api/workoutsessions`, {
-                workoutTemplate: data._id,
-                name: data.name,
-                focusGroup: data.focusGroup,
-                notes: data.notes,
+                workoutTemplate: selectedWorkout._id,
+                name: workoutFields.name,
+                focusGroup: workoutFields.focusGroup,
+                notes: workoutFields.notes,
                 userId: uid,
                 exercises: duplicatedExerciseIds, // Use duplicated exercises here
             });
@@ -170,108 +171,58 @@ const onSubmit = async (values) => {
                 }
             }
             
-            handleClose();
+            closeWorkoutList();
             setTabIndex(0);
             setStartedWorkout(res.data);
-            
+            refreshWorkouts();
         } catch (err) {
             setError(err.message);
             console.log(err);
         }
     };
-    
 
-    // Expose handleClose function to be accessed via the ref
-    useImperativeHandle(ref, () => ({
-        async handleClose() {
-      
-          // Ensure Exercise component handleClose is called first
-          try {
-            if (exerciseListRef.current) {
-              await exerciseListRef.current.handleClose();
-            }
-          } catch (error) {
-            console.error("Error in Exercise component handleClose:", error);
-          } 
-      
-          // Ensure validation completes before submitting
-          try {
-            await formik.validateForm();
-            formik.handleSubmit();
-          } catch (validationError) {
-            console.error("Validation failed:", validationError);
-          }
-        },
-    }), [formik]);
+    const memoizedEditModalRefresh = useCallback(() => setRefresh((prev) => prev + 1), []);
 
+    // Adjusts textarea height based on content
+    const textareaRef = useRef();
     useEffect(() => {
-        // If there is no uid, the user is not logged in and is redirected to the login page
-        if (!uid) {
-            navigate('/login');
-            return;
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
         }
-
-        // Async function that fetches the preset exercises 
-        const getPresets = async () => {
+    }, [formik.values.notes]);
+    
+    useEffect(() => {
+        const fetchExercises = async () => {
             try {
-                // Filters all the preset exercises
-                const presetRes = await axios.get(`http://localhost:5000/api/exercises`);
-                const presetExercises = presetRes.data.filter(exercise => exercise.isPreset);
-
-                return presetExercises;
-            } catch (err) {
-                setError(err.message);
-                return [];
-            }
-        };
-
-        // Async function that fetches the user's saved exercises
-        const getUserExercises = async () => {
-            try {
-                // Filters all the user's exercises for the ones saved as a template
-                const response = await axios.get(`http://localhost:5000/api/exercises/user/${uid}`);
-                const userExercises = response.data.filter(exercise => exercise.isTemplate);
-
-                return userExercises;
-            } catch (err) {
-                setError(err.message);
-                return [];
-            }
-        };
-
-        // Async function that calls both above functions to get all the exercises
-        const loadExercises = async () => {
-            setLoading(true);
-            try {
-                const [presetExercises, userExercises] = await Promise.all([getPresets(), getUserExercises()]);
-                const combinedExercises = [...presetExercises, ...userExercises];
-                setExercises(combinedExercises);
+                setLoading(true);
+                const response = await axios.get(`http://localhost:5000/api/workouts/${selectedWorkout._id}`);
+                const exerciseIDs  = response.data.exercises;
+        
+                // Fetch each exercise’s details by ID
+                const fetchedExercises = await Promise.all(
+                    exerciseIDs.map(async (exerciseID) => {
+                        try {
+                            const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID._id}`);
+                            return exerciseResponse.data;
+                        } catch {
+                            return null;
+                        }
+                    })
+                );
+                setExercises(fetchedExercises.filter((exercise) => exercise !== null));
             } catch (err) {
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
-        };
+        }
+        fetchExercises();
+    }, [selectedWorkout])
 
-        // Reload exercises
-        loadExercises();
-        adjustHeight();
-        console.log(exercises)
-    }, [uid, navigate, formik.values]);
-
-    useEffect(() => {
-        const fetchExercisesForWorkout = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5000/api/workouts/${data._id}`);
-                setExercises(response.data.exercises);
-            } catch (error) {
-                console.log("Error fetching exercises:", error);
-                setError(error.message);
-            }
-        };
-        
-        fetchExercisesForWorkout();
-    }, [data._id, refresh]);
+    useImperativeHandle(ref, () => ({
+        submitForm: formik.submitForm,
+    }));
 
     return (
         <Box width="100%" display="flex" flexDirection="column">
@@ -279,9 +230,7 @@ const onSubmit = async (values) => {
             <Center>
                 <Center width="100%" color="white" mt={5} borderRadius="10px" display="flex" flexDirection="column">
                     <VStack as="form" width="100%" onSubmit={formik.handleSubmit}>
-                        <FormControl>
-                            <FocusSelect focusValues={formik.values.focusGroup} formik={formik} />
-                        </FormControl>
+                        <FocusSelect focusValues={formik.values.focusGroup} formik={formik} />
                         <FormControl p={1} pl={2} pt={2} bg="gray.600" borderRadius="10px">
                             <Input
                                 placeholder='Name'
@@ -299,30 +248,39 @@ const onSubmit = async (values) => {
                                 borderRadius={0}
                                 _focus={{ boxShadow: 'none' }}
                             />
-                           <FormControl>
-                                <Textarea
-                                    placeholder='Notes...'
-                                    name="notes"
-                                    rows={1}
-                                    maxHeight="150px"
-                                    value={formik.values.notes}
-                                    ref={textareaRef}
-                                    onChange={(e) => {
-                                        formik.handleChange(e); // Update Formik value
-                                        adjustHeight(); // Adjust textarea height
-                                    }}
-                                    bgColor="gray.600"
-                                    paddingLeft="10px"
-                                    mt={1}
-                                    border={0}
-                                    borderRadius={0}
-                                    _focus={{ boxShadow: 'none' }}
+                            <Textarea
+                                placeholder='Notes...'
+                                name="notes"
+                                rows={1}
+                                maxHeight="150px"
+                                value={formik.values.notes}
+                                ref={textareaRef}
+                                onChange={(e) => formik.handleChange(e)}
+                                bgColor="gray.600"
+                                paddingLeft="10px"
+                                mt={1}
+                                border={0}
+                                borderRadius={0}
+                                _focus={{ boxShadow: 'none' }}
                                 />
-                            </FormControl>
                         </FormControl>
-                        <ExerciseList setRefresh={setRefresh} ref={exerciseListRef} session={false} workoutID={data._id} refresh={refresh} formik={formik}/>
+                        <ExerciseList 
+                            session={false} 
+                            workoutID={selectedWorkout._id} 
+                            editModalRefresh={refresh}
+                            exerciseRefs={exerciseRefs}
+                            ref={exerciseListRef}
+                            exercises={exercises}
+                            setExercises={setExercises}
+                        />
                         <Flex w="100%" justify='space-between'>
-                            <AddExercise onSecondChildClose={handleSecondChildClose} setExercises={setExercises} session={false} workoutID={data._id}/>
+                            <AddExercise 
+                                refreshModal={memoizedEditModalRefresh} 
+                                exercises={exercises}
+                                setExercises={setExercises} 
+                                session={false} 
+                                workoutID={selectedWorkout._id}
+                            />
                             <Button onClick={handleStartWorkout}>Start Workout</Button>
                         </Flex>
                         <Box>

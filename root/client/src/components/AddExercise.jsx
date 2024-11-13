@@ -2,12 +2,12 @@ import { Button, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFo
 import React from 'react'
 import ExerciseCategories from './ExerciseCategories'
 
-const AddExercise = ({ session, workoutID, onSecondChildClose, exercises, setExercises }) => {
+const AddExercise = ({ session, workoutID, refreshModal, exercises, setExercises }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
 
     // When ExerciseCategories is closed, the function for the parent of this component (One of the modals) is activated, causing a refresh
     const handleClose = () => {
-        onSecondChildClose()
+        refreshModal()
         onClose()
     }
 
@@ -21,7 +21,7 @@ const AddExercise = ({ session, workoutID, onSecondChildClose, exercises, setExe
                     <ModalCloseButton />
                     <ModalBody>
                         <ExerciseCategories 
-                            onChildClose={handleClose} 
+                            closeAndRefresh={handleClose} 
                             session={session} 
                             workoutID={workoutID} 
                             exercises={exercises}

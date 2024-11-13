@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useAuthUser } from 'react-auth-kit'
 
-const ExerciseCategories = ({ session, workoutID, onChildClose, exercises, setExercises }) => {
+const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, setExercises }) => {
     const [category, setCategory] = useState('')
     const [categoryExercises, setCategoryExercises] = useState([])
     const [updated, setUpdated] = useState(false)
@@ -44,6 +44,7 @@ const ExerciseCategories = ({ session, workoutID, onChildClose, exercises, setEx
                     await axios.put(`http://localhost:5000/api/workoutsessions/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })
+                    setExercises([...exercises, response.data])
                 } else {
                     console.log(exercises, newExercise)
                     setExercises([...exercises, newExercise])
@@ -72,13 +73,15 @@ const ExerciseCategories = ({ session, workoutID, onChildClose, exercises, setEx
                     await axios.put(`http://localhost:5000/api/workouts/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })
+                    setExercises([...exercises, response.data])
                 } else {
+                    console.log(exercises, newExerciseTemplate)
                     setExercises([...exercises, newExerciseTemplate])
                 }
             }
 
             // Close everything out
-            onChildClose()
+            closeAndRefresh()
             setLoading(false)
         } catch (error) {
             console.log(error)

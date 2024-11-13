@@ -7,15 +7,11 @@ const Set = ({ index, set, onChange, onDelete }) => {
     const textareaRef = useRef(null);
 
     const handleFocus = () => {
-        if (textareaRef.current) {
-            setHeight(`${textareaRef.current.scrollHeight}px`);
-        }
+        if (textareaRef.current) setHeight(`${textareaRef.current.scrollHeight}px`);
     };
 
     const handleBlur = (e) => {
-        if (e.target.value === "") {
-            setHeight(minHeight);
-        }
+        if (e.target.value === "") setHeight(minHeight);
     };
 
     const handleInput = (e) => {
@@ -25,10 +21,6 @@ const Set = ({ index, set, onChange, onDelete }) => {
 
     const handleUpdateInputChange = (e, field) => {
         onChange({ [field]: e.target.value });
-    };
-
-    const handleDelete = () => {
-        onDelete();
     };
 
     return (
@@ -48,7 +40,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                         backgroundColor: 'red.300',
                         cursor: 'pointer'
                     }}
-                    onClick={handleDelete}
+                    onClick={onDelete}
                     role="group" 
                 >
                     <Text

@@ -13,13 +13,13 @@ const setSchema = new mongoose.Schema({
         ref: 'WorkoutSession'
     },
     reps: {
-        type: Number,
+        type: Number, 
     },
     weight: {
         type: Number,
         min: 0,
     },
-    notes: {
+    notes: { 
         type: String,
         max: 250
     },
@@ -27,10 +27,10 @@ const setSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    restTimeSec: {
+    restTimeSec: { 
         type: Number,
         min: 0,
-    },
+    }, 
     ghost: {
         type: Boolean,
         default: true

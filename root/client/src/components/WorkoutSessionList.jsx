@@ -6,49 +6,49 @@ import { useNavigate } from 'react-router-dom'
 import EditSessionModal from './modal-body/EditSessionModal'
 import formatTime from '../resources/formatTime'
 import daysOfWeek from '../resources/daysOfWeek'
+import getTimeOfDay from '../resources/getTimeOfDay'
 
 
-const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}) => {
+const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkout}) => {
     const [workouts, setWorkouts] = useState([])
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [newWorkoutId, setNewWorkoutId] = useState(null)
-    const [refresh, setRefresh] = useState(0);
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
-
     const { isOpen, onOpen, onClose } = useDisclosure()
     const editSessionModalRef = useRef()
-
-    // This function will be used to handle modal close, and will invoke the child function first
-    const handleModalClose = async () => {
-        try {
-            if (editSessionModalRef.current) {
-                await editSessionModalRef.current.handleClose();
-            }
-            onClose(); // Close modal afterward
-        } catch (err) {
-            console.error("Error during modal close:", err);
-        }
-    };
 
     // Grabs the user's id
     const auth = useAuthUser()
     const uid = auth()?.uid
     const navigate = useNavigate()
 
-    // Converts timestamp to time of day
-    const getTimeOfDay = (timestamp) => {
-        const date = new Date(timestamp);
-        const hour = date.getHours();
-      
-        if (hour >= 5 && hour < 12) {
-          return "Morning";
-        } else if (hour >= 12 && hour < 18) {
-          return "Afternoon";
-        } else {
-          return "Evening";
+    // Fetches all the workoutsessions for the user
+    const refreshWorkoutSessions = async () => {
+        setLoading(true)
+        try {
+            const response = await axios.get(`http://localhost:5000/api/workoutsessions/user/${uid}`);
+            const updatedData = response.data.map((item) => {
+                const date = new Date(item.date);
+                return {
+                    ...item,
+                    date: {
+                        day: daysOfWeek[date.getDay()],
+                        month: date.getMonth() + 1,
+                        date: date.getDate(),
+                        year: date.getFullYear(),
+                    },
+                };
+            });
+            setWorkouts(updatedData);
+        } catch (err) {
+            setWorkouts([])
+            setError(err.message);
+        }  finally {
+            setLoading(false);
         }
-      };
+
+    };
 
     // Adds a new workout session to the database
     const handleAddSession = async () => {
@@ -61,12 +61,13 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
                 name: `${currTimeOfDay} Workout`,
                 durationSec: 0,
             })
-            setLoading(false)
+            await refreshWorkoutSessions()
             setNewWorkoutId(res.data._id)
-            setRefresh((prev) => prev + 1)
         } catch (err) {
             console.error("Error during modal close:", err);
             setError(err.message)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -76,14 +77,24 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
         onOpen();
     };
 
-    const handleEditClose = async () => {
-        try {
-            await handleModalClose(); // Close the modal and handle child close
-            setRefresh((prev) => prev + 1); // Trigger refresh after modal closes
-        } catch (err) {
-            console.error("Error in handleEditClose:", err);
+    // Save and close the modal
+    const handleSaveAndClose = async () => {
+        if (editSessionModalRef.current) {
+            await editSessionModalRef.current.submitForm();
         }
-    };
+        await refreshWorkoutSessions()
+        onClose()
+        setSelectedWorkout(null)
+    }
+
+    useEffect(() => {
+        // If no uid, user is not logged in and sent to login page
+        if (!uid) {
+            navigate('/login')
+            return
+        }
+        refreshWorkoutSessions()
+    }, [uid, navigate, dashboardRefresh]);
 
     useEffect(() => {
         if (newWorkoutId && workouts.length > 0) {
@@ -94,43 +105,7 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
                 setNewWorkoutId(null);
             }
         }
-    }, [newWorkoutId, workouts, onOpen]);
-
-    useEffect(() => {
-        // If no uid, user is not logged in and sent to login page
-        if (!uid) {
-            navigate('/login')
-            return
-        }
-
-        // Fetches all the workoutsessions for the user
-        const getWorkoutSessions = async () => {
-            setLoading(true)
-            try {
-                const response = await axios.get(`http://localhost:5000/api/workoutsessions/user/${uid}`);
-                const updatedData = response.data.map((item) => {
-                    const date = new Date(item.date);
-                    return {
-                        ...item,
-                        date: {
-                            day: daysOfWeek[date.getDay()],
-                            month: date.getMonth() + 1,
-                            date: date.getDate(),
-                            year: date.getFullYear(),
-                        },
-                    };
-                });
-                setWorkouts(updatedData);
-                setLoading(false)
-            } catch (err) {
-                setWorkouts([])
-                setError(err.message);
-                setLoading(false)
-            }
-        };
-
-        getWorkoutSessions();
-    }, [refresh, uid, navigate, parentRefresh]);
+    }, [newWorkoutId, workouts]);
 
     // Open the modal automatically for the started workout
     useEffect(() => {
@@ -142,7 +117,7 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
                 setStartedWorkout(null); // Reset startedWorkout after opening the modal
             }
         }
-    }, [startedWorkout, workouts, onOpen, setStartedWorkout]);
+    }, [startedWorkout, workouts]);
 
     return (
         <>
@@ -177,12 +152,12 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
                                     <Flex justify="center" flexDir="column" color="white" minW="40px">
                                         <Box>{workout.name}</Box>
                                         <Box>
-                                            {window.screen.width > 800 ? (
+                                            {window.screen.width > 800 && (
                                                 <Flex flexDir="column" opacity="45%" color="white">
                                                     <Box fontSize="small">{workout.notes.length > 50 ? workout.notes.slice(0, 50) + '...' : workout.notes}</Box>
                                                     <Box></Box>
                                                 </Flex>
-                                            ) : (<></>)}
+                                            )}
                                         </Box>
                                     </Flex>
                                 </Flex>
@@ -192,12 +167,16 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
                                 </Flex>
                             </Flex>
                             {selectedWorkout && selectedWorkout._id === workout._id && (
-                                <Modal isOpen={isOpen} onClose={handleEditClose}>
+                                <Modal isOpen={isOpen} onClose={handleSaveAndClose}>
                                     <ModalOverlay />
-                                    <ModalContent aria-hidden="false" bgColor="gray.700" borderRadius="10px">
+                                    <ModalContent mx="auto" my="auto" aria-hidden="false" bgColor="gray.700" borderRadius="10px">
                                         <ModalCloseButton color="white" />
                                         <ModalBody>
-                                            <EditSessionModal ref={editSessionModalRef} handleClose={handleEditClose} data={selectedWorkout} />
+                                            <EditSessionModal 
+                                                ref={editSessionModalRef}
+                                                closeSessionList={handleSaveAndClose} 
+                                                selectedWorkout={selectedWorkout} 
+                                            />
                                         </ModalBody>
                                     </ModalContent>
                                 </Modal>
@@ -208,6 +187,6 @@ const WorkoutSessionList = (({ parentRefresh, startedWorkout, setStartedWorkout}
             </Flex>
         </>
     )
-})
+}
 
 export default WorkoutSessionList

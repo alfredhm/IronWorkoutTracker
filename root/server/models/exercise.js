@@ -3,23 +3,23 @@ const jwt = require('jsonwebtoken')
 const Joi = require('joi')
 const mongoose = require('mongoose')
 const muscleCategories = require('../resources/muscle-groups')
-const { User } = require('./user')
+const { User } = require('./user') 
 const path = require('path')
 const { fstat } = require('fs')
 
 const exerciseSchema = new mongoose.Schema({
-    userId: {
+    userId: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    name: { 
+    name: {   
         type: String,
         required: true,
         minlength: 2,
         maxlength: 50
     },
-    category: {
+    category: { 
         type: [String],
         enum: muscleCategories,
     }, 
@@ -96,7 +96,7 @@ async function validateExercise(exercise) {
                 })
             return errors
         }),
-        notes: Joi.string().max(500).error(errors => {
+        notes: Joi.string().max(500).allow('').error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
                     case "string.max":
@@ -104,6 +104,7 @@ async function validateExercise(exercise) {
                         break;                   
                 }
             })
+            return errors
         }),
         sets: Joi.array().items(Joi.string().pattern(/^[0-9a-fA-F]{24}$/)).error(errors => {
             errors.forEach(err => {
