@@ -54,7 +54,7 @@ router.get('/category/:category', async (req, res) => {
         let exercises = []
 
         for (let i = 0; i < categories.length; i++) {
-            const currExercises = await Exercise.find({ category: categories[i] })
+            const currExercises = await Exercise.find({ category: categories[i], isPreset: true })
             exercises.push(...currExercises)
             
         }
@@ -147,4 +147,4 @@ router.delete('/:id', getExercise, async (req, res) => {
 module.exports = router;
  
 
-   
+    

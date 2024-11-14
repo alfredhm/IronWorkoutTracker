@@ -23,7 +23,7 @@ router.get('/user/:userId', async (req, res) => {
         const userId = req.params.userId
         const workoutSessions = await WorkoutSession.find({ userId: userId }).populate('userId', 'name email').populate('exercises')
         if (workoutSessions.length === 0) {
-            return res.status(404).json({ message: 'No workout sessions found for this user'})
+            return res.json([])
         }
         res.json(workoutSessions)
     } catch (err) {

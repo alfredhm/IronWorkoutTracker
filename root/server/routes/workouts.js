@@ -15,13 +15,23 @@ router.get('/', async (req, res) => {
     }
 })
 
+// Get template workouts
+router.get('/template', async (req, res) => {
+    try {
+        const workouts = await Workout.find({ isTemplate: true }).populate('userId', 'name email').populate('exercises')
+        res.json(workouts)
+    } catch (err) {
+        res.status(500).json({ message: err.message})
+    }
+})
+
 // Get workout by user ID
 router.get('/user/:userId', async (req, res) => {
     try {
         const userId = req.params.userId
         const workouts = await Workout.find({ userId: userId }).populate('userId', 'name email').populate('exercises')
         if (workouts.length === 0) {
-            return res.status(404).json({ message: 'No workouts found for this user'})
+            return res.json([])
         }
         res.json(workouts)
     } catch (err) {

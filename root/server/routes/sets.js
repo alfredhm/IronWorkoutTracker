@@ -38,8 +38,8 @@ router.post('/', async (req, res) => {
     const set = new Set({
         exerciseId: req.body.exerciseId,
         sessionId: req?.body.sessionId,
-        reps: req.body.reps,
-        weight: req.body.weight,
+        reps: req?.body.reps,
+        weight: req?.body.weight,
         notes: req.body.notes,
         bodyWeight: req.body.bodyWeight,
         restTimeSec: req.body.restTimeSec,

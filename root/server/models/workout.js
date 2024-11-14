@@ -23,7 +23,7 @@ const workoutSchema = new mongoose.Schema({
         max: 500,
         default: ""
     }, 
-    date: {
+    date: { 
         type: Date, 
         default: Date.now
     },
@@ -33,7 +33,7 @@ const workoutSchema = new mongoose.Schema({
     }], 
     isTemplate: {
         type: Boolean,
-        default: true 
+        default: false 
     },
 }, { timestamps: true })
 

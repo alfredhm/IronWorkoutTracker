@@ -14,10 +14,12 @@ const setSchema = new mongoose.Schema({
     },
     reps: {
         type: Number, 
+        default: 0,
     },
     weight: {
         type: Number,
         min: 0,
+        default: 0
     },
     notes: { 
         type: String,
@@ -68,7 +70,7 @@ async function validateSet(set) {
             })
             return errors
         }),
-        reps: Joi.number().error(errors => {
+        reps: Joi.number().default(0).error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
                     case "number.min":
@@ -81,7 +83,7 @@ async function validateSet(set) {
             })
             return errors
         }),
-        weight: Joi.number().min(0).error(errors => {
+        weight: Joi.number().default(0).min(0).error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
                     case "number.min":
