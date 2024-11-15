@@ -1,59 +1,97 @@
-import { Box, Flex, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, Spinner, useDisclosure, Text, Button } from '@chakra-ui/react'
+import { Box, Flex, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, Spinner, useDisclosure, Text, Button, Heading } from '@chakra-ui/react'
 import axios from 'axios'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { useNavigate } from 'react-router-dom';
 import muscleIcons from '../resources/muscleIcons'
 import getFocusCount from '../resources/getFocusCount'
 import convertToMonthDay from '../resources/convertToMonthDay'
 import EditWorkoutModal from './modal-body/EditWorkoutModal'
+import ErrorModal from './ErrorModal';
 
 const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
     const [workouts, setWorkouts] = useState([])
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [newWorkoutId, setNewWorkoutId] = useState(null)
     const [error, setError] = useState("")
-    const [refresh, setRefresh] = useState(0)
-    const [loading, setLoading] = useState(false)
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [pullStart, setPullStart] = useState(null);
+    const [pullDownDistance, setPullDownDistance] = useState(0);
     const { isOpen, onOpen, onClose } = useDisclosure()
     const editWorkoutModalRef = useRef()
-
-    // Grabs the user's id
-    const auth = useAuthUser()
+    const editSessionModalRef = useRef();
+    const scrollContainerRef = useRef();
+    const refreshThreshold = 100;
+    const minSpinnerDisplayTime = 500;
+    const auth = useAuthUser();
     const uid = auth()?.uid;
     const navigate = useNavigate();
 
-    // Fetches all the workoutsessions for the user
+    // Fetches all the workouts for the user
     const refreshWorkouts = async () => {
-        setLoading(true)
+        setIsRefreshing(true)
+        const startTime = Date.now();
         try {
-            const response = await axios.get(`http://localhost:5000/api/workouts/user/${uid}`);
-            setWorkouts(response.data);
+            const templateWorkouts = await axios.get(`http://localhost:5000/api/workouts/template`);
+            const userWorkouts = await axios.get(`http://localhost:5000/api/workouts/user/${uid}`);
+            if (uid === "67358f7f63abd61be9b451b2") {
+                setWorkouts(userWorkouts.data)
+            } else {
+                setWorkouts(userWorkouts.data ? [...templateWorkouts.data, ...userWorkouts.data] : templateWorkouts.data);
+            }
+            
         } catch (err) {
-            setWorkouts([])
-            setError(err.message);
-        }  finally {
-            setLoading(false);
+            setError('Failed to refresh workouts');
+        } finally {
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = minSpinnerDisplayTime - elapsedTime;
+
+            // Ensure the spinner stays visible for the minimum display time
+            setTimeout(() => {
+                setIsRefreshing(false);
+            }, Math.max(remainingTime, 0));
         }
     };
+
+    const handleTouchStart = useCallback((event) => {
+        if (scrollContainerRef.current.scrollTop === 0) {
+            setPullStart(event.touches[0].clientY);
+        }
+    }, []);
+
+    const handleTouchMove = useCallback((event) => {
+        if (pullStart !== null) {
+            const currentY = event.touches[0].clientY;
+            const pullDistance = currentY - pullStart;
+            if (pullDistance > 0) {
+                setPullDownDistance(pullDistance);
+            }
+        }
+    }, [pullStart]);
+
+    const handleTouchEnd = useCallback(() => {
+        if (pullDownDistance > refreshThreshold) {
+            refreshWorkouts();
+            console.log('Refreshing workouts');
+        }
+        setPullDownDistance(0);
+        setPullStart(null);
+    }, [pullDownDistance]);
 
     // Adds a new workout session to the database
     const handleAddWorkout = async () => {
         try {
-            setLoading(true)
             const res = await axios.post(`http://localhost:5000/api/workouts`, {
                 userId: uid,
                 name: "Unnamed Workout",
             })
-            setNewWorkoutId(res.data._id)
             await refreshWorkouts()
+            setNewWorkoutId(res.data._id)
         } catch (err) {
-            console.error("Error during modal close:", err);
             setError(err.message)
-        } finally {
-            setLoading(false)
         }
     }
+    
 
     // Sets selected workout to the workout clicked and opens the modal
     const handleWorkoutClick = (workout) => {
@@ -96,18 +134,43 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
 
     return (
         <>
+            {error && <ErrorModal isOpen={error.length > 0} onClose={() => setError('')} errorMessage={error} />}
+            {pullDownDistance > 0 && (
+                <Flex
+                    top={`-${refreshThreshold}px`}
+                    w="100%"
+                    justifyContent="center"
+                    alignItems="center"
+                    height="70px"
+                    transition="transform 0.2s"
+                    transform={`translateY(${Math.min(pullDownDistance, refreshThreshold)}px)`}
+                    position="relative"
+                >
+                    {isRefreshing || pullDownDistance >= refreshThreshold ? (
+                        <Spinner size="lg" color="gray.400" />
+                    ) : (
+                        <Box color="gray.500" fontSize="sm">Pull to refresh</Box>
+                    )}
+                </Flex>
+            )}
+            <Heading color="white">Workouts</Heading>
             <Flex w="100%" justifyContent='flex-end' pb={4}>
                 <Button p={0} width="30px" height="40px" bg="gray.800" onClick={handleAddWorkout}>
                     <Image maxHeight="13px" src={process.env.PUBLIC_URL + '/assets/plus.png'}></Image>
                 </Button>
             </Flex>
-            <Flex flexDir="column" gap="10px">
-                {loading ? (
-                    <Flex justifyContent="center" alignItems="center">
-                        <Spinner size="xl" color="white" />
-                    </Flex>
-                ) : (
-                    workouts.slice().reverse().map(workout => (
+            <Flex 
+                flexDir="column"
+                gap="10px"
+                overflowY="auto"
+                maxH='calc(100vh - 190px)'
+                width="100%"
+                ref={scrollContainerRef}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+            >
+                {workouts.slice().reverse().map(workout => (
                         <Box 
                             onClick={() => handleWorkoutClick(workout)} 
                             bg="gray.800" 
@@ -121,7 +184,6 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
                         >
                             <Flex width="100%" gap="20px">
                                 <Flex width="100%" gap="20px" alignItems="center" justify="space-between">
-                                    <>
                                         <Flex gap="30px">
                                             <Flex pl={2} justify="center" flexDir="column" color="white" minW="40px">
                                                 <Box minW="50px">{workout.name}</Box>
@@ -139,17 +201,16 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
                                         <Flex alignItems="flex-end">
                                             {workout.focusGroup.slice(0, getFocusCount(workout)).map(muscle => (
                                                 <Box key={muscle}>
-                                                    <Image maxHeight={{ base: "35px", md: "50px" }} src={muscleIcons[muscle]} />
+                                                    <Image maxHeight={{ base: "40px", sm: "40px", md: "50px" }} src={muscleIcons[muscle]} />
                                                 </Box>
                                             ))}
                                         </Flex>
-                                    </>
                                 </Flex>
                             </Flex>
                             {selectedWorkout && selectedWorkout._id === workout._id && (
                                 <Modal isOpen={isOpen} onClose={handleSaveAndClose}>
                                     <ModalOverlay />
-                                    <ModalContent mx="auto" my="auto"  aria-hidden="false" bgColor="gray.700" borderRadius="10px">
+                                    <ModalContent mx="auto" my="auto"  aria-hidden="false" bgColor="gray.700">
                                         <ModalCloseButton color="white" />
                                         <ModalBody>
                                             <EditWorkoutModal 
@@ -165,7 +226,7 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
                                 </Modal>
                             )}
                         </Box>
-                    ))
+                    )
                 )}
             </Flex>
         </>

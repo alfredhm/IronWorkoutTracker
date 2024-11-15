@@ -28,7 +28,8 @@ const LoginPage = () => {
                 tokenType: "Bearer",
                 authState: { 
                     email: values.email,
-                    uid: response.data.uid 
+                    uid: response.data.uid,
+                    name: response.data.name,
                 },
             })
 

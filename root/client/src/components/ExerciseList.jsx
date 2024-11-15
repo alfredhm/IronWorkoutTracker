@@ -3,6 +3,7 @@ import axios from "axios";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import Exercise from "./Exercise";
 import ExerciseTemplate from "./ExerciseTemplate";
+import ErrorModal from "./ErrorModal";
 
 const ExerciseList = forwardRef(({ workoutID, session, editModalRefresh, exerciseRefs, exercises, setExercises }, ref) => {
   const apiParam = session ? "workoutsessions" : "workouts";
@@ -79,7 +80,9 @@ const ExerciseList = forwardRef(({ workoutID, session, editModalRefresh, exercis
     persistDeletedExercises,
   }));
 
-  return loading ? (
+  return error ? 
+      <ErrorModal isOpen={error.length > 0} onClose={() => setError("")} errorMessage={error} /> : 
+    loading ? (
       <Flex justifyContent="center" alignItems="center">
         <Spinner size="xl" color="white" />
       </Flex>

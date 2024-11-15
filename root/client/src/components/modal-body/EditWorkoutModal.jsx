@@ -14,6 +14,7 @@ import muscleGroups from '../../resources/muscle-groups';
 import * as Yup from 'yup'
 import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
+import ErrorModal from '../ErrorModal';
 
 const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTabIndex, setStartedWorkout, refreshWorkouts }, ref) => {
     const [error, setError] = useState("")
@@ -72,8 +73,12 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
     const onSubmit = async (values) => {
         setError('');
         setLoading(true);
-
         try {
+
+            if (selectedWorkout.isTemplate) {
+                return
+            }
+
             // Construct payload without modifying exercises unless specified
             const updatedValues = {
                 userId: uid,
@@ -225,71 +230,80 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
     }));
 
     return (
-        <Box width="100%" display="flex" flexDirection="column">
-            <Heading fontSize={{ base: "x-large", md: "xx-large" }} color="white">{formik.values.name}</Heading>
-            <Center>
-                <Center width="100%" color="white" mt={5} borderRadius="10px" display="flex" flexDirection="column">
-                    <VStack as="form" width="100%" onSubmit={formik.handleSubmit}>
-                        <FocusSelect focusValues={formik.values.focusGroup} formik={formik} />
-                        <FormControl p={1} pl={2} pt={2} bg="gray.600" borderRadius="10px">
-                            <Input
-                                placeholder='Name'
-                                name="name"
-                                value={formik.values.name}
-                                onChange={formik.handleChange}
-                                clearonescape="true"
-                                bgColor="gray.600"
-                                height="35px"
-                                type="name"
-                                autoComplete='false'
-                                paddingLeft="10px"
-                                border={0}
-                                borderBottom={'1px solid gray'}
-                                borderRadius={0}
-                                _focus={{ boxShadow: 'none' }}
-                            />
-                            <Textarea
-                                placeholder='Notes...'
-                                name="notes"
-                                rows={1}
-                                maxHeight="150px"
-                                value={formik.values.notes}
-                                ref={textareaRef}
-                                onChange={(e) => formik.handleChange(e)}
-                                bgColor="gray.600"
-                                paddingLeft="10px"
-                                mt={1}
-                                border={0}
-                                borderRadius={0}
-                                _focus={{ boxShadow: 'none' }}
+        <>
+            {error && 
+                <ErrorModal isOpen={error.length > 0} onClose={() => setError("")} errorMessage={error} />
+            }
+            <Box width="100%" display="flex" flexDirection="column">
+                <Heading fontSize={{ base: "x-large", md: "xx-large" }} color="white">{formik.values.name}</Heading>
+                <Center>
+                    <Center width="100%" color="white" mt={5} display="flex" flexDirection="column">
+                        <VStack as="form" width="100%" onSubmit={formik.handleSubmit}>
+                            <FocusSelect focusValues={formik.values.focusGroup} formik={formik} />
+                            <FormControl p={1} pl={2} pt={2} bg="gray.600" borderRadius="10px">
+                                <Input
+                                    placeholder='Name'
+                                    name="name"
+                                    value={formik.values.name}
+                                    onChange={formik.handleChange}
+                                    clearonescape="true"
+                                    bgColor="gray.600"
+                                    height="35px"
+                                    type="name"
+                                    autoComplete='false'
+                                    paddingLeft="10px"
+                                    border={0}
+                                    borderBottom={'1px solid gray'}
+                                    borderRadius={0}
+                                    _focus={{ boxShadow: 'none' }}
+                                    disabled={selectedWorkout.isTemplate}
                                 />
-                        </FormControl>
-                        <ExerciseList 
-                            session={false} 
-                            workoutID={selectedWorkout._id} 
-                            editModalRefresh={refresh}
-                            exerciseRefs={exerciseRefs}
-                            ref={exerciseListRef}
-                            exercises={exercises}
-                            setExercises={setExercises}
-                        />
-                        <Flex w="100%" justify='space-between'>
-                            <AddExercise 
-                                refreshModal={memoizedEditModalRefresh} 
-                                exercises={exercises}
-                                setExercises={setExercises} 
+                                <Textarea
+                                    placeholder='Notes...'
+                                    name="notes"
+                                    rows={1}
+                                    maxHeight="150px"
+                                    value={formik.values.notes}
+                                    ref={textareaRef}
+                                    onChange={(e) => formik.handleChange(e)}
+                                    bgColor="gray.600"
+                                    paddingLeft="10px"
+                                    mt={1}
+                                    border={0}
+                                    borderRadius={0}
+                                    _focus={{ boxShadow: 'none' }}
+                                    disabled={selectedWorkout.isTemplate}
+                                    />
+                            </FormControl>
+                            <ExerciseList 
                                 session={false} 
-                                workoutID={selectedWorkout._id}
+                                workoutID={selectedWorkout._id} 
+                                editModalRefresh={refresh}
+                                exerciseRefs={exerciseRefs}
+                                ref={exerciseListRef}
+                                exercises={exercises}
+                                setExercises={setExercises}
                             />
-                            <Button onClick={handleStartWorkout}>Start Workout</Button>
-                        </Flex>
-                        <Box>
-                            <Text textAlign="center" color="red.300">{error}</Text>
-                        </Box>
-                    </VStack>
+                            <Flex w="100%" justify={selectedWorkout.isTemplate ? 'center' : 'space-between'}>
+                                {!selectedWorkout.isTemplate && 
+                                    <AddExercise 
+                                        refreshModal={memoizedEditModalRefresh} 
+                                        exercises={exercises}
+                                        setExercises={setExercises} 
+                                        session={false} 
+                                        workoutID={selectedWorkout._id}
+                                    />
+                                }
+                                <Button onClick={handleStartWorkout}>Start Workout</Button>
+                            </Flex>
+                            <Box>
+                                <Text textAlign="center" color="red.300">{error}</Text>
+                            </Box>
+                        </VStack>
+                    </Center>
                 </Center>
-            </Center>
-        </Box>
+            </Box>
+        </>
     )
 })
 

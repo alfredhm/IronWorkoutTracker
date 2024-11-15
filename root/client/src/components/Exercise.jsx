@@ -3,11 +3,11 @@ import Set from "./Set";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
+import ErrorModal from "./ErrorModal";
 
 const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => {
     const [error, setError] = useState('');
     const [sets, setSets] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [deletedSets, setDeletedSets] = useState([]); // Track sets to delete from backend
     const [modified, setModified] = useState(false);
 
@@ -94,7 +94,6 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
     useEffect(() => {
         const fetchSets = async () => {
             try {
-                setLoading(true);
                 const response = await axios.get(`http://localhost:5000/api/sets/exercise/${exercise._id}`);
                 const loadedSets = response.data.filter(set => set.sessionId === workoutID);    
                 if (loadedSets.length === 0) {
@@ -104,56 +103,59 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
                 setSets(loadedSets);
             } catch (err) {
                 setError(err.message);
-            } finally {
-                setLoading(false);
             }
         };
         fetchSets();
     }, [exercise._id, workoutID]);
 
     return (
-        <Flex key={exercise._id} w="100%" borderRadius={7} bg="gray.600">
-            <Flex w="100%">
-                <Flex px={4} flexDir="column" w="100%">
-                    <Flex
-                        py={2}
-                        w="100%"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        borderBottom="1px solid"
-                        borderColor="rgba(256, 256, 256, 0.3)"
-                    >
-                        <Text fontSize="small" fontWeight="650">{exercise.name}</Text>
-                        <Box onClick={() => onDeleteExercise(exercise._id)} _hover={{ cursor: 'pointer', color: 'red.300' }}>
-                            <DeleteIcon boxSize={4} />
-                        </Box>
-                    </Flex>
-                    <List>
-                        {sets.map((set, index) => (
-                            <ListItem key={set._id || `set-${index}`}>
-                                <Set
-                                    index={index}
-                                    set={set}
-                                    onChange={(updatedData) => handleUpdateSet(index, updatedData)}
-                                    onDelete={() => handleDeleteSet(index)}
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
-                    <Flex py={2}>
-                        <Text
-                            color="blue.300"
-                            fontSize="small"
-                            fontWeight="600"
-                            _hover={{ cursor: 'pointer', color: 'blue.100' }}
-                            onClick={handleAddSet}
+        <>
+            {error && 
+                <ErrorModal isOpen={error.length > 0} onClose={() => setError("")} errorMessage={error} />
+            }
+            <Flex key={exercise._id} w="100%" borderRadius={7} bg="gray.600">
+                <Flex w="100%">
+                    <Flex px={4} flexDir="column" w="100%">
+                        <Flex
+                            py={2}
+                            w="100%"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            borderBottom="1px solid"
+                            borderColor="rgba(256, 256, 256, 0.3)"
                         >
-                            Add Set
-                        </Text>
+                            <Text fontSize="small" fontWeight="650">{exercise.name}</Text>
+                            <Box onClick={() => onDeleteExercise(exercise._id)} _hover={{ cursor: 'pointer', color: 'red.300' }}>
+                                <DeleteIcon boxSize={4} />
+                            </Box>
+                        </Flex>
+                        <List>
+                            {sets.map((set, index) => (
+                                <ListItem key={set._id || `set-${index}`}>
+                                    <Set
+                                        index={index}
+                                        set={set}
+                                        onChange={(updatedData) => handleUpdateSet(index, updatedData)}
+                                        onDelete={() => handleDeleteSet(index)}
+                                    />
+                                </ListItem>
+                            ))}
+                        </List>
+                        <Flex py={2}>
+                            <Text
+                                color="blue.300"
+                                fontSize="small"
+                                fontWeight="600"
+                                _hover={{ cursor: 'pointer', color: 'blue.100' }}
+                                onClick={handleAddSet}
+                            >
+                                Add Set
+                            </Text>
+                        </Flex>
                     </Flex>
                 </Flex>
             </Flex>
-        </Flex>
+        </>
     );
 });
 

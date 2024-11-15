@@ -41,8 +41,33 @@ router.get('/user/:userId', async (req, res) => {
     }
 })
 
-// Get exercises by category
-router.get('/category/:category', async (req, res) => {
+// Get user made exercises by category
+router.get('/category/:category/:userId', async (req, res) => {
+    try {
+        let category = req.params.category;
+        category = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+        let categories = exerciseKey[category];
+
+        if (!categories || categories.length === 0) {
+            return res.json([]);
+        }
+
+        let exercises = [];
+        let userId = req.params.userId;
+
+        for (let i = 0; i < categories.length; i++) {
+            const currExercises = await Exercise.find({ category: categories[i], userId: userId, isUserPreset: true });
+            exercises.push(...currExercises);
+        }
+        res.json(exercises);
+    } catch (err) {
+        console.error("Error:", err.message);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Get preset exercises by category 
+router.get('/preset/category/:category', async (req, res) => {
     try {
         let category = req.params.category
         category = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
@@ -91,6 +116,7 @@ router.post('/', async (req, res) => {
     const exercise = new Exercise({
         userId: req.body.userId,
         workoutId: req.body.workoutId,
+        category: req.body.category,
         name: req.body.name,
         focusGroup: req.body.focusGroup,
         notes: req.body.notes,
@@ -98,7 +124,9 @@ router.post('/', async (req, res) => {
         numOfSets: req.body.numOfSets,
         isTemplate: req.body.isTemplate,
         isSingle: req.body.isSingle,
-        isPreset: req.body.isPreset
+        isPreset: req.body.isPreset,
+        isUserPreset: req.body.isUserPreset
+
     });
 
     try {
@@ -118,12 +146,14 @@ router.put('/:id', getExercise, async (req, res) => {
     try { 
         if (req.body.userId) res.exercise.userId = req.body.userId;
         if (req.body.workoutId) res.exercise.workoutId = req.body.workoutId
+        if (req.body.category) res.exercise.category = req.body.category
         if (req.body.name) res.exercise.name = req.body.name;
         if (req.body.focusGroup) res.exercise.focusGroup = req.body.focusGroup;
         if (req.body.notes) res.exercise.notes = req.body.notes; 
         if (req.body.isTemplate) res.exercise.isTemplate = req.body.isTemplate;
         if (req.body.isSingle) res.exercise.isSingle = req.body.isSingle;
         if (req.body.isPreset) res.exercise.isPreset = req.body.isPreset;
+        if (req.body.isUserPreset) res.exercise.isUserPreset = req.body.isUserPreset;
         if (req.body.sets && Array.isArray(req.body.sets)) res.exercise.sets.push(...req.body.sets);
         if (req.body.numOfSets) res.exercise.numOfSets = req.body.numOfSets;
 

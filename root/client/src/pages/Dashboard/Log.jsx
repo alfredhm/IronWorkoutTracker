@@ -6,7 +6,6 @@ const Log = ({ dashboardRefresh, startedWorkout, setStartedWorkout }) => {
   return (
     <>
         <Flex flexDir='column' width="100%" height="inherit">
-          <Heading color="white">Log</Heading>
             <WorkoutSessionList 
               dashboardRefresh={dashboardRefresh} 
               startedWorkout={startedWorkout} 

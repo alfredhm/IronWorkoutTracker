@@ -6,7 +6,6 @@ const Workouts = ({ setTabIndex, setStartedWorkout }) => {
     return (
         <>
             <Flex flexDir='column' width="100%" height="inherit">
-              <Heading color="white">Workouts</Heading>
                 <WorkoutList setStartedWorkout={setStartedWorkout} setTabIndex={setTabIndex} />
             </Flex>
         </>

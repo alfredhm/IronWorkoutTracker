@@ -1,10 +1,12 @@
 import { Input, Textarea, Text, Flex, Box, Image } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const Set = ({ index, set, onChange, onDelete }) => {
     const [height, setHeight] = useState("auto");
+    const [completed, setCompleted] = useState(false);
     const minHeight = "18px";
     const textareaRef = useRef(null);
+    const lbsRef = useRef(null);
 
     const handleFocus = () => {
         if (textareaRef.current) setHeight(`${textareaRef.current.scrollHeight}px`);
@@ -23,6 +25,18 @@ const Set = ({ index, set, onChange, onDelete }) => {
         onChange({ [field]: e.target.value });
     };
 
+    useEffect(() => {
+        if (set.reps) {
+            if (!set.weight) {
+                set.weight = 0;
+                lbsRef.current.value = 0;
+            }
+            setCompleted(true);
+        } else {
+            setCompleted(false);
+        }
+    })
+
     return (
         <Flex gap={3} py={2} position="relative" borderBottom="1px solid" borderColor="rgba(256, 256, 256, 0.3)">
             <Flex alignItems="center" justifyContent="center">
@@ -32,8 +46,8 @@ const Set = ({ index, set, onChange, onDelete }) => {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
-                    border="1px solid"
-                    borderColor="rgba(256, 256, 256, 0.3)"
+                    border="2px solid"
+                    borderColor={completed ? "white" : "rgba(256, 256, 256, 0.3)"}
                     borderRadius="25px"
                     position="relative"
                     _hover={{
@@ -44,8 +58,9 @@ const Set = ({ index, set, onChange, onDelete }) => {
                     role="group" 
                 >
                     <Text
-                        color="rgba(256, 256, 256, 0.3)"
+                        color={completed ? "white" : "rgba(256, 256, 256, 0.3)"}
                         fontSize="x-small"
+                        fontWeight="700"
                         p={2}
                         position="absolute"
                         top="50%"
@@ -91,6 +106,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                                 borderColor: "transparent"
                             }}
                             max={2000}
+                            ref={lbsRef}
                             value={set.weight || ''}
                             onChange={(e) => handleUpdateInputChange(e, 'weight')}
                         />
@@ -152,7 +168,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                         onFocus={handleFocus}
                         onInput={handleInput}
                         onBlur={handleBlur}
-                        value={set.notes || ''}
+                        value={set.notes}
                         onChange={(e) => handleUpdateInputChange(e, 'notes')}
                     />
                 </Flex>

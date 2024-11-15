@@ -1,5 +1,5 @@
 import { Button, Box, Link, Image } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSignOut } from "react-auth-kit"
 import useIsAuthenticated from 'react-auth-kit/dist/hooks/useIsAuthenticated'
 import { useNavigate } from "react-router-dom";
@@ -25,6 +25,10 @@ const NavBar = () => {
 
     // Logo brings user to dashboard if they are logged in and to the home page if they are not
     let logoHref = authState ? "/dashboard" : "/"
+
+    useEffect(() => {
+        setAuthState(isAuthenticated)
+    }, [isAuthenticated])
 
     return (
         <Box display="flex" alignItems="center" justifyContent="space-between" w={isHomePage ? "100%" : ['100%', '100%', '700px']} py={6} px={4}>

@@ -23,10 +23,9 @@ const Dashboard = () => {
     };
 
     return (
-        <Box display="flex" flexDir="column" alignItems="center" w="100vw" minH="100vh" bgColor="gray.700">
-            <NavBar />
+        <Box display="flex" flexDir="column" alignItems="center" h="100vh" bgColor="gray.700">
             <Box w={['100%', '100%', '700px']}>
-                <Tabs index={tabIndex} variant="soft-rounded" width="100%" isFitted display="flex" flexDirection="column" justifyContent="space-between">
+                <Tabs index={tabIndex} variant="soft-rounded" h="100%" width="100%" isFitted display="flex" flexDirection="column" justifyContent="space-between">
                     <TabPanels>
                         <TabPanel>
                             <Log startedWorkout={startedWorkout} setStartedWorkout={setStartedWorkout} dashboardRefresh={dashboardRefresh} />
@@ -34,15 +33,17 @@ const Dashboard = () => {
                         <TabPanel>
                             <Workouts setStartedWorkout={setStartedWorkout} setTabIndex={handleTabChange}/>
                         </TabPanel>
-                        <TabPanel>
-                            <CalendarPage />
-                        </TabPanel>
-                        <TabPanel>
+                        {/*
+                            <TabPanel>
+                                <CalendarPage />
+                            </TabPanel>
+                        */}
+                        <TabPanel h='100vh'>
                             <AccountPage />
                         </TabPanel>
                     </TabPanels>
                     <Box display="flex" justifyContent="center">
-                        <TabList w={['100%', '100%', '700px']} position="fixed" bottom="0"  borderRadius="10px 10px 0px 0px" bg="gray.800" color="white" width="100%">
+                        <TabList w={['100%', '100%', '700px']} position="fixed" bottom="0" borderRadius="5px 5px 0px 0px" bg="gray.800" color="white" width="100%">
                             <Tab onClick={() => handleTabChange(0)} _selected={{ color: 'blue.200', borderColor: 'blue.200'}}>
                                 <Flex flexDir="column" alignItems="center">
                                     <GrNotes size="25px"/>
@@ -55,13 +56,15 @@ const Dashboard = () => {
                                     <Text pt={1} fontSize="small">Workouts</Text>
                                 </Flex>
                             </Tab>
+                            {/*
+                                <Tab onClick={() => handleTabChange(2)} _selected={{ color: 'blue.200', borderColor: 'blue.200'}}>
+                                    <Flex flexDir="column" alignItems="center">
+                                        <IoCalendarOutline size="25px" />
+                                        <Text pt={1} fontSize="small">Calendar</Text>
+                                    </Flex>
+                                </Tab>
+                            */}
                             <Tab onClick={() => handleTabChange(2)} _selected={{ color: 'blue.200', borderColor: 'blue.200'}}>
-                                <Flex flexDir="column" alignItems="center">
-                                    <IoCalendarOutline size="25px" />
-                                    <Text pt={1} fontSize="small">Calendar</Text>
-                                </Flex>
-                            </Tab>
-                            <Tab onClick={() => handleTabChange(3)} _selected={{ color: 'blue.200', borderColor: 'blue.200'}}>
                                 <Flex flexDir="column" alignItems="center">
                                     <RiAccountCircleLine size="25px" />
                                     <Text pt={1} fontSize="small">Account</Text>

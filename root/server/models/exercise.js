@@ -1,11 +1,6 @@
-const config = require('config')
-const jwt = require('jsonwebtoken')
 const Joi = require('joi')
 const mongoose = require('mongoose')
 const muscleCategories = require('../resources/muscle-groups')
-const { User } = require('./user') 
-const path = require('path')
-const { fstat } = require('fs')
 
 const exerciseSchema = new mongoose.Schema({
     userId: { 
@@ -13,14 +8,14 @@ const exerciseSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    name: {   
+    name: {    
         type: String,
         required: true,
         minlength: 2,
         maxlength: 50
     },
     category: { 
-        type: [String],
+        type: [String], 
         enum: muscleCategories,
     }, 
     notes: {
@@ -31,7 +26,7 @@ const exerciseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Set'
     }],
-    numOfSets:{
+    numOfSets:{ 
         type: Number,
         default: 3
     },
@@ -40,6 +35,10 @@ const exerciseSchema = new mongoose.Schema({
         default: false
     }, 
     isPreset: {
+        type: Boolean,
+        default: false
+    },
+    isUserPreset: {
         type: Boolean,
         default: false
     }
@@ -119,6 +118,7 @@ async function validateExercise(exercise) {
         numOfSets: Joi.number().default(3),
         isSingle: Joi.boolean().default(false),
         isPreset: Joi.boolean().default(false),
+        isUserPreset: Joi.boolean().default(false)
     })
 
     // Validate using Joi Schema

@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
     
     // On success, create token and welcome user
     const token = user.generateAuthToken()
-    res.json({ message: `Welcome ${user.name}`, token: token, uid: user._id})
+    res.json({ message: `Welcome ${user.name}`, token: token, uid: user._id, name: user.name})
 })
 
 
