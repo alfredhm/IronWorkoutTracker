@@ -108,9 +108,9 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
         if (editSessionModalRef.current) {
             await editSessionModalRef.current.submitForm();
         }
-        await refreshWorkoutSessions();
         setSelectedWorkout(null);
         onClose();
+        await refreshWorkoutSessions();
     };
 
     useEffect(() => {
