@@ -99,9 +99,9 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
         if (editWorkoutModalRef.current) {
             await editWorkoutModalRef.current.submitForm();
         }
-        await refreshWorkouts()
         onClose()
         setSelectedWorkout(null)
+        await refreshWorkouts()
     }
 
     useEffect(() => {

@@ -75,10 +75,6 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
         setLoading(true);
         try {
 
-            if (selectedWorkout.isTemplate) {
-                return
-            }
-
             // Construct payload without modifying exercises unless specified
             const updatedValues = {
                 userId: uid,
