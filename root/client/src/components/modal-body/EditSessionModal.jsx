@@ -17,6 +17,7 @@ import FocusSelect from '../FocusSelect';
 import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
 import ErrorModal from '../ErrorModal';
+import SwipeableList from '../SwipeableList';
 
 const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout }, ref) => {
     const [error, setError] = useState("")
@@ -120,7 +121,7 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout }, ref)
                 const fetchedExercises = await Promise.all(
                     exerciseIDs.map(async (exerciseID) => {
                         try {
-                            const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID._id}`);
+                            const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID}`);
                             return exerciseResponse.data;
                         } catch {
                             return null;
@@ -212,7 +213,6 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout }, ref)
                                     Save
                                 </Button>
                             </Flex>
-
                             <Box>
                                 <Text textAlign="center" color="red.300">{error}</Text>
                             </Box>

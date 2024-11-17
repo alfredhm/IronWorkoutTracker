@@ -26,7 +26,7 @@ const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, 
             const updatedExercise = { ...exercise, numOfSets: setCount, notes };
             delete updatedExercise._id;
             delete updatedExercise.__v;
-            await axios.put(`http://localhost:5000/api/exercises/${exercise._id}`, updatedExercise);
+            await axios.put(`http://localhost:5000/api/exercises/${exercise}`, updatedExercise);
 
             onExerciseUpdate(updatedExercise);
             if (typeof editModalRefresh === "function") {

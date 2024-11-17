@@ -4,7 +4,7 @@ const { Workout } = require('../models/workout')
 async function getWorkout(req, res, next) {
     let workout;
     try {
-        workout = await Workout.findById(req.params.id).populate('userId').populate('exercises')
+        workout = await Workout.findById(req.params.id).populate('userId')
         if (!workout) {
             return res.status(404).json({ message: 'Cannot find workout'})
         }

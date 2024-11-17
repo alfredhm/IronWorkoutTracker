@@ -21,7 +21,7 @@ const ExerciseList = forwardRef(({ workoutID, session, editModalRefresh, exercis
       const fetchedExercises = await Promise.all(
         exerciseIDs.map(async (exerciseID) => {
             try {
-                const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID._id}`);
+                const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID}`);
                 return exerciseResponse.data;
             } catch {
                 return null;
@@ -91,7 +91,7 @@ const ExerciseList = forwardRef(({ workoutID, session, editModalRefresh, exercis
           <Flex flexDir="column" gap={session ? "10px" : 0} w="100%" py={0}>
             {exercises.map((exercise, index) => 
                 <Exercise
-                  key={exercise._id}
+                  key={index}
                   workoutID={workoutID}
                   exercise={exercise}
                   onDeleteExercise={handleDeleteExercise}
@@ -103,9 +103,9 @@ const ExerciseList = forwardRef(({ workoutID, session, editModalRefresh, exercis
       ) : (
         <Box display={exercises.length === 0 ? "none" : "block"} py={2} bg='gray.600' w='100%' borderRadius={'10px'}>
           <Flex flexDir="column" gap={session ? "10px" : 0} w="100%" py={0}>
-            {exercises.map((exercise, index) => 
+            {exercises.map((exercise, index) =>  
                 <ExerciseTemplate
-                  key={exercise._id}
+                  key={index}
                   last={index === exercises.length - 1}
                   exercise={exercise}
                   onDeleteExercise={handleDeleteExercise}

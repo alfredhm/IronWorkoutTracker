@@ -5,6 +5,7 @@ const getWorkoutSession = require('../middleware/getWorkoutSession')
 const mongoose = require('mongoose')
 const express = require('express')
 const { Exercise } = require('../models/exercise')
+const { Set } = require('../models/set')
 const router = express.Router()
 
 // Get all workout sessions
@@ -144,15 +145,27 @@ router.delete('/:workoutID/exercises', async (req, res) => {
     }
 }); 
 
-
 // Delete a workout
 router.delete('/:id', getWorkoutSession, async (req, res) => {
     try {
-        await res.workoutSession.deleteOne()
-        res.json({ message: 'Deleted Workout Session' });
+        // Delete all sets in each exercise's sets array
+        for (const exerciseId of res.workoutSession.exercises) {
+            const exercise = await Exercise.findById(exerciseId);
+            if (exercise && exercise.sets && exercise.sets.length > 0) {
+                await Set.deleteMany({ _id: { $in: exercise.sets } });
+            }
+        }
+
+        // Delete all exercises in the workout.exercises array
+        await Exercise.deleteMany({ _id: { $in: res.workoutSession.exercises } });
+
+        // Remove the workout itself
+        await res.workoutSession.deleteOne();
+        res.json({ message: 'Deleted Workout Session, all associated exercises, and their sets' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
+
 
 module.exports = router;

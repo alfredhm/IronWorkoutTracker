@@ -7,6 +7,8 @@ const _ = require('lodash')
 const { User, validate } = require('../models/user') 
 const mongoose = require('mongoose')
 const express = require('express')
+const { Workout } = require('../models/workout')
+const seedDatabase = require('../seedDatabase')
 const router = express.Router()
 
 const JWT_SECRET = config.get('jwtPrivateKey')
@@ -32,6 +34,8 @@ router.post('/', async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     user.password = await bcrypt.hash(user.password, salt)
     await user.save()
+    console.log("ASDADAWDAWD", user, user._id)
+    await seedDatabase(user._id)
     
     // Send token 
     const token = user.generateAuthToken()
@@ -169,6 +173,27 @@ router.post("/reset-password/:id/:token", async (req, res) => {
         console.error('Password reset failed: ', err)
         res.status(400).json({ success: false, message: 'Something went wrong'})
     }
+})
+
+router.delete('/:userId/workouts/:workoutId', auth, async (req, res) => {
+    const userId = req.params.userId
+    const workoutId = req.params.workoutId
+
+    // Validate that user exists
+    const userExists = await User.exists({ _id: userId })
+    if (!userExists) {
+        return res.status(400).send('User does not exist in database')
+    }
+
+    // Validate that workout exists
+    const workoutExists = await Workout.exists({ _id: workoutId })
+    if (!workoutExists) {
+        return res.status(400).send('Workout does not exist in database')
+    }
+
+    // Delete workout
+    await Workout.deleteOne({ _id: workoutId })
+    res.json({ message: 'Workout deleted' })
 })
 
 module.exports = router

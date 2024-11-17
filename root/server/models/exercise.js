@@ -29,7 +29,7 @@ const exerciseSchema = new mongoose.Schema({
     numOfSets:{ 
         type: Number,
         default: 3
-    },
+    }, 
     isSingle: {
         type: Boolean,
         default: false

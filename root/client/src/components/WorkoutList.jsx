@@ -32,13 +32,8 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
         setIsRefreshing(true)
         const startTime = Date.now();
         try {
-            const templateWorkouts = await axios.get(`http://localhost:5000/api/workouts/template`);
             const userWorkouts = await axios.get(`http://localhost:5000/api/workouts/user/${uid}`);
-            if (uid === "67358f7f63abd61be9b451b2") {
-                setWorkouts(userWorkouts.data)
-            } else {
-                setWorkouts(userWorkouts.data ? [...templateWorkouts.data, ...userWorkouts.data] : templateWorkouts.data);
-            }
+            setWorkouts(userWorkouts.data)
             
         } catch (err) {
             setError('Failed to refresh workouts');

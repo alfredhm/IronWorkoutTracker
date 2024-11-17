@@ -70,7 +70,7 @@ async function validateSet(set) {
             })
             return errors
         }),
-        reps: Joi.number().default(0).error(errors => {
+        reps: Joi.number().allow('').default(0).error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
                     case "number.min":
@@ -83,7 +83,7 @@ async function validateSet(set) {
             })
             return errors
         }),
-        weight: Joi.number().default(0).min(0).error(errors => {
+        weight: Joi.number().allow('').default(0).min(0).error(errors => {
             errors.forEach(err => {
                 switch (err.code) {
                     case "number.min":

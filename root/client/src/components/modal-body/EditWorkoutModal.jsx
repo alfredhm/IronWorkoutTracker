@@ -162,8 +162,9 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
     
             // Step 3: Create sets for each duplicated exercise in the workout session
             for (let i = 0; i < duplicatedExerciseIds.length; i++) {
+                let setIds = []
                 for (let j = 0; j < formik.values.exercises[i].numOfSets; j++) {
-                    await axios.post(`http://localhost:5000/api/sets`, {
+                    const response = await axios.post(`http://localhost:5000/api/sets`, {
                         exerciseId: duplicatedExerciseIds[i],
                         sessionId: res.data._id,
                         weight: 0,
@@ -173,7 +174,16 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
                         restTimeSec: 0,
                         ghost: false
                     });
+                    setIds.push(response.data._id);
                 }
+                await axios.put(`http://localhost:5000/api/exercises/${duplicatedExerciseIds[i]}`, {
+                    userId: uid,
+                    name: formik.values.exercises[i].name,
+                    description: formik.values.exercises[i].description,
+                    focusGroup: formik.values.exercises[i].focusGroup,
+                    numOfSets: formik.values.exercises[i].numOfSets,
+                    sets: setIds
+                });
             }
             
             closeWorkoutList();
@@ -208,7 +218,7 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
                 const fetchedExercises = await Promise.all(
                     exerciseIDs.map(async (exerciseID) => {
                         try {
-                            const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID._id}`);
+                            const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID}`);
                             return exerciseResponse.data;
                         } catch {
                             return null;

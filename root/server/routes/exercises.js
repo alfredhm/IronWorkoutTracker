@@ -4,12 +4,13 @@ const getExercise = require('../middleware/getExercise')
 const mongoose = require('mongoose')
 const express = require('express')
 const { Workout } = require('../models/workout')
+const { Set } = require('../models/set')
 const router = express.Router()
 
 const exerciseKey = {
     "Abs": ["Abs", "Obliques"],
     "Back": ["Back", "Lower Back"],
-    "Biceps": ["Biceps"],
+    "Biceps": ["Biceps"], 
     "Chest": ["Chest"],
     "Legs": ["Quadriceps", "Hamstrings", "Glutes", "Calves"],
     "Shoulders": ["Shoulders"],
@@ -24,7 +25,7 @@ router.get('/', async (req, res) => {
         res.json(exercises)
     } catch (err) {
         res.status(500).json({ message: err.message})
-    }
+    } 
 })
 
 // Get exercises by user ID
@@ -39,7 +40,7 @@ router.get('/user/:userId', async (req, res) => {
     } catch (err) {
         res.status(404).json({ message: err.message })
     }
-})
+}) 
 
 // Get user made exercises by category
 router.get('/category/:category/:userId', async (req, res) => {
@@ -134,7 +135,7 @@ router.post('/', async (req, res) => {
         res.status(201).json(newExercise)
     } catch (err) {
         res.status(400).json({ message: err.message })
-    }
+    } 
     
 })
 
@@ -167,13 +168,16 @@ router.put('/:id', getExercise, async (req, res) => {
 // Delete an exercise
 router.delete('/:id', getExercise, async (req, res) => {
     try {
+        // Delete all sets with a matching exerciseId
+        await Set.deleteMany({ exerciseId: req.params.id });
+
         await res.exercise.deleteOne();
-        res.json({ message: 'Deleted Exercise' });
+        res.json({ message: 'Deleted Exercise and associated sets' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
- 
+
 module.exports = router;
  
 
