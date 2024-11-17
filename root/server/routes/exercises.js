@@ -92,9 +92,9 @@ router.get('/preset/category/:category', async (req, res) => {
  
 // Get exercise by exercise ID
 router.get('/:id', getExercise, async (req, res) => {
-    res.json(res.exercise)
+    res.json(res.exercise) 
 })
-
+ 
 // Post new exercise
 router.post('/', async (req, res) => {
     const { error } = validate(req.body)
@@ -112,7 +112,7 @@ router.post('/', async (req, res) => {
         if (!workoutExists) {
             return res.status(400).send('Workout does not exist in database')
         }
-    }
+    } 
 
     const exercise = new Exercise({
         userId: req.body.userId,
@@ -127,8 +127,8 @@ router.post('/', async (req, res) => {
         isSingle: req.body.isSingle,
         isPreset: req.body.isPreset,
         isUserPreset: req.body.isUserPreset
-
-    });
+ 
+    }); 
 
     try {
         const newExercise = await exercise.save()
@@ -136,34 +136,34 @@ router.post('/', async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message })
     } 
-    
-})
-
+      
+})  
+ 
 // Put/update an existing exercise
 router.put('/:id', getExercise, async (req, res) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
 
-    try { 
-        if (req.body.userId) res.exercise.userId = req.body.userId;
-        if (req.body.workoutId) res.exercise.workoutId = req.body.workoutId
-        if (req.body.category) res.exercise.category = req.body.category
-        if (req.body.name) res.exercise.name = req.body.name;
-        if (req.body.focusGroup) res.exercise.focusGroup = req.body.focusGroup;
-        if (req.body.notes) res.exercise.notes = req.body.notes; 
-        if (req.body.isTemplate) res.exercise.isTemplate = req.body.isTemplate;
-        if (req.body.isSingle) res.exercise.isSingle = req.body.isSingle;
-        if (req.body.isPreset) res.exercise.isPreset = req.body.isPreset;
-        if (req.body.isUserPreset) res.exercise.isUserPreset = req.body.isUserPreset;
-        if (req.body.sets && Array.isArray(req.body.sets)) res.exercise.sets.push(...req.body.sets);
-        if (req.body.numOfSets) res.exercise.numOfSets = req.body.numOfSets;
+    try {
+        if (req.body.userId !== undefined) res.exercise.userId = req.body.userId;
+        if (req.body.workoutId !== undefined) res.exercise.workoutId = req.body.workoutId;
+        if (req.body.category !== undefined) res.exercise.category = req.body.category;
+        if (req.body.name !== undefined) res.exercise.name = req.body.name;
+        if (req.body.focusGroup !== undefined) res.exercise.focusGroup = req.body.focusGroup;
+        if (req.body.notes !== undefined) res.exercise.notes = req.body.notes;
+        if (req.body.isTemplate !== undefined) res.exercise.isTemplate = req.body.isTemplate;
+        if (req.body.isSingle !== undefined) res.exercise.isSingle = req.body.isSingle;
+        if (req.body.isPreset !== undefined) res.exercise.isPreset = req.body.isPreset;
+        if (req.body.isUserPreset !== undefined) res.exercise.isUserPreset = req.body.isUserPreset;
+        if (req.body.sets !== undefined && Array.isArray(req.body.sets)) res.exercise.sets = req.body.sets;
+        if (req.body.numOfSets !== undefined) res.exercise.numOfSets = req.body.numOfSets;
 
         const updatedExercise = await res.exercise.save();
         res.json(updatedExercise);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-}) 
+})
 
 // Delete an exercise
 router.delete('/:id', getExercise, async (req, res) => {

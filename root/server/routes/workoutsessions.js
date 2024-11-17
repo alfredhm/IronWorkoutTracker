@@ -83,20 +83,20 @@ router.put('/:id', getWorkoutSession, async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message)
 
     try {
-        if (req.body.userId) res.workoutSession.userId = req.body.userId;
-        if (req.body.name) res.workoutSession.name = req.body.name;
-        if (req.body.focusGroup) res.workoutSession.focusGroup = req.body.focusGroup;
-        if (req.body.workoutSessionTemplate) res.workoutSession.workoutTemplate = req.body.workoutTemplate;
-        if (req.body.exercises) res.workoutSession.exercises = req.body.exercises;
-        if (req.body.date) res.workoutSession.date = req.body.date;
-        if (req.body.durationSec) res.workoutSession.durationSec = req.body.durationSec;
-        if (req.body.notes) res.workoutSession.notes = req.body.notes;
+        if (req.body.userId !== undefined) res.workoutSession.userId = req.body.userId;
+        if (req.body.name !== undefined) res.workoutSession.name = req.body.name;
+        if (req.body.focusGroup !== undefined) res.workoutSession.focusGroup = req.body.focusGroup;
+        if (req.body.workoutTemplate !== undefined) res.workoutSession.workoutTemplate = req.body.workoutTemplate;
+        if (req.body.exercises !== undefined) res.workoutSession.exercises = req.body.exercises;
+        if (req.body.date !== undefined) res.workoutSession.date = req.body.date;
+        if (req.body.durationSec !== undefined) res.workoutSession.durationSec = req.body.durationSec;
+        if (req.body.notes !== undefined) res.workoutSession.notes = req.body.notes;
 
         const updatedWorkout = await res.workoutSession.save();
         res.json(updatedWorkout);
     } catch (err) {
         res.status(400).json({ message: err.message });
-    }
+    } 
 })
 
 // Update the exercises array in a workout session

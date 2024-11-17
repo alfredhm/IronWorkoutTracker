@@ -60,14 +60,14 @@ router.put('/:id', getSet, async (req, res) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
     
-    if (req.body.exerciseId) res.varSet.exerciseId = req.body.exerciseId;
-    if (req.body.sessionId) res.varSet.sessionId = req.body.sessionId;
-    if (req.body.reps) res.varSet.reps = req.body.reps;
-    if (req.body.weight) res.varSet.weight = req.body.weight;
-    if (req.body.notes) res.varSet.notes = req.body.notes;
-    if (req.body.bodyWeight) res.varSet.bodyWeight = req.body.bodyWeight;
-    if (req.body.restTimeSec) res.varSet.restTimeSec = req.body.restTimeSec;
-    if (req.body.ghost) res.varSet.ghost = req.body.ghost;
+    if (req.body.exerciseId !== undefined) res.varSet.exerciseId = req.body.exerciseId;
+    if (req.body.sessionId !== undefined) res.varSet.sessionId = req.body.sessionId;
+    if (req.body.reps !== undefined) res.varSet.reps = req.body.reps;
+    if (req.body.weight !== undefined) res.varSet.weight = req.body.weight;
+    if (req.body.notes !== undefined) res.varSet.notes = req.body.notes;
+    if (req.body.bodyWeight !== undefined) res.varSet.bodyWeight = req.body.bodyWeight;
+    if (req.body.restTimeSec !== undefined) res.varSet.restTimeSec = req.body.restTimeSec;
+    if (req.body.ghost !== undefined) res.varSet.ghost = req.body.ghost;
 
     try {
         const updatedSet = await res.varSet.save();

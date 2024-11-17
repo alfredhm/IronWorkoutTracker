@@ -45,14 +45,11 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
         });
     };
 
-    // Save all sets to the database
     const saveSetsToDatabase = async () => {
         try {
-            await Promise.all(
+            // Save or update sets
+            const savedSetIds = await Promise.all(
                 sets.map(async (set) => {
-
-                // If the exercise was modified, convert ghost sets to non-ghost and save them
-                if (modified || !set.ghost) {
                     const setData = {
                         exerciseId: set.exerciseId,
                         sessionId: workoutID,
@@ -60,31 +57,49 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
                         reps: set.reps ?? 0,
                         notes: set.notes ?? "",
                     };
-                
+    
                     if (!set._id) {
+                        // Create a new set
                         const response = await axios.post(`http://localhost:5000/api/sets`, setData);
-                        set._id = response.data._id;
+                        set._id = response.data._id; // Update the local set with the backend ID
                     } else {
+                        // Update an existing set
                         await axios.put(`http://localhost:5000/api/sets/${set._id}`, setData);
                     }
-                
-                    // After saving, convert it to a non-ghost set
+    
+                    // Convert ghost set to non-ghost
                     set.ghost = false;
-                }
+    
+                    return set._id; // Return the set ID for updating the exercise
                 })
             );
-
+    
             // Delete removed sets
-            await Promise.all(deletedSets.map(async setId => {
-                await axios.delete(`http://localhost:5000/api/sets/${setId}`);
-            }));
-
-            setDeletedSets([]); // Clear deleted sets after successful save
+            if (deletedSets.length > 0) {
+                await Promise.all(
+                    deletedSets.map(async (setId) => {
+                        await axios.delete(`http://localhost:5000/api/sets/${setId}`);
+                    })
+                );
+            }
+    
+            // Update the exercise with the current sets array and correct numOfSets
+            const currentSetIds = savedSetIds.filter((id) => !deletedSets.includes(id));
+            await axios.put(`http://localhost:5000/api/exercises/${exercise._id}`, {
+                userId: exercise.userId,
+                name: exercise.name,
+                sets: currentSetIds, // Update sets array
+                numOfSets: currentSetIds.length, // Update number of sets
+            });
+    
+            // Clear local states after successful save
+            setDeletedSets([]); // Clear deleted sets
             setModified(false); // Reset modified state
         } catch (err) {
-            setError(err.message);
+            setError(`Failed to save sets: ${err.message}`);
         }
     };
+    
 
     useImperativeHandle(ref, () => ({
         saveSetsToDatabase,

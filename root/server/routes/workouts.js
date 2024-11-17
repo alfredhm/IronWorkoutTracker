@@ -73,19 +73,18 @@ router.post('/', async (req, res) => {
     }
     
 })
-
 // Put/update a workout
 router.put('/:id', getWorkout, async (req, res) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
 
     try {
-        if (req.body.userId) res.workout.userId = req.body.userId;
-        if (req.body.name) res.workout.name = req.body.name;
-        if (req.body.focusGroup) res.workout.focusGroup = req.body.focusGroup;
-        if (req.body.notes) res.workout.notes = req.body.notes
-        if (req.body.exercises) res.workout.exercises = req.body.exercises;
-        if (req.body.isTemplate) res.workout.isTemplate = req.body.isTemplate;
+        if (req.body.userId !== undefined) res.workout.userId = req.body.userId;
+        if (req.body.name !== undefined) res.workout.name = req.body.name;
+        if (req.body.focusGroup !== undefined) res.workout.focusGroup = req.body.focusGroup;
+        if (req.body.notes !== undefined) res.workout.notes = req.body.notes;
+        if (req.body.exercises !== undefined) res.workout.exercises = req.body.exercises;
+        if (req.body.isTemplate !== undefined) res.workout.isTemplate = req.body.isTemplate;
         
         const updatedWorkout = await res.workout.save();
         res.json(updatedWorkout);

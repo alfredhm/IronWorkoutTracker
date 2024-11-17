@@ -119,6 +119,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
             return;
         }
         refreshWorkoutSessions();
+        console.log(workouts)
     }, [uid, navigate, dashboardRefresh, refreshWorkoutSessions]);
 
     useEffect(() => {
@@ -212,7 +213,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                             <List minH="30px">
                                                 {workout.exercises ? workout.exercises.map((exercise) => (
                                                     <ListItem color="gray.300" fontSize="xs" key={exercise._id}>
-                                                        {exercise.numOfSets}x {exercise.name}
+                                                        {exercise.sets.length}x {exercise.name}
                                                     </ListItem>
                                                 ))
                                                 :
