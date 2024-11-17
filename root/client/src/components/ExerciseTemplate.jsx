@@ -13,6 +13,7 @@ const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, 
     const [setCount, setSetCount] = useState(exercise.numOfSets || 0); // Initialize from exercise.numOfSets
     const [notes, setNotes] = useState(exercise.notes || ''); // Initialize notes
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const [isInputFocused, setIsInputFocused] = useState(false);
 
     // Open modal and ensure data is loaded
     const handleOpen = () => {
@@ -26,7 +27,7 @@ const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, 
             const updatedExercise = { ...exercise, numOfSets: setCount, notes };
             delete updatedExercise._id;
             delete updatedExercise.__v;
-            await axios.put(`http://localhost:5000/api/exercises/${exercise}`, updatedExercise);
+            await axios.put(`http://localhost:5000/api/exercises/${exercise._id}`, updatedExercise);
 
             onExerciseUpdate(updatedExercise);
             if (typeof editModalRefresh === "function") {
@@ -96,13 +97,16 @@ const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, 
                                         <Flex w="100%">
                                             <Input 
                                                 p={0}
+                                                min={1}
                                                 w="100%"
                                                 textAlign="right"
                                                 border="none"
                                                 required
                                                 type="number"
-                                                value={setCount} // Display the current count
+                                                value={isInputFocused && setCount === 0 ? '' : setCount} // Conditionally display empty string
                                                 onChange={handleSetCountChange} 
+                                                onFocus={() => setIsInputFocused(true)}
+                                                onBlur={() => setIsInputFocused(false)}
                                                 _focus={{ boxShadow: 'none' }}
                                             />
                                         </Flex>
