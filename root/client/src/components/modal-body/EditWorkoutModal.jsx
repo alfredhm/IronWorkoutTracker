@@ -15,8 +15,9 @@ import * as Yup from 'yup'
 import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
 import ErrorModal from '../ErrorModal';
+import { DeleteIcon } from '@chakra-ui/icons';
 
-const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTabIndex, setStartedWorkout, refreshWorkouts }, ref) => {
+const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTabIndex, setStartedWorkout, refreshWorkouts, handleDeleteWorkout, noRefreshClose }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
@@ -290,16 +291,26 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
                                 exercises={exercises}
                                 setExercises={setExercises}
                             />
-                            <Flex w="100%" justify={selectedWorkout.isTemplate ? 'center' : 'space-between'}>
-                                {!selectedWorkout.isTemplate && 
-                                    <AddExercise 
-                                        refreshModal={memoizedEditModalRefresh} 
-                                        exercises={exercises}
-                                        setExercises={setExercises} 
-                                        session={false} 
-                                        workoutID={selectedWorkout._id}
-                                    />
-                                }
+                            <Flex w="100%" justify='space-between' align="center">
+                                <AddExercise 
+                                    refreshModal={memoizedEditModalRefresh} 
+                                    exercises={exercises}
+                                    setExercises={setExercises} 
+                                    session={false} 
+                                    workoutID={selectedWorkout._id}
+                                />
+                                <Box 
+                                    onClick={() => {
+                                        handleDeleteWorkout(selectedWorkout._id);
+                                        noRefreshClose();
+                                    }} 
+                                    p={3} bg="red.200" 
+                                    borderRadius="50%" 
+                                    border="3px solid white"
+                                    _active={{ bg: "red.500" }}
+                                >
+                                    <DeleteIcon _active={{ color: "white" }} color="red.500" boxSize={6} />                                 
+                                </Box>
                                 <Button onClick={handleStartWorkout}>Start Workout</Button>
                             </Flex>
                             <Box>

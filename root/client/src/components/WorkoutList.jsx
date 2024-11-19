@@ -19,7 +19,6 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
     const [pullDownDistance, setPullDownDistance] = useState(0);
     const { isOpen, onOpen, onClose } = useDisclosure()
     const editWorkoutModalRef = useRef()
-    const editSessionModalRef = useRef();
     const scrollContainerRef = useRef();
     const refreshThreshold = 100;
     const minSpinnerDisplayTime = 500;
@@ -82,6 +81,15 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
             })
             await refreshWorkouts()
             setNewWorkoutId(res.data._id)
+        } catch (err) {
+            setError(err.message)
+        }
+    }
+
+    const handleDeleteWorkout = async (workoutId) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/workouts/${workoutId}`)
+            await refreshWorkouts()
         } catch (err) {
             setError(err.message)
         }
@@ -215,6 +223,8 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
                                                 closeWorkoutList={handleSaveAndClose} 
                                                 selectedWorkout={selectedWorkout} 
                                                 refreshWorkouts={refreshWorkouts}
+                                                handleDeleteWorkout={handleDeleteWorkout}
+                                                noRefreshClose={onClose}
                                             />
                                         </ModalBody>
                                     </ModalContent>

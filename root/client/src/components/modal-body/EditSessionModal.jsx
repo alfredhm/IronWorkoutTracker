@@ -6,6 +6,7 @@ import {
     Button,
     Flex,
     Spinner,
+    ModalCloseButton,
 } from '@chakra-ui/react';
 import { useFormik } from "formik"
 import { useAuthUser } from 'react-auth-kit'
@@ -18,8 +19,9 @@ import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
 import ErrorModal from '../ErrorModal';
 import SwipeableList from '../SwipeableList';
+import { DeleteIcon } from '@chakra-ui/icons';
 
-const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout }, ref) => {
+const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handleDeleteSession, noRefreshClose }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
@@ -150,6 +152,7 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout }, ref)
             {loading && <Center w="100%" h="100%" position="absolute" zIndex="20"><Spinner size="xl" /></Center>}
             <Box width="100%" display="flex" flexDirection="column">
                 <Heading fontSize={{ base: "x-large", md: "xx-large" }} color="white">{formik.values.name}</Heading>
+                <ModalCloseButton color="white" />
                 <Center>
                     <Center width="100%" color="white" mt={5}  display="flex" flexDirection="column">
                         <VStack width="100%" onSubmit={formik.handleSubmit}>
@@ -201,7 +204,7 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout }, ref)
                                 exercises={exercises}
                                 setExercises={setExercises}
                             />
-                            <Flex w="100%" justifyContent="space-between">
+                            <Flex w="100%" justifyContent="space-between" align="center">
                                 <AddExercise 
                                     refreshModal={memoizedEditModalRefresh} 
                                     exercises={exercises}
@@ -209,6 +212,18 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout }, ref)
                                     session={true} 
                                     workoutID={selectedWorkout._id} 
                                 />
+                                <Box 
+                                    onClick={() => {
+                                        handleDeleteSession(selectedWorkout._id);
+                                        noRefreshClose();
+                                    }} 
+                                    p={3} bg="red.200" 
+                                    borderRadius="50%" 
+                                    border="3px solid white"
+                                    _active={{ bg: "red.500" }}
+                                >
+                                    <DeleteIcon _active={{ color: "white" }} color="red.500" boxSize={6} />                                 
+                                </Box>
                                 <Button onClick={closeSessionList} w="124px">
                                     Save
                                 </Button>

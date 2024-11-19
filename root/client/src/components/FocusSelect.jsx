@@ -29,20 +29,21 @@ const FocusSelect = ({ formik, focusValues }) => {
     return (
         <FormControl pb={1}>
             <Box pb={1} display="flex" justifyContent="center">
-                <Menu>
-                    <MenuButton bg="gray.600" color="gray.200" as={Button} rightIcon={<ChevronDownIcon />}>
+                <Menu textAlign="center">
+                    <MenuButton bg="gray.600" color="white" as={Button} rightIcon={<ChevronDownIcon />}>
                         Add Target
                     </MenuButton>
-                    <MenuList bg="gray.100" color="black" zIndex={5}>
+                    <MenuList bg='gray.600' color="white" zIndex={5} >
                         {muscleGroups
                             .filter((group) => !selectedGroups.includes(group))
                             .map((group) => (
                             <MenuItem 
                                 key={group} 
-                                bg="gray.100"
+                                bg='gray.600'
                                 onClick={() => handleAddGroup(group)}
                                 fontSize="12px"
-                                _hover={{ bg: 'gray.300' }}
+                                _hover={{ bg: 'gray.600' }}
+                                fontWeight="700"
                             >
                                 {group}
                             </MenuItem>

@@ -8,6 +8,7 @@ import formatTime from '../resources/formatTime';
 import daysOfWeek from '../resources/daysOfWeek';
 import getTimeOfDay from '../resources/getTimeOfDay';
 import ErrorModal from './ErrorModal';
+import { DeleteIcon } from '@chakra-ui/icons';
 
 const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkout }) => {
     const [workouts, setWorkouts] = useState([]);
@@ -94,6 +95,15 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
             });
             await refreshWorkoutSessions();
             setNewWorkoutId(res.data._id);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    const handleDeleteSession = async (workoutId) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/workoutsessions/${workoutId}`);
+            await refreshWorkoutSessions();
         } catch (err) {
             setError(err.message);
         }
@@ -194,37 +204,48 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                 width="100%" 
                                 minH="60px"
                                 borderRadius="12px"
-                                p={3} pt={2} 
+                                p={3} pt={2} pr={2} pb={2} 
                                 justify="space-between" 
                                 _hover={{ cursor: 'pointer', bg: 'gray.600' }}
                             >
                                 <Flex w="100%" justify="space-between" gap="15px">
-                                    <Flex w='70%' gap="10px">
-                                        <Flex mt={1} width="50px" height="50px" flexDir="column">
-                                            <Box pb={1} bg="gray.600" height="45%" borderBottom="1px solid gray" borderRadius="12px 12px 0px 0px" color="white" textAlign="center" fontSize="xs" fontWeight="500">
-                                                {workout.date.day}
-                                            </Box>
-                                            <Box bg="blue.400" height="55%" textAlign="center" borderRadius="0px 0px 12px 12px" color="gray.100" fontSize="lg" fontWeight="600">
-                                                {workout.date.date}
-                                            </Box>
-                                        </Flex>
-                                        <Flex justify="center" flexDir="column" color="white" w="65%">
-                                            <Box>{workout.name}</Box>
-                                            <List minH="30px">
-                                                {workout.exercises ? workout.exercises.map((exercise) => (
-                                                    <ListItem color="gray.300" fontSize="xs" key={exercise._id}>
-                                                        {exercise.sets.length}x {exercise.name}
+                                    <Flex justify="space-between" w="100%">
+                                        <Flex w='70%' gap="10px">
+                                            <Flex mt={1} width="50px" height="50px" flexDir="column">
+                                                <Box pb={1} bg="gray.600" height="45%" borderBottom="1px solid gray" borderRadius="12px 12px 0px 0px" color="white" textAlign="center" fontSize="xs" fontWeight="500">
+                                                    {workout.date.day}
+                                                </Box>
+                                                <Box bg="blue.400" height="55%" textAlign="center" borderRadius="0px 0px 12px 12px" color="gray.100" fontSize="lg" fontWeight="600">
+                                                    {workout.date.date}
+                                                </Box>
+                                            </Flex>
+                                            <Flex justify="center" flexDir="column" color="white" w="65%">
+                                                <Box>{workout.name}</Box>
+                                                <List minH="30px">
+                                                    {workout.exercises ? workout.exercises.map((exercise) => (
+                                                        <ListItem color="gray.300" fontSize="xs" key={exercise._id}>
+                                                            {exercise.sets.length}x {exercise.name}
+                                                        </ListItem>
+                                                    ))
+                                                    :
+                                                    <ListItem h="50px" color="gray.300" fontSize="xs">
                                                     </ListItem>
-                                                ))
-                                                :
-                                                <ListItem h="50px" color="gray.300" fontSize="xs">
-                                                </ListItem>
-                                                }
-                                            </List>
+                                                    }
+                                                </List>
+                                            </Flex>
+                                        </Flex>                                
+                                        <Flex minH="60px" justify="space-between" textAlign="right" flexDir="column" color="white" align="center">
+                                            <DeleteIcon 
+                                                boxSize={5} 
+                                                color="gray.400" 
+                                                _active={{ color: "red.300" }} 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteSession(workout._id);
+                                                }}
+                                            />
+                                            <Box fontSize="xs">{formatTime(workout.durationSec) ? formatTime(workout.durationSec) : "0m"}</Box>
                                         </Flex>
-                                    </Flex>
-                                    <Flex textAlign="right" flexDir="column" w='50px' color="white">
-                                        <Box fontSize="xs">{formatTime(workout.durationSec)}</Box>
                                     </Flex>
                                 </Flex>
 
@@ -233,9 +254,8 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                 <Modal isOpen={isOpen} onClose={handleSaveAndClose}>
                                     <ModalOverlay />
                                     <ModalContent mx="auto" my="auto" aria-hidden="false" bgColor="gray.700">
-                                        <ModalCloseButton color="white" />
                                         <ModalBody>
-                                            <EditSessionModal ref={editSessionModalRef} closeSessionList={handleSaveAndClose} selectedWorkout={selectedWorkout} />
+                                            <EditSessionModal ref={editSessionModalRef} closeSessionList={handleSaveAndClose} selectedWorkout={selectedWorkout} handleDeleteSession={handleDeleteSession} noRefreshClose={onClose} />
                                         </ModalBody>
                                     </ModalContent>
                                 </Modal>
