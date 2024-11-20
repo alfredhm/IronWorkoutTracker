@@ -13,11 +13,13 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
     const [workouts, setWorkouts] = useState([])
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [newWorkoutId, setNewWorkoutId] = useState(null)
+    const [deletedWorkoutId, setDeletedWorkoutId] = useState(null);
     const [error, setError] = useState("")
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [pullStart, setPullStart] = useState(null);
     const [pullDownDistance, setPullDownDistance] = useState(0);
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
     const editWorkoutModalRef = useRef()
     const scrollContainerRef = useRef();
     const refreshThreshold = 100;
@@ -85,15 +87,15 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
         }
     }
 
-    const handleDeleteWorkout = async (workoutId) => {
+    const handleDeleteWorkout = async () => {
         try {
-            await axios.delete(`http://localhost:5000/api/workouts/${workoutId}`)
+            await axios.delete(`http://localhost:5000/api/workouts/${deletedWorkoutId}`)
             await refreshWorkouts()
+            onDeleteClose();
         } catch (err) {
             setError(err.message)
         }
     }
-    
 
     // Sets selected workout to the workout clicked and opens the modal
     const handleWorkoutClick = (workout) => {
@@ -172,9 +174,12 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
             >
-                {workouts.slice().reverse().map(workout => (
+                {workouts.slice().reverse().map((workout) => (
                         <Box 
-                            onClick={() => handleWorkoutClick(workout)} 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleWorkoutClick(workout);
+                            }} 
                             bg="gray.800" 
                             width="100%" 
                             minH="75px" 
@@ -222,13 +227,27 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
                                                 closeWorkoutList={handleSaveAndClose} 
                                                 selectedWorkout={selectedWorkout} 
                                                 refreshWorkouts={refreshWorkouts}
-                                                handleDeleteWorkout={handleDeleteWorkout}
-                                                noRefreshClose={onClose}
+                                                handleDeleteWorkout={onDeleteOpen}
+                                                setDeletedWorkoutId={setDeletedWorkoutId}
                                             />
                                         </ModalBody>
                                     </ModalContent>
                                 </Modal>
                             )}
+                            <Modal isOpen={isDeleteOpen} onClose={onDeleteClose}>
+                                <ModalOverlay />
+                                <ModalContent mx="auto" my="auto" bgColor="gray.700">
+                                    <ModalBody>
+                                        <Flex flexDir="column" gap={4} p={4}>
+                                            <Box fontSize="lg" fontWeight="600" color="white">Are you sure you want to delete this workout?</Box>
+                                            <Flex justify="space-between">
+                                                <Button colorScheme="red" onClick={() => handleDeleteWorkout()}>Delete</Button>
+                                                <Button onClick={onDeleteClose}>Cancel</Button>
+                                            </Flex>
+                                        </Flex>
+                                    </ModalBody>
+                                </ModalContent>
+                            </Modal>
                         </Box>
                     )
                 )}

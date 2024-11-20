@@ -19,6 +19,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
     const [pullStart, setPullStart] = useState(null);
     const [pullDownDistance, setPullDownDistance] = useState(0);
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
     const editSessionModalRef = useRef();
     const scrollContainerRef = useRef();
     const refreshThreshold = 100;
@@ -103,6 +104,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
         try {
             await axios.delete(`http://localhost:5000/api/workoutsessions/${workoutId}`);
             await refreshWorkoutSessions();
+            onDeleteClose();
         } catch (err) {
             setError(err.message);
         }
@@ -256,7 +258,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                                 _active={{ color: "red.300" }} 
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    handleDeleteSession(workout._id);
+                                                    onDeleteOpen();
                                                 }}
                                             />
                                             <Box fontSize="xs">{formatTime(workout.durationSec) && formatTime(workout.durationSec) !== 0 ? formatTime(workout.durationSec) : "In Progress"}</Box>
@@ -274,7 +276,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                                 ref={editSessionModalRef} 
                                                 closeSessionList={handleSaveAndClose} 
                                                 selectedWorkout={selectedWorkout} 
-                                                handleDeleteSession={handleDeleteSession} 
+                                                handleDeleteSession={onDeleteOpen} 
                                                 handleEndSession={handleEndSession} 
                                                 noRefreshClose={onClose} 
                                             />
@@ -282,6 +284,20 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                     </ModalContent>
                                 </Modal>
                             )}
+                            <Modal isOpen={isDeleteOpen} onClose={onDeleteClose}>
+                                <ModalOverlay />
+                                <ModalContent mx="auto" my="auto" bgColor="gray.700">
+                                    <ModalBody>
+                                        <Flex flexDir="column" gap={4} p={4}>
+                                            <Box fontSize="lg" fontWeight="600" color="white">Are you sure you want to delete this workout?</Box>
+                                            <Flex justify="space-between">
+                                                <Button colorScheme="red" onClick={() => handleDeleteSession(workout._id)}>Delete</Button>
+                                                <Button onClick={onDeleteClose}>Cancel</Button>
+                                            </Flex>
+                                        </Flex>
+                                    </ModalBody>
+                                </ModalContent>
+                            </Modal>
                         </Box>
                     ))
                 )}

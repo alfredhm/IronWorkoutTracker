@@ -17,12 +17,11 @@ import ExerciseList from '../ExerciseList';
 import ErrorModal from '../ErrorModal';
 import { DeleteIcon } from '@chakra-ui/icons';
 
-const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTabIndex, setStartedWorkout, refreshWorkouts, handleDeleteWorkout, noRefreshClose }, ref) => {
+const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTabIndex, setStartedWorkout, refreshWorkouts, handleDeleteWorkout, setDeletedWorkoutId }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
     const [refresh, setRefresh] = useState(0)
-
     const exerciseListRef = useRef()
     const exerciseRefs = useRef([])
 
@@ -298,9 +297,10 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
                                     workoutID={selectedWorkout._id}
                                 />
                                 <Box 
-                                    onClick={() => {
-                                        handleDeleteWorkout(selectedWorkout._id);
-                                        noRefreshClose();
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDeletedWorkoutId(selectedWorkout._id);
+                                        handleDeleteWorkout()
                                     }} 
                                     p={3} bg="gray.400" 
                                     borderRadius="50%" 

@@ -155,9 +155,11 @@ router.delete('/:id', getWorkout, async (req, res) => {
         // Delete all exercises in the workout.exercises array
         await Exercise.deleteMany({ _id: { $in: res.workout.exercises } });
 
+        const workout = res.workout
+
         // Remove the workout itself
         await res.workout.deleteOne();
-        res.json({ message: 'Deleted Workout and all associated exercises' });
+        res.json({ workout: workout, message: 'Deleted Workout and all associated exercises' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

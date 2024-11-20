@@ -72,7 +72,6 @@ import {
           fromName: userEmail,
           subject: values.subject,
           body: values.body,
-          recipient_email: userEmail, // Set to the user's email
         };
   
         emailjs
