@@ -1,13 +1,24 @@
-import { Button, Center, FormControl, FormLabel, Heading, Input, VStack, Box, Text, Link } from "@chakra-ui/react";
+import { Button, Center, Heading, Input, VStack, Box, Text, Link } from "@chakra-ui/react";
 import { useState } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
+import * as Yup from "yup"; // Import Yup for validation
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 
 const LoginPage = () => {
     const [error, setError] = useState("");
     const navigate = useNavigate();
+
+    // Validation Schema
+    const validationSchema = Yup.object({
+        email: Yup.string()
+            .email("Invalid email address") // Valid email address
+            .required("Email is required"), // Required field
+        password: Yup.string()
+            .min(10, "Password must be at least 10 characters") // At least 10 characters
+            .required("Password is required"), // Required field
+    });
 
     const onSubmit = async (values) => {
         setError("");
@@ -17,7 +28,7 @@ const LoginPage = () => {
             const response = await axios.post("http://localhost:5000/api/auth", values, {
                 withCredentials: true, // Ensures cookies are sent with the request
             });
-        
+
             // Optionally store user data in state or context
             const { uid, name, email } = response.data;
             // Navigate to the dashboard after login
@@ -35,6 +46,7 @@ const LoginPage = () => {
 
     const formik = useFormik({
         initialValues: { email: "", password: "" },
+        validationSchema, // Attach validation schema here
         onSubmit: onSubmit,
     });
 
@@ -45,27 +57,49 @@ const LoginPage = () => {
                 <Center bgColor="gray.700" color="white" h="400px" w="350px" py={4} px={8} m={4} borderRadius="10px" display="flex" flexDirection="column" gap={4}>
                     <Heading>Welcome</Heading>
                     <VStack as="form" width="100%" onSubmit={formik.handleSubmit}>
-                        <FormControl isRequired>
-                            <FormLabel>Email Address</FormLabel>
+                        <Box w="100%">
                             <Input
+                                border={0}
+                                borderBottom="1px solid"
+                                borderColor={formik.touched.email && formik.errors.email ? "red.400" : "white"}
+                                borderRadius={0}
                                 name="email"
                                 value={formik.values.email}
                                 onChange={formik.handleChange}
-                                bgColor="gray.600"
+                                onBlur={formik.handleBlur}
                                 type="email"
+                                placeholder="Email"
                             />
-                        </FormControl>
-                        <FormControl isRequired>
-                            <FormLabel>Password</FormLabel>
+                            {formik.touched.email && formik.errors.email && (
+                                <Text fontSize="sm" color="red.400">{formik.errors.email}</Text>
+                            )}
+                        </Box>
+                        <Box w="100%">
                             <Input
+                                border={0}
+                                borderBottom="1px solid"
+                                borderRadius={0}
+                                borderColor={formik.touched.password && formik.errors.password ? "red.400" : "white"}
                                 name="password"
                                 value={formik.values.password}
                                 onChange={formik.handleChange}
-                                bgColor="gray.600"
+                                onBlur={formik.handleBlur}
                                 type="password"
+                                placeholder="Password"
                             />
-                        </FormControl>
-                        <Button type="submit" bgColor="gray.600" color="white" my={2} py={5} px={8} isLoading={formik.isSubmitting}>
+                            {formik.touched.password && formik.errors.password && (
+                                <Text fontSize="sm" color="red.400">{formik.errors.password}</Text>
+                            )}
+                        </Box>
+                        <Button
+                            type="submit"
+                            bgColor="gray.600"
+                            color="white"
+                            my={2}
+                            py={5}
+                            px={8}
+                            isLoading={formik.isSubmitting}
+                        >
                             Login
                         </Button>
                         <Box>
