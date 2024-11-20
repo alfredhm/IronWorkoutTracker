@@ -20,7 +20,7 @@ import ErrorModal from '../ErrorModal';
 import SwipeableList from '../SwipeableList';
 import { DeleteIcon } from '@chakra-ui/icons';
 
-const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handleDeleteSession, handleEndSession, noRefreshClose }, ref) => {
+const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handleDeleteSession, handleEndSession, noRefreshClose, setDeletedWorkoutId }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
@@ -214,9 +214,10 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
                                     borderRadius="50%" 
                                     border="3px solid white"
                                     _active={{ bg: "red.500" }}
-                                    onClick={() => {
-                                        handleDeleteSession(selectedWorkout._id);
-                                        noRefreshClose();
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDeletedWorkoutId(selectedWorkout._id);
+                                        handleDeleteSession();
                                     }}
                                 >
                                     <DeleteIcon color="white" boxSize={6} />                                 

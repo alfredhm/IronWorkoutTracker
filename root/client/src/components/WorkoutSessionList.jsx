@@ -14,6 +14,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
     const [workouts, setWorkouts] = useState([]);
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [newWorkoutId, setNewWorkoutId] = useState(null);
+    const [deletedWorkoutId, setDeletedWorkoutId] = useState(null);
     const [error, setError] = useState('');
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [pullStart, setPullStart] = useState(null);
@@ -100,9 +101,9 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
         }
     };
 
-    const handleDeleteSession = async (workoutId) => {
+    const handleDeleteSession = async () => {
         try {
-            await axios.delete(`http://localhost:5000/api/workoutsessions/${workoutId}`);
+            await axios.delete(`http://localhost:5000/api/workoutsessions/${deletedWorkoutId}`);
             await refreshWorkoutSessions();
             onDeleteClose();
         } catch (err) {
@@ -215,7 +216,10 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                     workouts.slice().reverse().map((workout) => (
                         <Box key={workout._id}>
                             <Flex 
-                                onClick={() => handleWorkoutClick(workout)} 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleWorkoutClick(workout);
+                                }} 
                                 flexDir="column" 
                                 bg="gray.800" 
                                 width="100%" 
@@ -258,6 +262,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                                 _active={{ color: "red.300" }} 
                                                 onClick={(e) => {
                                                     e.stopPropagation();
+                                                    setDeletedWorkoutId(workout._id);
                                                     onDeleteOpen();
                                                 }}
                                             />
@@ -276,7 +281,8 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                                 ref={editSessionModalRef} 
                                                 closeSessionList={handleSaveAndClose} 
                                                 selectedWorkout={selectedWorkout} 
-                                                handleDeleteSession={onDeleteOpen} 
+                                                handleDeleteSession={onDeleteOpen}
+                                                setDeletedWorkoutId={setDeletedWorkoutId} 
                                                 handleEndSession={handleEndSession} 
                                                 noRefreshClose={onClose} 
                                             />
@@ -291,7 +297,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                         <Flex flexDir="column" gap={4} p={4}>
                                             <Box fontSize="lg" fontWeight="600" color="white">Are you sure you want to delete this workout?</Box>
                                             <Flex justify="space-between">
-                                                <Button colorScheme="red" onClick={() => handleDeleteSession(workout._id)}>Delete</Button>
+                                                <Button colorScheme="red" onClick={() => handleDeleteSession()}>Delete</Button>
                                                 <Button onClick={onDeleteClose}>Cancel</Button>
                                             </Flex>
                                         </Flex>
