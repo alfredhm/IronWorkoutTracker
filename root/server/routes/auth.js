@@ -17,7 +17,7 @@ router.get("/verify", (req, res) => {
     if (!token) {
         return res.status(401).json({ authenticated: false, message: "No token provided" });
     }
-
+ 
     try {
         const decoded = jwt.verify(token, JWT_SECRET); // Verify the token
         return res.status(200).json({ authenticated: true, user: decoded });
@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
 
     // Find the user with email, if there is none, throw error
     let user = await User.findOne({ email: req.body.email })
-
+ 
     // Verify password, if not verified, throw error
     const validPassword = await bcrypt.compare(req.body.password, user.password)
 

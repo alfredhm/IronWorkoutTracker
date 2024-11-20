@@ -39,8 +39,10 @@ const NavBar = () => {
 
     // Recheck authentication status on component mount
     useEffect(() => {
-        checkAuth();
-    }, []);
+        if (!isLoginPage) {
+            checkAuth();
+        }
+    }, []); 
 
     // Logo behavior based on authentication state
     const logoHref = isAuthenticated ? "/dashboard" : "/";

@@ -8,6 +8,11 @@ const setSchema = new mongoose.Schema({
         ref: 'Exercise',
         required: true
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     sessionId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'WorkoutSession'
@@ -52,6 +57,19 @@ async function validateSet(set) {
                         break;
                     case "string.pattern.base":
                         err.message = "Invalid Exercise ID format";
+                        break;
+                }
+            })
+            return errors
+        }),
+        userId: Joi.string().required().pattern(/^[0-9a-fA-F]{24}$/).error(errors => {
+            errors.forEach(err => {
+                switch (err.code) {
+                    case "any.empty":
+                        err.message = "User ID is required";
+                        break;
+                    case "string.pattern.base":
+                        err.message = "Invalid User ID format";
                         break;
                 }
             })

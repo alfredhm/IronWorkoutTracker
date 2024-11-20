@@ -62,6 +62,7 @@ const AccountPage = () => {
     },
     validationSchema: Yup.object({
       subject: Yup.string().required("Subject is required"),
+      email: Yup.string().email("Invalid email address").required("Email is required"),
       body: Yup.string().required("Body is required"),
     }),
     onSubmit: (values) => {
@@ -87,7 +88,7 @@ const AccountPage = () => {
           formik.resetForm();
           setTimeout(() => {
             handleClose();
-          }, 2000); // Close modal after 2 seconds
+          }, 1000); // Close modal after 2 seconds
         })
         .catch((error) => {
           setLoading(false);
@@ -138,12 +139,28 @@ const AccountPage = () => {
       {/* Feedback Modal */}
       <Modal isOpen={isOpen} onClose={handleClose}>
         <ModalOverlay />
-        <ModalContent mx="auto" my="auto" bg="gray.600" color="white">
+        <ModalContent mx="auto" my="auto" bg="gray.700" color="white">
           <ModalHeader>Send Feedback</ModalHeader>
           <ModalCloseButton />
           <Box as="form" onSubmit={formik.handleSubmit}>
             <ModalBody>
               <Flex flexDir="column" gap={2}>
+                <Box borderBottom={formik.touched.email && !!formik.errors.email ? "1px solid red" : "1px solid white"}>
+                  <Input
+                    placeholder="Email"
+                    name="email"
+                    focusBorderColor="transparent"
+                    border={0}
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                </Box>
+                {formik.touched.email && formik.errors.email && (
+                  <Text fontSize="sm" color="red.500">
+                    {formik.errors.email}
+                  </Text>
+                )}
                 <Box borderBottom={formik.touched.subject && !!formik.errors.subject ? "1px solid red" : "1px solid white"}>
                   <Input
                     placeholder="Subject"
@@ -181,7 +198,8 @@ const AccountPage = () => {
             <ModalFooter>
               <Button
                 type="submit"
-                colorScheme="blue"
+                bg="blue.400"
+                color="white"
                 isDisabled={isLoading || !formik.isValid || formik.isSubmitting}
                 mr={3}
               >

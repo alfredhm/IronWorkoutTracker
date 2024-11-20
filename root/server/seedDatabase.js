@@ -60,9 +60,6 @@ const createPresetWorkouts = async (userId) => {
                 await createExerciseCopy("Lateral Raise", userId)
             ].map(exercise => exercise._id),
             isTemplate: true,
-            date: new Date('2024-11-13T07:05:05.483Z'),
-            createdAt: new Date('2024-11-13T07:05:05.483Z'),
-            updatedAt: new Date('2024-11-14T04:24:21.584Z')
         });
 
         const workout2 = new Workout({
@@ -79,9 +76,6 @@ const createPresetWorkouts = async (userId) => {
                 await createExerciseCopy("Spider Curl", userId)
             ].map(exercise => exercise._id),
             isTemplate: true,
-            date: new Date('2024-11-13T21:52:32.831Z'),
-            createdAt: new Date('2024-11-13T21:52:32.832Z'),
-            updatedAt: new Date('2024-11-14T04:10:53.311Z')
         });
 
         const workout3 = new Workout({
@@ -98,9 +92,6 @@ const createPresetWorkouts = async (userId) => {
                 await createExerciseCopy("Seated Calf Raise", userId)
             ].map(exercise => exercise._id),
             isTemplate: true,
-            date: new Date('2024-11-13T21:53:42.372Z'),
-            createdAt: new Date('2024-11-13T21:53:42.372Z'),
-            updatedAt: new Date('2024-11-14T04:23:26.943Z')
         });
 
         const workout4 = new Workout({
@@ -116,9 +107,6 @@ const createPresetWorkouts = async (userId) => {
                 await createExerciseCopy("Glute Bridge", userId)
             ].map(exercise => exercise._id),
             isTemplate: true,
-            date: new Date('2024-11-13T21:57:19.835Z'),
-            createdAt: new Date('2024-11-13T21:57:19.835Z'),
-            updatedAt: new Date('2024-11-14T04:28:47.141Z')
         });
 
         const workout5 = new Workout({
@@ -137,9 +125,6 @@ const createPresetWorkouts = async (userId) => {
                 await createExerciseCopy("Bicep Curl", userId)
             ].map(exercise => exercise._id),
             isTemplate: true,
-            date: new Date('2024-11-13T21:57:19.835Z'),
-            createdAt: new Date('2024-11-13T21:57:19.835Z'),
-            updatedAt: new Date('2024-11-14T04:28:47.141Z')
         });
 
         const workout6 = new Workout({
@@ -155,9 +140,6 @@ const createPresetWorkouts = async (userId) => {
                 await createExerciseCopy("Standing Calf Raise", userId)
             ].map(exercise => exercise._id),
             isTemplate: true,
-            date: new Date('2024-11-13T21:57:19.835Z'),
-            createdAt: new Date('2024-11-13T21:57:19.835Z'),
-            updatedAt: new Date('2024-11-14T04:28:47.141Z')
         });
 
         const workout7 = new Workout({
@@ -178,9 +160,6 @@ const createPresetWorkouts = async (userId) => {
                 await createExerciseCopy("Standing Calf Raise", userId)
             ].map(exercise => exercise._id),
             isTemplate: true,
-            date: new Date('2024-11-13T21:57:19.835Z'),
-            createdAt: new Date('2024-11-13T21:57:19.835Z'),
-            updatedAt: new Date('2024-11-14T04:28:47.141Z')
         });
 
         await workout1.save();

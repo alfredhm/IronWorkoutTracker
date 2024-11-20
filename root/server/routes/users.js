@@ -9,6 +9,9 @@ const mongoose = require('mongoose')
 const express = require('express')
 const { Workout } = require('../models/workout')
 const seedDatabase = require('../seedDatabase')
+const { WorkoutSession } = require('../models/workoutsession')
+const { Exercise } = require('../models/exercise')
+const { Set } = require('../models/set')
 const router = express.Router()
 
 const JWT_SECRET = config.get('jwtPrivateKey')
@@ -203,6 +206,24 @@ router.delete('/:userId/workouts/:workoutId', auth, async (req, res) => {
     // Delete workout
     await Workout.deleteOne({ _id: workoutId })
     res.json({ message: 'Workout deleted' })
+})
+
+router.delete('/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.status(400).send('User does not exist in database')
+        } 
+        await Workout.deleteMany({ userId: userId })
+        await WorkoutSession.deleteMany({ userId: userId })
+        await Exercise.deleteMany({ userId: userId })
+        await Set.deleteMany({ userId: userId })
+        await User.deleteOne({ _id: userId })
+        res.json({ message: 'User deleted' })
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
 })
 
 module.exports = router

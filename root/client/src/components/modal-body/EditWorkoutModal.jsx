@@ -161,6 +161,7 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
                 for (let j = 0; j < formik.values.exercises[i].numOfSets; j++) {
                     const response = await axios.post(`http://localhost:5000/api/sets`, {
                         exerciseId: duplicatedExerciseIds[i],
+                        userId: uid,
                         sessionId: res.data._id,
                         weight: 0,
                         reps: 0,

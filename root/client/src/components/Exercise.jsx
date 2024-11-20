@@ -15,7 +15,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
     // Add a new empty set to the list
     const handleAddSet = () => {
         setModified(true);
-        const newSet = { exerciseId: exercise._id, sessionId: workoutID, ghost: true };
+        const newSet = { exerciseId: exercise._id, sessionId: workoutID, userId: exercise.userId, ghost: true };
         setSets(prevSets => [...prevSets, newSet]);
     };
 
@@ -23,7 +23,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
     const handleUpdateSet = (index, updatedData) => {
         setModified(true);
         setSets(prevSets =>
-            prevSets.map((set, i) => i === index ? { ...set, ...updatedData, ghost: false } : set)
+            prevSets.map((set, i) => i === index ? { ...set, ...updatedData, ghost: false, userId: exercise.userId } : set)
         );
     };
 
@@ -53,6 +53,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
                 sets.map(async (set) => {
                     const setData = {
                         exerciseId: set.exerciseId,
+                        userId: exercise.userId,
                         sessionId: workoutID,
                         weight: set.weight ?? 0,
                         reps: set.reps ?? 0,
@@ -113,7 +114,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
                 const loadedSets = response.data.filter(set => set.sessionId === workoutID);    
                 if (loadedSets.length === 0) {
                     // Add an initial ghost set if no sets exist
-                    loadedSets.push({ exerciseId: exercise._id, sessionId: workoutID, ghost: true });
+                    loadedSets.push({ exerciseId: exercise._id, userId: exercise.userId, sessionId: workoutID, ghost: true });
                 }    
                 setSets(loadedSets);
             } catch (err) {

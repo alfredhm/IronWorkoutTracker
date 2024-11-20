@@ -37,6 +37,7 @@ router.post('/', async (req, res) => {
 
     const set = new Set({
         exerciseId: req.body.exerciseId,
+        userId: req.body.userId,
         sessionId: req?.body.sessionId,
         reps: req?.body.reps,
         weight: req?.body.weight,
@@ -61,6 +62,7 @@ router.put('/:id', getSet, async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message)
     
     if (req.body.exerciseId !== undefined) res.varSet.exerciseId = req.body.exerciseId;
+    if (req.body.userId !== undefined) res.varSet.userId = req.body.userId;
     if (req.body.sessionId !== undefined) res.varSet.sessionId = req.body.sessionId;
     if (req.body.reps !== undefined) res.varSet.reps = req.body.reps;
     if (req.body.weight !== undefined) res.varSet.weight = req.body.weight;
