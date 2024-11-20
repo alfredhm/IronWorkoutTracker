@@ -57,7 +57,6 @@ const ExerciseList = forwardRef(({ workoutID, session, editModalRefresh, exercis
                 await axios.delete(`http://localhost:5000/api/exercises/${exerciseID}`);
             })
         );
-        console.log('Deleted exercises persisted successfully');
     } catch (error) {
         console.error('Error persisting deleted exercises:', error);
     }

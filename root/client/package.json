@@ -5,6 +5,7 @@
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.10.4",
+    "@emailjs/browser": "^4.4.1",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@tanstack/react-query": "^5.17.10",
@@ -16,6 +17,7 @@
     "client": "file:",
     "dayjs": "^1.11.13",
     "digital": "^0.0.1",
+    "emailjs": "^4.0.3",
     "envelope": "^2.1.0",
     "formik": "^2.4.6",
     "framer-motion": "^10.18.0",

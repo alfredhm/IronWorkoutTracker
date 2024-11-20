@@ -39,11 +39,9 @@ const LoginPage = () => {
         } catch (err) {
             if (err && err instanceof AxiosError) {
                 setError("Username and Password Do Not Match")
-                console.log("Error: ", err.message)
             }
             else if (err && err instanceof Error) {
                 setError("Username and Password Do Not Match")
-                console.log("Error: ", err.message)
             }
         }
     }

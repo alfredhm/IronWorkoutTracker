@@ -100,7 +100,6 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
             closeWorkoutList();
         } catch (err) {
             setError(err.message);
-            console.log("Error: ", err);
         } finally {
             setLoading(false);  
         }
@@ -189,7 +188,6 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
             refreshWorkouts();
         } catch (err) {
             setError(err.message);
-            console.log(err);
         }
     };
 
@@ -304,12 +302,12 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
                                         handleDeleteWorkout(selectedWorkout._id);
                                         noRefreshClose();
                                     }} 
-                                    p={3} bg="red.200" 
+                                    p={3} bg="gray.400" 
                                     borderRadius="50%" 
                                     border="3px solid white"
                                     _active={{ bg: "red.500" }}
                                 >
-                                    <DeleteIcon _active={{ color: "white" }} color="red.500" boxSize={6} />                                 
+                                    <DeleteIcon color="white" boxSize={6} />                                 
                                 </Box>
                                 <Button onClick={handleStartWorkout}>Start Workout</Button>
                             </Flex>

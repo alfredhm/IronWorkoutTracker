@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, ModalOverlay, ModalContent, ModalBody, FormControl, Input, Flex, Heading, Text, Switch, Button, Box, Select } from '@chakra-ui/react';
 import axios from 'axios';
 import * as Yup from 'yup';
-import exerciseCategories from '../resources/exercise-categories'; // Assuming exerciseCategories is an array of strings
+import muscleGroups from '../resources/muscle-groups';
 import { useFormik } from 'formik';
 import { useAuthUser } from 'react-auth-kit';
 
@@ -33,7 +33,6 @@ const AddExerciseModal = ({ isOpen, onClose }) => {
                     isUserPreset: true 
                 };
                 await axios.post('http://localhost:5000/api/exercises', exerciseToPost);
-                console.log(exerciseToPost);
                 onClose();
             } catch (error) {
                 console.error('There was an error creating the exercise!', error);
@@ -70,7 +69,7 @@ const AddExerciseModal = ({ isOpen, onClose }) => {
                             _focus={{ boxShadow: 'none' }}
                         />
                         <Select
-                            placeholder="Category"
+                            placeholder="Target"
                             name="muscleCategory"
                             value={formik.values.muscleCategory}
                             onChange={formik.handleChange}
@@ -84,7 +83,7 @@ const AddExerciseModal = ({ isOpen, onClose }) => {
                                 },
                             }}
                         >
-                            {exerciseCategories.map((category, index) => (
+                            {muscleGroups.map((category, index) => (
                                 <option disabled={index === -1 ? true : false} key={category} value={category}>
                                     {category}
                                 </option>

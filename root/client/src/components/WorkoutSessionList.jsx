@@ -48,7 +48,6 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
             setWorkouts(updatedData);
         } catch (err) {
             setError('Failed to refresh workouts');
-            console.log(err)
         } finally {
             const elapsedTime = Date.now() - startTime;
             const remainingTime = minSpinnerDisplayTime - elapsedTime;
@@ -109,6 +108,23 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
         }
     };
 
+    const handleEndSession = async (workoutId) => {
+        try {
+            const session = await axios.get(`http://localhost:5000/api/workoutsessions/${workoutId}`);
+            const sessionStartTime = new Date(session.data.date);
+            const currentTime = new Date();
+            const secondsElapsed = Math.floor((currentTime - sessionStartTime) / 1000);
+            await axios.put(`http://localhost:5000/api/workoutsessions/${workoutId}`, {
+                userId: uid,
+                durationSec: secondsElapsed,
+            });
+            await refreshWorkoutSessions();
+            return secondsElapsed
+        } catch (err) {
+            setError(err.message);
+        }
+    }
+
     const handleWorkoutClick = (workout) => {
         setSelectedWorkout(workout);
         onOpen();
@@ -129,7 +145,6 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
             return;
         }
         refreshWorkoutSessions();
-        console.log(workouts)
     }, [uid, navigate, dashboardRefresh, refreshWorkoutSessions]);
 
     useEffect(() => {
@@ -234,7 +249,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                                 </List>
                                             </Flex>
                                         </Flex>                                
-                                        <Flex minH="60px" justify="space-between" textAlign="right" flexDir="column" color="white" align="center">
+                                        <Flex minH="60px" justify="space-between" textAlign="right" flexDir="column" color="white" align="flex-end">
                                             <DeleteIcon 
                                                 boxSize={5} 
                                                 color="gray.400" 
@@ -244,7 +259,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                                     handleDeleteSession(workout._id);
                                                 }}
                                             />
-                                            <Box fontSize="xs">{formatTime(workout.durationSec) ? formatTime(workout.durationSec) : "0m"}</Box>
+                                            <Box fontSize="xs">{formatTime(workout.durationSec) && formatTime(workout.durationSec) !== 0 ? formatTime(workout.durationSec) : "In Progress"}</Box>
                                         </Flex>
                                     </Flex>
                                 </Flex>
@@ -255,7 +270,14 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                     <ModalOverlay />
                                     <ModalContent mx="auto" my="auto" aria-hidden="false" bgColor="gray.700">
                                         <ModalBody>
-                                            <EditSessionModal ref={editSessionModalRef} closeSessionList={handleSaveAndClose} selectedWorkout={selectedWorkout} handleDeleteSession={handleDeleteSession} noRefreshClose={onClose} />
+                                            <EditSessionModal 
+                                                ref={editSessionModalRef} 
+                                                closeSessionList={handleSaveAndClose} 
+                                                selectedWorkout={selectedWorkout} 
+                                                handleDeleteSession={handleDeleteSession} 
+                                                handleEndSession={handleEndSession} 
+                                                noRefreshClose={onClose} 
+                                            />
                                         </ModalBody>
                                     </ModalContent>
                                 </Modal>

@@ -49,7 +49,6 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
                     })
                     setExercises([...exercises, response.data])
                 } else {
-                    console.log(exercises, newExercise)
                     setExercises([...exercises, newExercise])
                 }
             
@@ -78,7 +77,6 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
                     })
                     setExercises([...exercises, response.data])
                 } else {
-                    console.log(exercises, newExerciseTemplate)
                     setExercises([...exercises, newExerciseTemplate])
                 }
             }
@@ -87,7 +85,6 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
             closeAndRefresh()
             setLoading(false)
         } catch (error) {
-            console.log(error)
             setError(error.message)
             setLoading(false)
         }
@@ -118,13 +115,11 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
 
             } catch (err) {
                 setError(err.message)
-                console.log(err)
                 setLoading(false)
             }
         }
         getCategoryExercises()
         setUpdated(false)
-        console.log(exercises)
     },[category, updated, exercises, uid])
 
     return (

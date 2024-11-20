@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react';
 import { useFormik } from "formik"
 import { useAuthUser } from 'react-auth-kit'
-import TimeSlider from '../TimeSlider'
 import axios from 'axios'
 import muscleGroups from '../../resources/muscle-groups';
 import * as Yup from 'yup'
@@ -21,7 +20,7 @@ import ErrorModal from '../ErrorModal';
 import SwipeableList from '../SwipeableList';
 import { DeleteIcon } from '@chakra-ui/icons';
 
-const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handleDeleteSession, noRefreshClose }, ref) => {
+const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handleDeleteSession, handleEndSession, noRefreshClose }, ref) => {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [exercises, setExercises] = useState([]);
@@ -85,7 +84,6 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
             closeSessionList()
         } catch (err) {
             setError(err.message)
-            console.log("Error: ", err)
         } finally {
             setLoading(false)   
         }
@@ -176,7 +174,7 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
                                     borderRadius={0}
                                     _focus={{ boxShadow: 'none' }}
                                 />
-                                <FormControl borderBottom={'1px solid gray'}>
+                                <FormControl>
                                     <Textarea
                                         placeholder='Notes...'
                                         name="notes"
@@ -193,7 +191,6 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
                                         _focus={{ boxShadow: 'none' }}
                                     />
                                 </FormControl>
-                                <TimeSlider initial={typeof formik.values.durationSec === "number" ? formik.values.durationSec : 0} onTimeChange={(val) => formik.setFieldValue('durationSec', val)} />
                             </FormControl>
                             <ExerciseList 
                                 session={true} 
@@ -212,22 +209,36 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
                                     session={true} 
                                     workoutID={selectedWorkout._id} 
                                 />
-                                <Box 
-                                    onClick={() => {
-                                        handleDeleteSession(selectedWorkout._id);
-                                        noRefreshClose();
-                                    }} 
-                                    p={3} bg="red.200" 
+                                <Box  
+                                    p={3} bg="gray.400" 
                                     borderRadius="50%" 
                                     border="3px solid white"
                                     _active={{ bg: "red.500" }}
+                                    onClick={() => {
+                                        handleDeleteSession(selectedWorkout._id);
+                                        noRefreshClose();
+                                    }}
                                 >
-                                    <DeleteIcon _active={{ color: "white" }} color="red.500" boxSize={6} />                                 
+                                    <DeleteIcon color="white" boxSize={6} />                                 
                                 </Box>
                                 <Button onClick={closeSessionList} w="124px">
                                     Save
                                 </Button>
                             </Flex>
+                            {!selectedWorkout.durationSec && 
+                                <Button 
+                                    w="100%" 
+                                    mt={2} 
+                                    color="white" 
+                                    bg="red.400"
+                                    onClick={() => {
+                                        handleEndSession(selectedWorkout._id)
+                                        noRefreshClose()
+                                    }}
+                                >
+                                    End Workout
+                                </Button>
+                            }
                             <Box>
                                 <Text textAlign="center" color="red.300">{error}</Text>
                             </Box>

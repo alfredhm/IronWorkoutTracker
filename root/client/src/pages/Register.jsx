@@ -45,12 +45,9 @@ const Register = () => {
 
         } catch (err) {
             setError(err.response.data)
-            console.log(err)
             if (err && err instanceof AxiosError) {
-                console.log("Error: ", err.message)
             }
             else if (err && err instanceof Error) {
-                console.log("Error: ", err.message)
             }
         }
     }

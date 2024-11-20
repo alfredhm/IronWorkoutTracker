@@ -14,4 +14,4 @@ const muscleGroups = [
     "Calves"
 ];
 
-module.exports = muscleGroups
+export default muscleGroups;

@@ -98,7 +98,7 @@ router.put('/:id', getWorkoutSession, async (req, res) => {
         res.status(400).json({ message: err.message });
     } 
 })
-
+ 
 // Update the exercises array in a workout session
 router.put('/:id/exercises', async (req, res) => {
     try {
@@ -166,6 +166,6 @@ router.delete('/:id', getWorkoutSession, async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
-
+ 
 
 module.exports = router;

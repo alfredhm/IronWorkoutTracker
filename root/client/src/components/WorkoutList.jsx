@@ -66,7 +66,6 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
     const handleTouchEnd = useCallback(() => {
         if (pullDownDistance > refreshThreshold) {
             refreshWorkouts();
-            console.log('Refreshing workouts');
         }
         setPullDownDistance(0);
         setPullStart(null);

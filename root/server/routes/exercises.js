@@ -66,7 +66,7 @@ router.get('/category/:category/:userId', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
-
+ 
 // Get preset exercises by category 
 router.get('/preset/category/:category', async (req, res) => {
     try {

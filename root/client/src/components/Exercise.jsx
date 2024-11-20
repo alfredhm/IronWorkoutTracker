@@ -81,6 +81,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
                         await axios.delete(`http://localhost:5000/api/sets/${setId}`);
                     })
                 );
+                setDeletedSets([]); // Clear deleted sets
             }
     
             // Update the exercise with the current sets array and correct numOfSets
@@ -92,8 +93,6 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
                 numOfSets: currentSetIds.length, // Update number of sets
             });
     
-            // Clear local states after successful save
-            setDeletedSets([]); // Clear deleted sets
             setModified(false); // Reset modified state
         } catch (err) {
             setError(`Failed to save sets: ${err.message}`);
