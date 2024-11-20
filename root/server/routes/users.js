@@ -15,6 +15,7 @@ const JWT_SECRET = config.get('jwtPrivateKey')
 
 // Gets user data (except password)
 router.get('/me', auth, async (req, res) => {
+    console.log(req.body)
     const user = await User.findById(req.user._id).select('-password')
     res.send(user)
 })
@@ -27,19 +28,28 @@ router.post('/', async (req, res) => {
 
     // Find user with email, if user found, throw error that user is already registered
     let user = await User.findOne({ email: req.body.email })
-    if (user) return res.status(400).send('User already registered.')
+    if (user) return res.status(400).send('Unable to register with the provided email.');
 
     // Create new user with encrypted password
     user = new User(_.pick(req.body, ['name', 'email', 'password']))
     const salt = await bcrypt.genSalt(10)
     user.password = await bcrypt.hash(user.password, salt)
     await user.save()
-    console.log("ASDADAWDAWD", user, user._id)
     await seedDatabase(user._id)
     
     // Send token 
-    const token = user.generateAuthToken()
-    res.header('x-auth-token', token).send(_.pick(user, ['name', 'email']))
+    const token = user.generateAuthToken();
+    res.cookie('authToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 3600 * 1000, // 1 hour expiration
+    });
+    res.send({
+        uid: user._id, // Include the id as uid
+        name: user.name,
+        email: user.email,
+    });
 })
 
 // Sends a reset password link to a user, activated when email is submitted to forgot password page
@@ -56,7 +66,7 @@ router.post('/reset-password', async (req, res) => {
         // Create jwt token for reset link
         const secret = JWT_SECRET
         const token = jwt.sign({ email: user.email, id: user._id }, secret, {
-            expiresIn: "5m",
+            expiresIn: "15m",
         });
 
         const link = `http://localhost:3000/reset-password/${user._id}/${token}`
@@ -68,23 +78,29 @@ router.post('/reset-password', async (req, res) => {
               user: 'ironworkouttracker@gmail.com',
               pass: 'qetf rdhv xair dnqw'
             }
-          });
+        });
           
-          var mailOptions = {
+        var mailOptions = {
             from: 'ironworkouttracker@gmail.com',
             to: user.email,
             subject: 'Password Reset',
             text: `Click on the link to change your password \n ${link}`
-          };
+        };
           
-          transporter.sendMail(mailOptions, (error, info) => {
+        transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
               console.log(error);
             } else {
               console.log('Email sent: ' + info.response);
             }
-          });
-        return res.send("Done")
+        });
+        res.cookie('resetToken', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 5 * 60 * 1000, // 5 minutes expiration
+        });
+        res.send("Check your email for the reset link.");
 
     } catch (err) { 
         console.error(err.message)
@@ -144,16 +160,9 @@ router.post("/reset-password/:id/:token", async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid Token'})
         }
 
-        // If passwords don't match, throw error
-        if (password !== password_2) {
-            return res.status(400).json({ success: false, message: 'Passwords Do Not Match'})
-        }        
-
-        // If password is less than 10 characters, throw error
-        if (password.length < 10) {
-            return res.status(400).json({ success: false, message: 'Password Must Be At Least 10 Characters'})
-        }        
-
+        if (password !== password_2 || password.length < 10) {
+            return res.status(400).json({ success: false, message: 'Invalid password input.' });
+        }
         // Encrypt new password and update user's password
         const salt = await bcrypt.genSalt(10)
         const encryptedPassword = await bcrypt.hash(password, salt)

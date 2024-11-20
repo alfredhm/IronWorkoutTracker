@@ -9,7 +9,6 @@ import {
     ModalCloseButton,
 } from '@chakra-ui/react';
 import { useFormik } from "formik"
-import { useAuthUser } from 'react-auth-kit'
 import axios from 'axios'
 import muscleGroups from '../../resources/muscle-groups';
 import * as Yup from 'yup'
@@ -19,6 +18,7 @@ import ExerciseList from '../ExerciseList';
 import ErrorModal from '../ErrorModal';
 import SwipeableList from '../SwipeableList';
 import { DeleteIcon } from '@chakra-ui/icons';
+import { useLocation } from 'react-router-dom';
 
 const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handleDeleteSession, handleEndSession, noRefreshClose, setDeletedWorkoutId }, ref) => {
     const [error, setError] = useState("")
@@ -29,9 +29,9 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
     const exerciseListRef = useRef()
     const exerciseRefs = useRef([])
 
-    // Grabs the id of the current user
-    const auth = useAuthUser();
-    const uid = auth()?.uid; 
+    const location = useLocation()
+    const userState = location.state
+    const uid = userState.uid
     
     // Initial values used for formik and checking if anything has been edited
     const initialValues = {

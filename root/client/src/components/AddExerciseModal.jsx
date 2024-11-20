@@ -4,11 +4,12 @@ import axios from 'axios';
 import * as Yup from 'yup';
 import muscleGroups from '../resources/muscle-groups';
 import { useFormik } from 'formik';
-import { useAuthUser } from 'react-auth-kit';
+import { useLocation } from 'react-router-dom';
 
 const AddExerciseModal = ({ isOpen, onClose }) => {
-    const auth = useAuthUser()
-    const uid = auth()?.uid;
+    const location = useLocation()
+    const userState = location.state
+    const uid = userState.uid
 
     const formik = useFormik({
         initialValues: {

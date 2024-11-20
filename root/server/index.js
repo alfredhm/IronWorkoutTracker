@@ -4,10 +4,12 @@ const exercises = require('./routes/exercises')
 const sets = require('./routes/sets')
 const workouts = require('./routes/workouts')
 const workoutSessions = require('./routes/workoutsessions')
+const loginLimiter = require('./middleware/loginLimiter')
 const config = require('config')
 const express = require('express')
 const app = express()
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose')
 require('dotenv').config({ path: "./config.env" })
 
@@ -20,11 +22,15 @@ if (!config.get('jwtPrivateKey')) {
   process.exit(1)
 }
 
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}))
 app.use(express.json())
+app.use(cookieParser())
 
 app.use('/api/users', users)
-app.use('/api/auth', auth)
+app.use('/api/auth', auth, loginLimiter())
 app.use('/api/exercises', exercises)
 app.use('/api/sets', sets)
 app.use('/api/workouts', workouts)

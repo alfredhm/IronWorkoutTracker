@@ -7,6 +7,7 @@ import { ChevronRightIcon } from "@chakra-ui/icons";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import ErrorModal from "./ErrorModal";
+axios.defaults.withCredentials = true;
 
 const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, editModalRefresh }) => {
     const [error, setError] = useState('');

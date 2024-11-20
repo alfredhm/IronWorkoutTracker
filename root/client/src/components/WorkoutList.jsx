@@ -1,8 +1,7 @@
 import { Box, Flex, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, Spinner, useDisclosure, Text, Button, Heading } from '@chakra-ui/react'
 import axios from 'axios'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useAuthUser } from 'react-auth-kit'
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import muscleIcons from '../resources/muscleIcons'
 import getFocusCount from '../resources/getFocusCount'
 import convertToMonthDay from '../resources/convertToMonthDay'
@@ -24,9 +23,11 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
     const scrollContainerRef = useRef();
     const refreshThreshold = 100;
     const minSpinnerDisplayTime = 500;
-    const auth = useAuthUser();
-    const uid = auth()?.uid;
     const navigate = useNavigate();
+
+    const location = useLocation()
+    const userState = location.state
+    const uid = userState.uid
 
     // Fetches all the workouts for the user
     const refreshWorkouts = async () => {

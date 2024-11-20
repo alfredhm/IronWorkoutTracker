@@ -2,9 +2,10 @@ import { Box, Flex, Heading, Image, Modal, ModalBody, ModalContent, ModalFooter,
 import muscleCategories from '../resources/exercise-categories'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { useAuthUser } from 'react-auth-kit'
 import ErrorModal from './ErrorModal'
 import AddExerciseModal from './AddExerciseModal'
+import { useLocation } from 'react-router-dom'
+axios.defaults.withCredentials = true;
 
 const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, setExercises }) => {
     const [category, setCategory] = useState('')
@@ -13,11 +14,12 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
     const [error, setError] = useState('')
     const [isLoading, setLoading] = useState(true)
 
-    const auth = useAuthUser()
-    const uid = auth()?.uid;
-
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure()
+
+    const location = useLocation()
+    const userState = location.state
+    const uid = userState.uid
 
     // Opens modal and sets the category to the selected category
     const handleOpen = (newCategory) => {

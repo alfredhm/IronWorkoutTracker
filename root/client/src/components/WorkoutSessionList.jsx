@@ -1,14 +1,14 @@
 import { Box, Button, Flex, Image, List, ListItem, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, Spinner, useDisclosure } from '@chakra-ui/react';
 import axios from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useAuthUser } from 'react-auth-kit';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import EditSessionModal from './modal-body/EditSessionModal';
 import formatTime from '../resources/formatTime';
 import daysOfWeek from '../resources/daysOfWeek';
 import getTimeOfDay from '../resources/getTimeOfDay';
 import ErrorModal from './ErrorModal';
 import { DeleteIcon } from '@chakra-ui/icons';
+axios.defaults.withCredentials = true;
 
 const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkout }) => {
     const [workouts, setWorkouts] = useState([]);
@@ -25,9 +25,11 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
     const scrollContainerRef = useRef();
     const refreshThreshold = 100;
     const minSpinnerDisplayTime = 500;
-    const auth = useAuthUser();
-    const uid = auth()?.uid;
     const navigate = useNavigate();
+
+    const location = useLocation()
+    const userState = location.state
+    const uid = userState.uid
 
     const refreshWorkoutSessions = useCallback(async () => {
         setIsRefreshing(true);

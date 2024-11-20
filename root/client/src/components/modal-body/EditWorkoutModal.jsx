@@ -6,8 +6,7 @@ import {
     Flex,
 } from '@chakra-ui/react';
 import { useFormik } from "formik"
-import { useAuthUser } from 'react-auth-kit'
-import { useNavigate } from 'react-router-dom';
+import { cloneDeep } from 'lodash'
 import axios from 'axios'
 import FocusSelect from '../FocusSelect';
 import muscleGroups from '../../resources/muscle-groups';
@@ -16,6 +15,7 @@ import AddExercise from '../AddExercise';
 import ExerciseList from '../ExerciseList';
 import ErrorModal from '../ErrorModal';
 import { DeleteIcon } from '@chakra-ui/icons';
+import { useLocation } from 'react-router-dom';
 
 const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTabIndex, setStartedWorkout, refreshWorkouts, handleDeleteWorkout, setDeletedWorkoutId }, ref) => {
     const [error, setError] = useState("")
@@ -25,9 +25,9 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
     const exerciseListRef = useRef()
     const exerciseRefs = useRef([])
 
-    // Grabs the id of the current user
-    const auth = useAuthUser();
-    const uid = auth()?.uid;
+    const location = useLocation()
+    const userState = location.state
+    const uid = userState.uid
 
      // Initial values for other fields, stored in state
      const [workoutFields, setWorkoutFields] = useState({

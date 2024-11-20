@@ -16,7 +16,7 @@ const HomePage = () => {
           </Box>
         </Box>
       </>
-
+ 
     )
 }
 

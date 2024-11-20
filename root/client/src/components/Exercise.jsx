@@ -4,6 +4,7 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 import ErrorModal from "./ErrorModal";
+axios.defaults.withCredentials = true;
 
 const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => {
     const [error, setError] = useState('');

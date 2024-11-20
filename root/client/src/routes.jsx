@@ -1,18 +1,18 @@
 import { createBrowserRouter } from "react-router-dom";
-import HomePage from "./pages/HomePage"
+import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import { RequireAuth } from "react-auth-kit";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/PasswordReset/ForgotPassword";
 import VerifyReset from "./pages/PasswordReset/ResetPassword";
 import NewPassword from "./pages/PasswordReset/NewPassword";
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 
 const router = createBrowserRouter([
     {
         path: "/",
         children: [
-            { index: true, element: <HomePage />},
+            { index: true, element: <HomePage /> },
             { 
                 path: "login", 
                 element: <LoginPage /> 
@@ -24,7 +24,7 @@ const router = createBrowserRouter([
             {
                 path: "reset-password/",
                 children: [
-                    { index: true, element: <ForgotPassword />},
+                    { index: true, element: <ForgotPassword /> },
                     {
                         path: ":id/:token",
                         element: <VerifyReset />
@@ -38,13 +38,13 @@ const router = createBrowserRouter([
             { 
                 path: "dashboard", 
                 element: (
-                    <RequireAuth loginPath="/login">
+                    <ProtectedRoute>
                         <Dashboard />
-                    </RequireAuth>
+                    </ProtectedRoute>
                 )
             }
         ]
     }
-])
+]);
 
-export default router
+export default router;

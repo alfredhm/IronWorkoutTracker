@@ -4,6 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import Exercise from "./Exercise";
 import ExerciseTemplate from "./ExerciseTemplate";
 import ErrorModal from "./ErrorModal";
+axios.defaults.withCredentials = true;
 
 const ExerciseList = forwardRef(({ workoutID, session, editModalRefresh, exerciseRefs, exercises, setExercises }, ref) => {
   const apiParam = session ? "workoutsessions" : "workouts";
