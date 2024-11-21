@@ -12,10 +12,11 @@ const error = require('../middleware/error')
 
 const allowedOrigins = [
   "http://localhost:3000",                // Local development
-  "https://ironworkoutapp-fcc22fe202a5.herokuapp.com/"  // Deployed frontend URL
+  "https://ironworkoutapp-fcc22fe202a5.herokuapp.com"  // Deployed frontend URL
 ];
 
 module.exports = function(app) {
+    // Middleware
     app.use(express.json())
     app.use(cors({
       origin: function (origin, callback) {
@@ -28,11 +29,15 @@ module.exports = function(app) {
       credentials: true, // Allow credentials
     }));
     app.use(cookieParser())
+
+    // Routes
     app.use('/api/users', users)
     app.use('/api/auth', auth, loginLimiter())
     app.use('/api/exercises', exercises)
     app.use('/api/sets', sets)
     app.use('/api/workouts', workouts)
     app.use('/api/workoutsessions', workoutSessions)
+
+    // Error handling
     app.use(error)
 }

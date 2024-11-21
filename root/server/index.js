@@ -8,9 +8,9 @@ console.log("JWT Private Key:", process.env.jwtPrivateKey ? "Set" : "Not Set");
 require('dotenv').config({ path: "./config.env" })
 
 require('./startup/logging')()
-require('./startup/routes')(app)
 require('./startup/db')()
 require('./startup/config')()
+require('./startup/routes')(app)
 require('./startup/prod')(app)
 
 const port = process.env.PORT || 5000
