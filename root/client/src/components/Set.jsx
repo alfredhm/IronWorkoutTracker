@@ -59,7 +59,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                 >
                     <Text
                         color={completed ? "white" : "rgba(256, 256, 256, 0.3)"}
-                        fontSize="x-small"
+                        fontSize="16px"
                         fontWeight="700"
                         p={2}
                         position="absolute"
@@ -86,7 +86,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
             <Flex position="relative" w="100%">
                 <Box position="absolute" top={0} left={0}>
                     <Flex flexDir="column" alignItems="center" justifyContent="center">
-                        <Text color="rgba(256, 256, 256, 0.6)" fontSize="x-small">
+                        <Text color="rgba(256, 256, 256, 0.6)" fontSize="10px">
                             Lb(s)
                         </Text>
                         <Input
@@ -97,7 +97,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                             h="auto"
                             maxW={7}
                             placeholder="0"
-                            fontSize={12}
+                            fontSize="16px"
                             color="rgba(256, 256, 256, 0.85)"
                             border={0}
                             _focus={{
@@ -114,7 +114,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                 </Box>
                 <Box position="absolute" top={0} left={50}>
                     <Flex flexDir="column" alignItems="center" justifyContent="center">
-                        <Text color="rgba(256, 256, 256, 0.6)" fontSize="x-small">
+                        <Text color="rgba(256, 256, 256, 0.6)" fontSize="10px">
                             Reps
                         </Text>
                         <Input
@@ -124,7 +124,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                             h="auto"
                             maxW={7}
                             placeholder="0"
-                            fontSize={12}
+                            fontSize="16px"
                             color="rgba(256, 256, 256, 0.85)"
                             border={0}
                             _focus={{
@@ -139,7 +139,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                     </Flex>
                 </Box>
                 <Flex flexDir="column" w="100%" ml="120px">
-                    <Text color="rgba(256, 256, 256, 0.6)" fontSize="x-small" mb={1}>
+                    <Text color="rgba(256, 256, 256, 0.6)" fontSize="10px" mb={1}>
                         Notes
                     </Text>
                     <Textarea
@@ -155,7 +155,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                         overflow="hidden"
                         p={0}
                         border={0}
-                        fontSize={12}
+                        fontSize="16px"
                         color="rgba(256, 256, 256, 0.85)"
                         sx={{
                             transition: 'height 0.2s ease-in-out',

@@ -75,10 +75,6 @@ const ExerciseList = forwardRef(
 
     return error ? (
       <ErrorModal isOpen={!!error} onClose={() => setError("")} errorMessage={error} />
-    ) : loading ? (
-      <Flex justifyContent="center" alignItems="center">
-        <Spinner size="xl" color="white" />
-      </Flex>
     ) : (
       <Box display={exercises.length === 0 ? "none" : "block"} p={ session ? 0 : 1 } bg={ session ? "none" : "gray.600" } w="100%" borderRadius="10px">
         <Flex borderRadius="15px" flexDir="column" w="100%" py={1}>
