@@ -1,5 +1,5 @@
 {
-  "name": "ironworkoutapp",
+  "name": "root",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,6 @@
     "express-rate-limit": "^7.4.1",
     "fs": "^0.0.1-security",
     "helmet": "^8.0.0",
-    "ironworkoutapp": "file:",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
