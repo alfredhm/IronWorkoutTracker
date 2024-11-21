@@ -10,11 +10,23 @@ const workoutSessions = require('../routes/workoutsessions')
 const loginLimiter = require('../middleware/loginLimiter')
 const error = require('../middleware/error')
 
+const allowedOrigins = [
+  "http://localhost:3000",                // Local development
+  "https://ironworkoutapp-fcc22fe202a5.herokuapp.com/"  // Deployed frontend URL
+];
+
 module.exports = function(app) {
     app.use(express.json())
     app.use(cors({
-        credentials: true
-      }))
+      origin: function (origin, callback) {
+          if (allowedOrigins.includes(origin) || !origin) {
+              callback(null, true);
+          } else {
+              callback(new Error("Not allowed by CORS"));
+          }
+      },
+      credentials: true, // Allow credentials
+    }));
     app.use(cookieParser())
     app.use('/api/users', users)
     app.use('/api/auth', auth, loginLimiter())

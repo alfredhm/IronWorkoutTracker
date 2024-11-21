@@ -36,6 +36,7 @@
     "yup": "^1.4.0"
   },
   "scripts": {
+    "start": "react-scripts start",
     "start-client": "react-scripts start",
     "build": "react-scripts build && (cd ../server && npm install)",
     "test": "react-scripts test",

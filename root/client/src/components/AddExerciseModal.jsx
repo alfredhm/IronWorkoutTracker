@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import muscleGroups from '../resources/muscle-groups';
 import { useFormik } from 'formik';
 import { useLocation } from 'react-router-dom';
+import axiosInstance from '../resources/axiosInstance';
 
 const AddExerciseModal = ({ isOpen, onClose }) => {
     const location = useLocation()
@@ -33,7 +34,7 @@ const AddExerciseModal = ({ isOpen, onClose }) => {
                     userId: uid, 
                     isUserPreset: true 
                 };
-                await axios.post('http://localhost:5000/api/exercises', exerciseToPost);
+                await axiosInstance.post('/exercises', exerciseToPost);
                 formik.resetForm();
                 onClose();
             } catch (error) {

@@ -4,7 +4,8 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 import ErrorModal from "./ErrorModal";
-axios.defaults.withCredentials = true;
+import axiosInstance from "../resources/axiosInstance";
+axiosInstance.defaults.withCredentials = true;
 
 const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => {
     const [error, setError] = useState('');
@@ -62,11 +63,11 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
     
                     if (!set._id) {
                         // Create a new set
-                        const response = await axios.post(`http://localhost:5000/api/sets`, setData);
+                        const response = await axiosInstance.post(`/sets`, setData);
                         set._id = response.data._id; // Update the local set with the backend ID
                     } else {
                         // Update an existing set
-                        await axios.put(`http://localhost:5000/api/sets/${set._id}`, setData);
+                        await axiosInstance.put(`/sets/${set._id}`, setData);
                     }
     
                     // Convert ghost set to non-ghost
@@ -80,7 +81,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
             if (deletedSets.length > 0) {
                 await Promise.all(
                     deletedSets.map(async (setId) => {
-                        await axios.delete(`http://localhost:5000/api/sets/${setId}`);
+                        await axiosInstance.delete(`/sets/${setId}`);
                     })
                 );
                 setDeletedSets([]); // Clear deleted sets
@@ -88,7 +89,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
     
             // Update the exercise with the current sets array and correct numOfSets
             const currentSetIds = savedSetIds.filter((id) => !deletedSets.includes(id));
-            await axios.put(`http://localhost:5000/api/exercises/${exercise._id}`, {
+            await axiosInstance.put(`/exercises/${exercise._id}`, {
                 userId: exercise.userId,
                 name: exercise.name,
                 sets: currentSetIds, // Update sets array
@@ -110,7 +111,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
     useEffect(() => {
         const fetchSets = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/sets/exercise/${exercise._id}`);
+                const response = await axiosInstance.get(`/sets/exercise/${exercise._id}`);
                 const loadedSets = response.data.filter(set => set.sessionId === workoutID);    
                 if (loadedSets.length === 0) {
                     // Add an initial ghost set if no sets exist
