@@ -53,9 +53,9 @@ const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, 
             {error && 
                 <ErrorModal isOpen={error.length > 0} onClose={() => setError("")} errorMessage={error} />
             }
-            <Flex key={exercise._id} w="100%" bg="gray.600">
+            <Flex key={exercise._id} w="100%" bg="gray.600" py={1}>
                 <Flex w="100%">
-                    <Flex px={4} flexDir="column" w="100%">
+                    <Flex px={3} flexDir="column" w="100%">
                         <Flex
                             py={2}
                             w="100%"
@@ -63,6 +63,11 @@ const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, 
                             justifyContent="space-between"
                             borderBottom={last ? "none" : "1px solid"}
                             borderColor="rgba(256, 256, 256, 0.3)"
+                            onClick={handleOpen}
+                            _hover={{ 
+                                cursor: 'pointer', 
+                                color: 'blue.200'
+                            }}
                         >
                             <Flex flexDirection="column">
                                 <Text fontSize="small" fontWeight="650">
@@ -72,13 +77,7 @@ const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, 
                                     {setCount} sets
                                 </Text>
                             </Flex>
-                            <Box 
-                                onClick={handleOpen}
-                                _hover={{ 
-                                    cursor: 'pointer', 
-                                    color: 'blue.200'
-                                }}
-                            >
+                            <Box >
                                 <ChevronRightIcon boxSize={6}/>
                             </Box>
                         </Flex>

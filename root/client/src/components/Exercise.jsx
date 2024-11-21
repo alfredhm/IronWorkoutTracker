@@ -129,7 +129,7 @@ const Exercise = forwardRef(({ exercise, onDeleteExercise, workoutID }, ref) => 
             {error && 
                 <ErrorModal isOpen={error.length > 0} onClose={() => setError("")} errorMessage={error} />
             }
-            <Flex key={exercise._id} w="100%" borderRadius={7} bg="gray.600">
+            <Flex key={exercise._id} w="100%" borderRadius={7} bg="gray.600" my={2}>
                 <Flex w="100%">
                     <Flex px={4} flexDir="column" w="100%">
                         <Flex

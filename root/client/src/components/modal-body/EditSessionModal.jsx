@@ -45,18 +45,15 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
     // Schema for a workout session for front-end validation
     const WorkoutSessionSchema = Yup.object().shape({
         name: Yup.string()
-          .max(50, 'Name cannot exceed 50 characters.')
-          .optional(),
+          .max(50, 'Name cannot exceed 50 characters.'),
         focusGroup: Yup.array()
-          .of(Yup.string().oneOf(muscleGroups, 'Invalid muscle group'))
-          .optional(),
+          .of(Yup.string().oneOf(muscleGroups, 'Invalid muscle group')),
         workoutTemplate: Yup.string(),
         durationSec: Yup.number()
           .integer('Duration must be an integer.')
           .optional(),
         notes: Yup.string()
-          .max(500, 'Notes cannot exceed 500 characters.')
-          .optional(),
+          .max(450, 'Notes cannot exceed 450 characters.'),
     });
 
     // Submit function for formik
@@ -96,6 +93,7 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
         onSubmit: onSubmit,
         validationSchema: WorkoutSessionSchema,
         enableReinitialize: true,
+        validateOnChange: true
        
     })
 
@@ -105,8 +103,9 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
     const textareaRef = useRef();
     useEffect(() => {
         if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+            // Temporarily store scrollHeight and apply the new height
+            const scrollHeight = textareaRef.current.scrollHeight;
+            textareaRef.current.style.height = `${scrollHeight}px`;
         }
     }, [formik.values.notes]);
 
@@ -155,7 +154,10 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
                     <Center width="100%" color="white" mt={5}  display="flex" flexDirection="column">
                         <VStack width="100%" onSubmit={formik.handleSubmit}>
                             <FormControl>
-                                <FocusSelect focusValues={formik.values.focusGroup} formik={formik} />
+                                <FocusSelect formik={formik} />
+                                {formik.touched.focusGroup && formik.errors.focusGroup && (
+                                    <Text fontSize="sm" color="red.400">{formik.errors.focusGroup}</Text>
+                                )}
                             </FormControl>
                             <FormControl p={1} pl={2} pt={2} bg="gray.600" borderRadius="10px">
                                 <Input
@@ -174,6 +176,9 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
                                     borderRadius={0}
                                     _focus={{ boxShadow: 'none' }}
                                 />
+                                {formik.touched.name && formik.errors.name && (
+                                    <Text fontSize="sm" color="red.400">{formik.errors.name}</Text>
+                                )}
                                 <FormControl>
                                     <Textarea
                                         placeholder='Notes...'
@@ -190,6 +195,9 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
                                         borderRadius={0}
                                         _focus={{ boxShadow: 'none' }}
                                     />
+                                    {formik.touched.notes && formik.errors.notes && (
+                                        <Text fontSize="sm" color="red.400">{formik.errors.notes}</Text>
+                                    )}
                                 </FormControl>
                             </FormControl>
                             <ExerciseList 

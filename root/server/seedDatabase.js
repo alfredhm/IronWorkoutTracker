@@ -2,8 +2,6 @@ const mongoose = require("mongoose")
 const { Exercise } = require("./models/exercise")
 const { Workout } = require("./models/workout")
 const presetExercises = require("./exercises.json")
-const { create } = require("lodash")
-console.log(Exercise)
 
 // Convert the array of exercises into a dictionary for quick lookup by name
 const exerciseDictionary = presetExercises.reduce((dict, exercise) => {

@@ -34,6 +34,7 @@ const AddExerciseModal = ({ isOpen, onClose }) => {
                     isUserPreset: true 
                 };
                 await axios.post('http://localhost:5000/api/exercises', exerciseToPost);
+                formik.resetForm();
                 onClose();
             } catch (error) {
                 console.error('There was an error creating the exercise!', error);

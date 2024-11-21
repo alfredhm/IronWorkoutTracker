@@ -1,121 +1,117 @@
+import React, { forwardRef, useEffect, useImperativeHandle, useCallback } from "react";
 import { Box, Flex, Spinner } from "@chakra-ui/react";
 import axios from "axios";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import Exercise from "./Exercise";
 import ExerciseTemplate from "./ExerciseTemplate";
 import ErrorModal from "./ErrorModal";
-axios.defaults.withCredentials = true;
 
-const ExerciseList = forwardRef(({ workoutID, session, editModalRefresh, exerciseRefs, exercises, setExercises }, ref) => {
-  const apiParam = session ? "workoutsessions" : "workouts";
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [deletedExerciseIds, setDeletedExerciseIds] = useState([]); // Track exercises to delete from backend
+const ExerciseList = forwardRef(
+  ({ workoutID, session, editModalRefresh, exerciseRefs }, ref) => {
+    const [error, setError] = React.useState("");
+    const [loading, setLoading] = React.useState(false);
+    const [exercises, setExercises] = React.useState([]);
+    const [deletedExerciseIds, setDeletedExerciseIds] = React.useState([]);
 
-  const fetchExercises = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/${apiParam}/${workoutID}`);
-      const exerciseIDs  = response.data.exercises;
-
-      // Fetch each exercise’s details by ID
-      const fetchedExercises = await Promise.all(
-        exerciseIDs.map(async (exerciseID) => {
-            try {
-                const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID}`);
-                return exerciseResponse.data;
-            } catch {
-                return null;
-            }
-        })
-      );
-      setTimeout(() => {}, 5000);
-      setExercises(fetchedExercises.filter((exercise) => exercise !== null));
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Add or update exercises in the list
-  const updateExerciseList = (updatedExercise) => {
-    setExercises((prevExercises) =>
-        prevExercises.map((ex) => (ex._id === updatedExercise._id ? updatedExercise : ex))
-    );
-  };
-
-  // Handle exercise deletion
-  const handleDeleteExercise = (exerciseID) => {
-    setExercises((prevExercises) => prevExercises.filter((ex) => ex._id !== exerciseID));
-    setDeletedExerciseIds((prev) => [...prev, exerciseID]);
-  };
-
-  const persistDeletedExercises = async () => {
-    try {
-        await Promise.all(
-            deletedExerciseIds.map(async (exerciseID) => {
-                await axios.delete(`http://localhost:5000/api/exercises/${exerciseID}`);
-            })
+    // Fetch exercises only when `workoutID` changes
+    const fetchExercises = useCallback(async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `http://localhost:5000/api/${session ? "workoutsessions" : "workouts"}/${workoutID}`
         );
-    } catch (error) {
-        console.error('Error persisting deleted exercises:', error);
-    }
-  };
+        const exerciseIDs = response.data.exercises;
 
-  useEffect(() => {
-    fetchExercises();
-  }, [workoutID]);
-
-  // Assign refs after exercises are rendered
-  useEffect(() => {
-    exercises.forEach((exercise, index) => {
-      if (!exerciseRefs.current[index]) {
-        exerciseRefs.current[index] = null;
+        const fetchedExercises = await Promise.all(
+          exerciseIDs.map(async (exerciseID) => {
+            try {
+              const exerciseResponse = await axios.get(
+                `http://localhost:5000/api/exercises/${exerciseID}`
+              );
+              return exerciseResponse.data;
+            } catch {
+              return null;
+            }
+          })
+        );
+        setExercises(fetchedExercises.filter(Boolean));
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    });
-  }, [exercises, exerciseRefs]);
+    }, [workoutID, session]);
 
-  useImperativeHandle(ref, () => ({
-    persistDeletedExercises,
-  }));
+    const handleUpdateExercise = (updatedExercise) => {
+      setExercises((prev) =>
+        prev.map((exercise) =>
+          exercise._id === updatedExercise._id ? { ...exercise, ...updatedExercise } : exercise
+        )
+      );
+    }
 
-  return error ? 
-      <ErrorModal isOpen={error.length > 0} onClose={() => setError("")} errorMessage={error} /> : 
-    loading ? (
+
+    // Persist deleted exercises
+    const persistDeletedExercises = useCallback(async () => {
+      try {
+        await Promise.all(
+          deletedExerciseIds.map((exerciseID) =>
+            axios.delete(`http://localhost:5000/api/exercises/${exerciseID}`)
+          )
+        );
+        setDeletedExerciseIds([]);
+      } catch (error) {
+        console.error("Error persisting deleted exercises:", error);
+      }
+    }, [deletedExerciseIds]);
+
+    useImperativeHandle(ref, () => ({
+      persistDeletedExercises,
+    }));
+
+    useEffect(() => {
+      fetchExercises();
+    }, [fetchExercises]);
+
+    return error ? (
+      <ErrorModal isOpen={!!error} onClose={() => setError("")} errorMessage={error} />
+    ) : loading ? (
       <Flex justifyContent="center" alignItems="center">
         <Spinner size="xl" color="white" />
       </Flex>
-    ) : session ? (
-        <Box display={exercises.length === 0 ? "none" : "block"} bg='gray.700' w='100%' borderRadius={'10px'}>
-          <Flex flexDir="column" gap={session ? "10px" : 0} w="100%" py={0}>
-            {exercises.map((exercise, index) => 
-                <Exercise
-                  key={index}
-                  workoutID={workoutID}
-                  exercise={exercise}
-                  onDeleteExercise={handleDeleteExercise}
-                  ref={(el) => (exerciseRefs.current[index] = el || exerciseRefs.current[index])}
-                />
-            )}
-          </Flex>
-        </Box>
-      ) : (
-        <Box display={exercises.length === 0 ? "none" : "block"} py={2} bg='gray.600' w='100%' borderRadius={'10px'}>
-          <Flex flexDir="column" gap={session ? "10px" : 0} w="100%" py={0}>
-            {exercises.map((exercise, index) =>  
-                <ExerciseTemplate
-                  key={index}
-                  last={index === exercises.length - 1}
-                  exercise={exercise}
-                  onDeleteExercise={handleDeleteExercise}
-                  onExerciseUpdate={updateExerciseList}
-                  editModalRefresh={editModalRefresh}
-                />
-            )}
-          </Flex>
-        </Box>
-      );
-});
+    ) : (
+      <Box display={exercises.length === 0 ? "none" : "block"} p={ session ? 0 : 1 } bg={ session ? "none" : "gray.600" } w="100%" borderRadius="10px">
+        <Flex borderRadius="15px" flexDir="column" w="100%" py={1}>
+          {exercises.map((exercise, index) =>
+            session ? (
+              <Exercise
+                key={exercise._id}
+                ref={(el) => (exerciseRefs.current[index] = el)}
+                workoutID={workoutID}
+                exercise={exercise}
+                onDeleteExercise={(exerciseID) => {
+                  setExercises((prev) => prev.filter((ex) => ex._id !== exerciseID));
+                  setDeletedExerciseIds((prev) => [...prev, exerciseID]);
+                }}
+              />
+            ) : (
+              <ExerciseTemplate
+                key={exercise._id}
+                last={index === exercises.length - 1}
+                exercise={exercise}
+                onDeleteExercise={(exerciseID) => {
+                  setExercises((prev) => prev.filter((ex) => ex._id !== exerciseID));
+                  setDeletedExerciseIds((prev) => [...prev, exerciseID]);
+                }}
+                onExerciseUpdate={handleUpdateExercise}
+                editModalRefresh={editModalRefresh}
+              />
+            )
+          )}
+        </Flex>
+      </Box>
+    );
+  }
+);
 
-export default ExerciseList;
+export default React.memo(ExerciseList);
+

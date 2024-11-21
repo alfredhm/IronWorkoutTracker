@@ -26,22 +26,25 @@ import { RxCross1 } from "react-icons/rx";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import axios from "axios";
+import { ChevronRightIcon } from "@chakra-ui/icons";
 
 axios.defaults.withCredentials = true;
 
 const AccountPage = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
 
   const [sent, setSent] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [profileUpdateSuccess, setProfileUpdateSuccess] = useState(false);
 
-  const location = useLocation()
-  const userState = location.state
-  const uid = userState.uid
-  const name = userState.name
-  const email = userState.email
+  const location = useLocation();
+  const userState = location.state;
+  const uid = userState.uid;
+  const initialName = userState.name;
+  const initialEmail = userState.email;
 
   // Logout Functionality
   const logOut = async () => {
@@ -53,11 +56,43 @@ const AccountPage = () => {
     }
   };
 
+  // Formik Configuration for Profile Update
+  const profileFormik = useFormik({
+    initialValues: {
+      name: initialName,
+      email: initialEmail,
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Name is required").max(50, "Name cannot exceed 50 characters"),
+      email: Yup.string().email("Invalid email address").required("Email is required"),
+    }),
+    onSubmit: async (values) => {
+      setLoading(true);
+      setProfileUpdateSuccess(false);
+      setError(false);
+
+      try {
+        await axios.put("http://localhost:5000/api/users/me", values, { withCredentials: true });
+        setProfileUpdateSuccess(true);
+        userState.name = values.name;
+        userState.email = values.email;
+        setTimeout(() => {
+          onProfileClose();
+        }, 1000); // Close modal after 2 seconds
+      } catch (err) {
+        console.error("Failed to update profile:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
+
   // Formik Configuration for Sending Feedback
   const formik = useFormik({
     initialValues: {
       subject: "Iron feedback(v1.0.0)",
-      email: email, // Pre-fill the user's email
+      email: initialEmail, // Pre-fill the user's email
       body: "",
     },
     validationSchema: Yup.object({
@@ -75,7 +110,7 @@ const AccountPage = () => {
       setError(false);
 
       const emailData = {
-        fromName: email,
+        fromName: values.email,
         subject: values.subject,
         body: values.body,
       };
@@ -122,19 +157,102 @@ const AccountPage = () => {
           <Heading mb={4} fontSize="x-large" fontWeight="600" color="white">
             Account
           </Heading>
-          <Text fontSize="md" color="white">
-            {name}
-          </Text>
+          <Button bg="gray.600" p={0}>
+            <Flex 
+              onClick={onProfileOpen} 
+              w="100%"
+              borderRadius="10px" p={2}
+            >
+              <Text fontSize="md" color="white">
+                {initialEmail}
+              </Text>
+              <ChevronRightIcon ml="auto" color="white" boxSize={6} />
+            </Flex>
+          </Button>
         </Flex>
         <ListItem>
           <Button w="100%" color="white" bg="blue.400" onClick={onOpen} size="md">
             Send Feedback
           </Button>
-          <Button mt={3} w="100%" colorScheme="red" onClick={logOut} size="md">
-            Logout
-          </Button>
         </ListItem>
       </List>
+
+      {/* Profile Modal */}
+      <Modal isOpen={isProfileOpen} onClose={onProfileClose}>
+        <ModalOverlay />
+        <ModalContent mx="auto" my="auto" bg="gray.700" color="white">
+          <ModalHeader>Profile</ModalHeader>
+          <ModalCloseButton />
+          <Box as="form" onSubmit={profileFormik.handleSubmit}>
+            <ModalBody minH="500px">
+              <Flex minH="500px" flexDir="column" justifyContent="space-between" gap={2}>
+                <Box>
+                  <Box borderBottom={profileFormik.touched.name && !!profileFormik.errors.name ? "1px solid red" : "1px solid white"}>
+                    <Input
+                      placeholder="Name"
+                      name="name"
+                      focusBorderColor="transparent"
+                      border={0}
+                      value={profileFormik.values.name}
+                      onChange={profileFormik.handleChange}
+                      onBlur={profileFormik.handleBlur}
+                    />
+                  </Box>
+                  {profileFormik.touched.name && profileFormik.errors.name && (
+                    <Text fontSize="sm" color="red.500">
+                      {profileFormik.errors.name}
+                    </Text>
+                  )}
+                  <Box mb={5} borderBottom={profileFormik.touched.email && !!profileFormik.errors.email ? "1px solid red" : "1px solid white"}>
+                    <Input
+                      placeholder="Email"
+                      name="email"
+                      focusBorderColor="transparent"
+                      border={0}
+                      value={profileFormik.values.email}
+                      onChange={profileFormik.handleChange}
+                      onBlur={profileFormik.handleBlur}
+                    />
+                  </Box>
+                  {profileFormik.touched.email && profileFormik.errors.email && (
+                    <Text fontSize="sm" color="red.500">
+                      {profileFormik.errors.email}
+                    </Text>
+                  )}
+                  <Button
+                    w="100%"
+                    mb={2}
+                    bg="blue.300"
+                    color="white"
+                    isDisabled={isLoading || !profileFormik.isValid || profileFormik.isSubmitting}
+                    type="submit"
+                  >
+                    Save
+                  </Button>
+                  {profileUpdateSuccess && (
+                    <Text color="green.300" fontSize="sm">
+                      Profile updated successfully!
+                    </Text>
+                  )}
+                  {error && (
+                    <Text color="red.300" fontSize="sm">
+                      Failed to update profile.
+                    </Text>
+                  )}
+                </Box>
+                <Flex flexDir="column" gap={3} pb={4}>
+                  <Button w="100%" bg="gray.500" color="white" onClick={logOut} size="md">
+                    Logout
+                  </Button>
+                  <Button disabled w="100%" colorScheme="red" onClick={() => console.log("Delete Account")} size="md">
+                    Delete Account
+                  </Button>
+                </Flex>
+              </Flex>
+            </ModalBody>
+          </Box>
+        </ModalContent>
+      </Modal>
 
       {/* Feedback Modal */}
       <Modal isOpen={isOpen} onClose={handleClose}>

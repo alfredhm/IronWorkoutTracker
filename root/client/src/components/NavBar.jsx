@@ -9,6 +9,7 @@ const NavBar = () => {
 
     // State to track authentication status
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState({});
 
     // Determine current page
     const isLoginPage = location.pathname === "/login" || location.pathname === "/register";
@@ -31,6 +32,7 @@ const NavBar = () => {
         try {
             const response = await axios.get("http://localhost:5000/api/auth/verify", { withCredentials: true });
             setIsAuthenticated(response.data.authenticated);
+            setUser(response.data.user);
         } catch (error) {
             console.error("Authentication check failed:", error);
             setIsAuthenticated(false);
@@ -44,12 +46,15 @@ const NavBar = () => {
         }
     }, []); 
 
-    // Logo behavior based on authentication state
-    const logoHref = isAuthenticated ? "/dashboard" : "/";
-
     return (
         <Box display="flex" alignItems="center" justifyContent="space-between" w={isHomePage ? "100%" : ['100%', '100%', '700px']} py={6} px={4}>
-            <Link href={logoHref}>
+            <Link onClick={() => {
+                if (isAuthenticated) {
+                    navigate("/dashboard", { state: { uid: user._id, name: user.name, email: user.email } })
+                } else {
+                    navigate("/")
+                }
+            }}>
                 <Box width="70px">
                     <Image w={['50px', '50px', '60px']} h={['50px', '50px', '60px']} src={process.env.PUBLIC_URL + '/assets/dbicon.png'} />
                 </Box>

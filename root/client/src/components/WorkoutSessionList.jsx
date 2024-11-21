@@ -296,7 +296,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
                                 <ModalOverlay />
                                 <ModalContent mx="auto" my="auto" bgColor="gray.700">
                                     <ModalBody>
-                                        <Flex flexDir="column" gap={4} p={4}>
+                                        <Flex flexDir="column" gap={3} p={4}>
                                             <Box fontSize="lg" fontWeight="600" color="white">Are you sure you want to delete this workout?</Box>
                                             <Flex justify="space-between">
                                                 <Button colorScheme="red" onClick={() => handleDeleteSession()}>Delete</Button>

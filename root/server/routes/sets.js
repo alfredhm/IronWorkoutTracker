@@ -1,37 +1,30 @@
 const { Set, validate } = require('../models/set')
 const getSet = require('../middleware/getSet')
+const asyncMiddleware = require('../middleware/asyncMiddleware')
 const mongoose = require('mongoose')
 const express = require('express')
 const router = express.Router()
 
 // Get all sets
-router.get('/', async (req, res) => {
-    try {
-        const sets = await Set.find().populate('exerciseId')
-        res.json(sets)
-    } catch (err) {
-        res.status(500).json({ message: err.message})
-    }
-})
+router.get('/', asyncMiddleware(async (req, res) => {
+    const sets = await Set.find().populate('exerciseId')
+    res.json(sets)
+}))
 
 // Get sets by exercise ID
-router.get('/exercise/:exerciseId', async (req, res) => {
-    try {
-        const exerciseId = req.params.exerciseId
-        const sets = await Set.find({ exerciseId: exerciseId })
-        res.json(sets)
-    } catch (err) {
-        res.status(500).json({ message: err.message })
-    }
-})
+router.get('/exercise/:exerciseId', asyncMiddleware(async (req, res) => {
+    const exerciseId = req.params.exerciseId
+    const sets = await Set.find({ exerciseId: exerciseId })
+    res.json(sets)
+}))
 
 // Get set by set ID
-router.get('/:id', getSet, async (req, res) => {
-    res.json(res.varSet) 
-})
- 
+router.get('/:id', getSet, asyncMiddleware(async (req, res) => {
+    res.json(res.varSet)
+}))
+
 // Post new set  
-router.post('/', async (req, res) => {
+router.post('/', asyncMiddleware(async (req, res) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message) 
 
@@ -47,17 +40,12 @@ router.post('/', async (req, res) => {
         ghost: req?.body.ghost 
     }); 
 
-    try {
-        const newSet = await set.save()
-        res.status(201).json(newSet) 
-    } catch (err) {  
-        res.status(400).json({ message: err.message })
-    } 
-     
-}) 
- 
+    const newSet = await set.save()
+    res.status(201).json(newSet) 
+}))
+
 // Put/update an existing set
-router.put('/:id', getSet, async (req, res) => {
+router.put('/:id', getSet, asyncMiddleware(async (req, res) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
     
@@ -71,22 +59,14 @@ router.put('/:id', getSet, async (req, res) => {
     if (req.body.restTimeSec !== undefined) res.varSet.restTimeSec = req.body.restTimeSec;
     if (req.body.ghost !== undefined) res.varSet.ghost = req.body.ghost;
 
-    try {
-        const updatedSet = await res.varSet.save();
-        res.json(updatedSet);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
-    }
-})
+    const updatedSet = await res.varSet.save();
+    res.json(updatedSet);
+}))
 
 // Delete an exercise
-router.delete('/:id', getSet, async (req, res) => {
-    try {
-        await res.varSet.deleteOne();
-        res.json({ message: 'Deleted Exercise' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+router.delete('/:id', getSet, asyncMiddleware(async (req, res) => {
+    await res.varSet.deleteOne();
+    res.json({ message: 'Deleted Exercise' });
+}));
 
 module.exports = router;

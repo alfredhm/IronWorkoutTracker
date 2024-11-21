@@ -129,10 +129,10 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
             {error && 
                 <ErrorModal isOpen={error.length > 0} onClose={() => setError("")} errorMessage={error} />
             }
-            <Box>
-                {muscleCategories.map((category) => (
+            <Box pb={2}>
+                {muscleCategories.map((category, index) => (
                     <Box key={category} >
-                        <Box onClick={() => handleOpen(category)} px={2} py={1.5} borderBottom="1px solid gray" _hover={{ bg: "gray.800", cursor: "pointer" }}>
+                        <Box onClick={() => handleOpen(category)} px={2} py={1.5} borderBottom={index === muscleCategories.length - 1 ? "none" : "1px solid gray"} _hover={{ bg: "gray.800", cursor: "pointer" }}>
                             <Box>
                                 {category}
                             </Box>
@@ -150,7 +150,7 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
                                 <ModalBody _loading={isLoading}>
                                     {categoryExercises.map((exercise) => (
                                         <Box key={exercise.name} onClick={() => handleAddExercise(exercise)}>
-                                            <Box px={2} py={1.5}borderBottom="1px solid gray" _hover={{ bg: "gray.800", cursor: "pointer" }}>
+                                            <Box px={2} py={1.5} borderBottom="1px solid gray" _hover={{ bg: "gray.800", cursor: "pointer" }}>
                                                 {exercise.name}
                                             </Box>
                                         </Box>
