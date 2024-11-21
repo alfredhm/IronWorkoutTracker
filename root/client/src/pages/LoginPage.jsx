@@ -1,10 +1,10 @@
 import { Button, Center, Heading, Input, VStack, Box, Text, Link } from "@chakra-ui/react";
 import { useState } from "react";
-import axios from "axios";
 import { useFormik } from "formik";
 import * as Yup from "yup"; // Import Yup for validation
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import axiosInstance from "../resources/axiosInstance";
 
 const LoginPage = () => {
     const [error, setError] = useState("");
@@ -25,7 +25,7 @@ const LoginPage = () => {
 
         try {
             // Sends authentication post to back end
-            const response = await axios.post("http://localhost:5000/api/auth", values, {
+            const response = await axiosInstance.post("/auth", values, {
                 withCredentials: true, // Ensures cookies are sent with the request
             });
 

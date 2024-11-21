@@ -8,7 +8,8 @@ import daysOfWeek from '../resources/daysOfWeek';
 import getTimeOfDay from '../resources/getTimeOfDay';
 import ErrorModal from './ErrorModal';
 import { DeleteIcon } from '@chakra-ui/icons';
-axios.defaults.withCredentials = true;
+import axiosInstance from '../resources/axiosInstance';
+axiosInstance.defaults.withCredentials = true;
 
 const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkout }) => {
     const [workouts, setWorkouts] = useState([]);
@@ -36,7 +37,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
         const startTime = Date.now();
 
         try {
-            const response = await axios.get(`http://localhost:5000/api/workoutsessions/user/${uid}`);
+            const response = await axiosInstance.get(`/workoutsessions/user/${uid}`);
             const updatedData = response.data.map((item) => {
                 const date = new Date(item.date);
                 return {
@@ -91,7 +92,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
         const currentDate = new Date();
         const currTimeOfDay = getTimeOfDay(currentDate);
         try {
-            const res = await axios.post(`http://localhost:5000/api/workoutsessions`, {
+            const res = await axiosInstance.post(`/workoutsessions`, {
                 userId: uid,
                 name: `${currTimeOfDay} Workout`,
                 durationSec: 0,
@@ -105,7 +106,7 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
 
     const handleDeleteSession = async () => {
         try {
-            await axios.delete(`http://localhost:5000/api/workoutsessions/${deletedWorkoutId}`);
+            await axiosInstance.delete(`/workoutsessions/${deletedWorkoutId}`);
             await refreshWorkoutSessions();
             onDeleteClose();
         } catch (err) {
@@ -115,11 +116,11 @@ const WorkoutSessionList = ({ dashboardRefresh, startedWorkout, setStartedWorkou
 
     const handleEndSession = async (workoutId) => {
         try {
-            const session = await axios.get(`http://localhost:5000/api/workoutsessions/${workoutId}`);
+            const session = await axiosInstance.get(`/workoutsessions/${workoutId}`);
             const sessionStartTime = new Date(session.data.date);
             const currentTime = new Date();
             const secondsElapsed = Math.floor((currentTime - sessionStartTime) / 1000);
-            await axios.put(`http://localhost:5000/api/workoutsessions/${workoutId}`, {
+            await axiosInstance.put(`/workoutsessions/${workoutId}`, {
                 userId: uid,
                 durationSec: secondsElapsed,
             });

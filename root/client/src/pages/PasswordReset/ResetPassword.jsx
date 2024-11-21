@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import axios from 'axios' 
+import axiosInstance from '../../resources/axiosInstance'
 
 const VerifyReset = () => {
     const { id, token } = useParams()
@@ -11,7 +11,7 @@ const VerifyReset = () => {
     useEffect(() => {
         const verifyToken = async() => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/users/reset-password/${id}/${token}`)
+                const response = await axiosInstance.get(`/users/reset-password/${id}/${token}`)
                 if (response.data.success) {
                     navigate(response.data.redirectUrl)
                 } else {

@@ -1,8 +1,9 @@
 import { Button, Center, FormControl, FormLabel, Heading, Input, VStack, Box, Text } from "@chakra-ui/react"
 import { useState } from "react"
-import axios, { AxiosError } from "axios"
+import { AxiosError } from "axios"
 import { useFormik } from "formik"
 import NavBar from "../../components/NavBar"
+import axiosInstance from "../../resources/axiosInstance"
 
 const ForgotPassword = () => {
     const [error, setError] = useState("")
@@ -11,8 +12,8 @@ const ForgotPassword = () => {
     const onSubmit = async (values) => {
         setError("")
         try {
-            await axios.post(
-                "http://localhost:5000/api/users/reset-password",
+            await axiosInstance.post(
+                "/users/reset-password",
                 values
             )
 

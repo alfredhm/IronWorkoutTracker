@@ -27,6 +27,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import axios from "axios";
 import { ChevronRightIcon } from "@chakra-ui/icons";
+import axiosInstance from "../../resources/axiosInstance";
 
 axios.defaults.withCredentials = true;
 
@@ -49,7 +50,7 @@ const AccountPage = () => {
   // Logout Functionality
   const logOut = async () => {
     try {
-      await axios.post("http://localhost:5000/api/auth/logout", { withCredentials: true });
+      await axiosInstance.post("/auth/logout", { withCredentials: true });
       navigate("/login", { replace: true });
     } catch (err) {
       console.error("Error logging out:", err);
@@ -72,7 +73,7 @@ const AccountPage = () => {
       setError(false);
 
       try {
-        await axios.put("http://localhost:5000/api/users/me", values, { withCredentials: true });
+        await axiosInstance.put("/users/me", values, { withCredentials: true });
         setProfileUpdateSuccess(true);
         userState.name = values.name;
         userState.email = values.email;

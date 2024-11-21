@@ -1,10 +1,11 @@
 import React from 'react'
 import { Button, Center, FormControl, FormLabel, Heading, Input, VStack, Box, Text, Link } from "@chakra-ui/react"
 import { useState } from "react"
-import axios, { AxiosError } from "axios"
+import { AxiosError } from "axios"
 import { useFormik } from "formik"
 import NavBar from "../../components/NavBar"
 import { useParams } from 'react-router-dom'
+import axiosInstance from '../../resources/axiosInstance'
 
 const NewPassword = () => {
     const [error, setError] = useState("")
@@ -15,8 +16,8 @@ const NewPassword = () => {
         setError("")
 
         try {
-            await axios.post(
-                `http://localhost:5000/api/users/reset-password/${id}/${token}`,
+            await axiosInstance.post(
+                `/users/reset-password/${id}/${token}`,
                 values
             ) 
             setReset(true)

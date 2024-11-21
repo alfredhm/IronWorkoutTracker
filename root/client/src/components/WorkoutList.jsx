@@ -7,6 +7,7 @@ import getFocusCount from '../resources/getFocusCount'
 import convertToMonthDay from '../resources/convertToMonthDay'
 import EditWorkoutModal from './modal-body/EditWorkoutModal'
 import ErrorModal from './ErrorModal';
+import axiosInstance from '../resources/axiosInstance';
 
 const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
     const [workouts, setWorkouts] = useState([])
@@ -34,7 +35,7 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
         setIsRefreshing(true)
         const startTime = Date.now();
         try {
-            const userWorkouts = await axios.get(`http://localhost:5000/api/workouts/user/${uid}`);
+            const userWorkouts = await axiosInstance.get(`/workouts/user/${uid}`);
             setWorkouts(userWorkouts.data)
             
         } catch (err) {
@@ -77,7 +78,7 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
     // Adds a new workout session to the database
     const handleAddWorkout = async () => {
         try {
-            const res = await axios.post(`http://localhost:5000/api/workouts`, {
+            const res = await axiosInstance.post(`/workouts`, {
                 userId: uid,
                 name: "Unnamed Workout",
             })
@@ -90,7 +91,7 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
 
     const handleDeleteWorkout = async () => {
         try {
-            await axios.delete(`http://localhost:5000/api/workouts/${deletedWorkoutId}`)
+            await axiosInstance.delete(`/workouts/${deletedWorkoutId}`)
             await refreshWorkouts()
             onDeleteClose();
         } catch (err) {

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../resources/axiosInstance";
+import { Box } from "@chakra-ui/react";
+import { SpinnerIcon } from "@chakra-ui/icons";
 
 const ProtectedRoute = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -9,7 +11,7 @@ const ProtectedRoute = ({ children }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/auth/verify`, {
+                const response = await axiosInstance.get(`/auth/verify`, {
                     withCredentials: true,
                 });
                 setIsAuthenticated(true);
@@ -20,7 +22,6 @@ const ProtectedRoute = ({ children }) => {
                 }
             } catch {
                 setIsAuthenticated(false);
-                window.location.reload()
             }
         };
 
@@ -28,7 +29,9 @@ const ProtectedRoute = ({ children }) => {
     });
 
     if (isAuthenticated === null) {
-        return <div>Loading...</div>; // Optional loading state
+        return <Box>
+            <SpinnerIcon />
+        </Box>; // Optional loading state
     } else {
         return isAuthenticated ? children : <Navigate to="/login" replace />;
     }
