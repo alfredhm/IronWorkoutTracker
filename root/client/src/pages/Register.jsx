@@ -47,6 +47,7 @@ const Register = () => {
             navigate("/dashboard", { state: { uid, name, email } });
 
         } catch (err) {
+            console.log(err)
             if (err.response) {
                 setError(err.response.data);
             } else {
