@@ -71,7 +71,7 @@ const ExerciseList = forwardRef(
 
     useEffect(() => {
       fetchExercises();
-    }, [fetchExercises]);
+    }, [fetchExercises, editModalRefresh]);
 
     return error ? (
       <ErrorModal isOpen={!!error} onClose={() => setError("")} errorMessage={error} />

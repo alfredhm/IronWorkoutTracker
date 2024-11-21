@@ -14,7 +14,7 @@ import {
 import ExerciseCategories from "./ExerciseCategories";
 import AddExerciseModal from "./AddExerciseModal";
 
-const AddExercise = ({ session, workoutID, refreshModal }) => {
+const AddExercise = ({ session, workoutID, refreshModal, exercises, setExercises }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
 
@@ -45,6 +45,8 @@ const AddExercise = ({ session, workoutID, refreshModal }) => {
               }}
               session={session}
               workoutID={workoutID}
+              exercises={exercises}
+              setExercises={setExercises}
             />
           </ModalBody>
         </ModalContent>

@@ -26,3 +26,5 @@
 {"level":"info","message":"Connected to MongoDB at mongodb://localhost/tracker"}
 {"level":"info","message":"Listening on port 5000..."}
 {"level":"info","message":"Connected to MongoDB at mongodb://localhost/tracker"}
+{"level":"info","message":"Listening on port 5000..."}
+{"level":"info","message":"Connected to MongoDB at mongodb://localhost/tracker"}
