@@ -59,7 +59,7 @@ const Set = ({ index, set, onChange, onDelete }) => {
                 >
                     <Text
                         color={completed ? "white" : "rgba(256, 256, 256, 0.3)"}
-                        fontSize="16px"
+                        fontSize="12px"
                         fontWeight="700"
                         p={2}
                         position="absolute"

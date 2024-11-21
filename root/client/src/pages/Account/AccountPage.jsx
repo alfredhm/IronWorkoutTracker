@@ -25,11 +25,8 @@ import { AiOutlineCheck } from "react-icons/ai";
 import { RxCross1 } from "react-icons/rx";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import axios from "axios";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import axiosInstance from "../../resources/axiosInstance";
-
-axios.defaults.withCredentials = true;
 
 const AccountPage = () => {
   const navigate = useNavigate();
