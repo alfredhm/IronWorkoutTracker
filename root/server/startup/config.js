@@ -1,4 +1,3 @@
-const config = require('config')
 
 module.exports = function(){
     if (!process.env.jwtPrivateKey) {
