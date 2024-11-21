@@ -5,7 +5,8 @@ import axios from 'axios'
 import ErrorModal from './ErrorModal'
 import AddExerciseModal from './AddExerciseModal'
 import { useLocation } from 'react-router-dom'
-axios.defaults.withCredentials = true;
+import axiosInstance from '../resources/axiosInstance'
+axiosInstance.defaults.withCredentials = true;
 
 const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, setExercises }) => {
     const [category, setCategory] = useState('')
@@ -45,8 +46,8 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
 
                 // If there is a workoutID, the exercise is being added to a precreated workout session, if not, the session is currently being created
                 if (workoutID) {
-                    const response = await axios.post(`http://localhost:5000/api/exercises`, newExercise)
-                    await axios.put(`http://localhost:5000/api/workoutsessions/${workoutID}/exercises`, {
+                    const response = await axiosInstance.post(`/exercises`, newExercise)
+                    await axiosInstance.put(`/workoutsessions/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })
                     setExercises([...exercises, response.data])
@@ -73,8 +74,8 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
 
                 // If there is a workoutID, the exercise is being added to a precreated workout, if not, the workout is currently being created
                 if (workoutID) {
-                    const response = await axios.post(`http://localhost:5000/api/exercises`, newExerciseTemplate)
-                    await axios.put(`http://localhost:5000/api/workouts/${workoutID}/exercises`, {
+                    const response = await axiosInstance.post(`/exercises`, newExerciseTemplate)
+                    await axiosInstance.put(`/workouts/${workoutID}/exercises`, {
                         exerciseId: response.data._id
                     })
                     setExercises([...exercises, response.data])
@@ -100,8 +101,8 @@ const ExerciseCategories = ({ session, workoutID, closeAndRefresh, exercises, se
                 if (!category) return
 
                 // Fetch exercises from category and set category exercises to the exercises fetched
-                const userResponse = await axios.get(`http://localhost:5000/api/exercises/category/${category.toLowerCase()}/${uid}`)
-                const presetResponse = await axios.get(`http://localhost:5000/api/exercises/preset/category/${category.toLowerCase()}`)
+                const userResponse = await axiosInstance.get(`/exercises/category/${category.toLowerCase()}/${uid}`)
+                const presetResponse = await axiosInstance.get(`/exercises/preset/category/${category.toLowerCase()}`)
                 const userExercises = userResponse.data
                 const presetExercises = presetResponse.data
 

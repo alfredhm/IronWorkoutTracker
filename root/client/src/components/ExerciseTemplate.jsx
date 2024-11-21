@@ -5,9 +5,8 @@ import { Box, Flex, Input,
 } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import ErrorModal from "./ErrorModal";
-axios.defaults.withCredentials = true;
+import axiosInstance from "../resources/axiosInstance";
 
 const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, editModalRefresh }) => {
     const [error, setError] = useState('');
@@ -28,7 +27,7 @@ const ExerciseTemplate = ({ exercise, onDeleteExercise, last, onExerciseUpdate, 
             const updatedExercise = { ...exercise, numOfSets: setCount, notes };
             delete updatedExercise._id;
             delete updatedExercise.__v;
-            await axios.put(`http://localhost:5000/api/exercises/${exercise._id}`, updatedExercise);
+            await axiosInstance.put(`/exercises/${exercise._id}`, updatedExercise);
 
             onExerciseUpdate(updatedExercise);
             if (typeof editModalRefresh === "function") {

@@ -19,6 +19,7 @@ import ErrorModal from '../ErrorModal';
 import SwipeableList from '../SwipeableList';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { useLocation } from 'react-router-dom';
+import axiosInstance from '../../resources/axiosInstance';
 
 const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handleDeleteSession, handleEndSession, noRefreshClose, setDeletedWorkoutId }, ref) => {
     const [error, setError] = useState("")
@@ -63,8 +64,8 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
 
 
         try {
-            await axios.put(
-                `http://localhost:5000/api/workoutsessions/${selectedWorkout._id}`,{
+            await axiosInstance.put(
+                `/workoutsessions/${selectedWorkout._id}`,{
                 ...values,
                 userId: uid,
                 exercises: exercises.map(exercise => exercise._id),
@@ -113,14 +114,14 @@ const EditSessionModal = forwardRef(({ closeSessionList, selectedWorkout, handle
         const fetchExercises = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:5000/api/workoutsessions/${selectedWorkout._id}`);
+                const response = await axiosInstance.get(`/workoutsessions/${selectedWorkout._id}`);
                 const exerciseIDs  = response.data.exercises;
         
                 // Fetch each exercise’s details by ID
                 const fetchedExercises = await Promise.all(
                     exerciseIDs.map(async (exerciseID) => {
                         try {
-                            const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID}`);
+                            const exerciseResponse = await axiosInstance.get(`/exercises/${exerciseID}`);
                             return exerciseResponse.data;
                         } catch {
                             return null;

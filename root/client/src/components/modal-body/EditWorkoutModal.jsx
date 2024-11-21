@@ -16,6 +16,7 @@ import ExerciseList from '../ExerciseList';
 import ErrorModal from '../ErrorModal';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { useLocation } from 'react-router-dom';
+import axiosInstance from '../../resources/axiosInstance';
 
 const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTabIndex, setStartedWorkout, refreshWorkouts, handleDeleteWorkout, setDeletedWorkoutId }, ref) => {
     const [error, setError] = useState("")
@@ -84,8 +85,8 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
             };
 
             // Update workout
-            await axios.put(
-                `http://localhost:5000/api/workouts/${selectedWorkout._id}`,
+            await axiosInstance.put(
+                `/workouts/${selectedWorkout._id}`,
                 updatedValues
             );
 
@@ -115,7 +116,7 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
     // Function to fetch latest workout data and update state
     const loadWorkoutData = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/workouts/${selectedWorkout._id}`);
+            const response = await axiosInstance.get(`/workouts/${selectedWorkout._id}`);
             const { name, focusGroup, notes, exercises: fetchedExercises } = response.data;                
             setWorkoutFields({ name, focusGroup, notes });
             setExercises(fetchedExercises); // Sync exercises with latest data
@@ -135,7 +136,7 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
             // Step 1: Duplicate each exercise to create independent entries for this session
             const duplicatedExerciseIds = [];
             for (let exercise of exercises) {
-                const duplicatedExercise = await axios.post(`http://localhost:5000/api/exercises`, {
+                const duplicatedExercise = await axiosInstance.post(`/exercises`, {
                     userId: uid,
                     name: exercise.name,
                     description: exercise.description,
@@ -146,7 +147,7 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
             }
     
             // Step 2: Create the workout session with duplicated exercise IDs
-            const res = await axios.post(`http://localhost:5000/api/workoutsessions`, {
+            const res = await axiosInstance.post(`/workoutsessions`, {
                 workoutTemplate: selectedWorkout._id,
                 name: workoutFields.name,
                 focusGroup: workoutFields.focusGroup,
@@ -159,7 +160,7 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
             for (let i = 0; i < duplicatedExerciseIds.length; i++) {
                 let setIds = []
                 for (let j = 0; j < formik.values.exercises[i].numOfSets; j++) {
-                    const response = await axios.post(`http://localhost:5000/api/sets`, {
+                    const response = await axiosInstance.post(`/sets`, {
                         exerciseId: duplicatedExerciseIds[i],
                         userId: uid,
                         sessionId: res.data._id,
@@ -172,7 +173,7 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
                     });
                     setIds.push(response.data._id);
                 }
-                await axios.put(`http://localhost:5000/api/exercises/${duplicatedExerciseIds[i]}`, {
+                await axiosInstance.put(`/exercises/${duplicatedExerciseIds[i]}`, {
                     userId: uid,
                     name: formik.values.exercises[i].name,
                     description: formik.values.exercises[i].description,
@@ -206,14 +207,14 @@ const EditWorkoutModal = forwardRef(({ closeWorkoutList, selectedWorkout, setTab
         const fetchExercises = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:5000/api/workouts/${selectedWorkout._id}`);
+                const response = await axiosInstance.get(`/workouts/${selectedWorkout._id}`);
                 const exerciseIDs  = response.data.exercises;
         
                 // Fetch each exercise’s details by ID
                 const fetchedExercises = await Promise.all(
                     exerciseIDs.map(async (exerciseID) => {
                         try {
-                            const exerciseResponse = await axios.get(`http://localhost:5000/api/exercises/${exerciseID}`);
+                            const exerciseResponse = await axiosInstance.get(`/exercises/${exerciseID}`);
                             return exerciseResponse.data;
                         } catch {
                             return null;

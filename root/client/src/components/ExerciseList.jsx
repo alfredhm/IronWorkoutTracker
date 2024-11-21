@@ -4,6 +4,7 @@ import axios from "axios";
 import Exercise from "./Exercise";
 import ExerciseTemplate from "./ExerciseTemplate";
 import ErrorModal from "./ErrorModal";
+import axiosInstance from "../resources/axiosInstance";
 
 const ExerciseList = forwardRef(
   ({ workoutID, session, editModalRefresh, exerciseRefs }, ref) => {
@@ -16,16 +17,16 @@ const ExerciseList = forwardRef(
     const fetchExercises = useCallback(async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `http://localhost:5000/api/${session ? "workoutsessions" : "workouts"}/${workoutID}`
+        const response = await axiosInstance.get(
+          `/${session ? "workoutsessions" : "workouts"}/${workoutID}`
         );
         const exerciseIDs = response.data.exercises;
 
         const fetchedExercises = await Promise.all(
           exerciseIDs.map(async (exerciseID) => {
             try {
-              const exerciseResponse = await axios.get(
-                `http://localhost:5000/api/exercises/${exerciseID}`
+              const exerciseResponse = await axiosInstance.get(
+                `/exercises/${exerciseID}`
               );
               return exerciseResponse.data;
             } catch {
@@ -55,7 +56,7 @@ const ExerciseList = forwardRef(
       try {
         await Promise.all(
           deletedExerciseIds.map((exerciseID) =>
-            axios.delete(`http://localhost:5000/api/exercises/${exerciseID}`)
+            axiosInstance.delete(`/exercises/${exerciseID}`)
           )
         );
         setDeletedExerciseIds([]);

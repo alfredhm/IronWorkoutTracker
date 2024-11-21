@@ -1,7 +1,7 @@
 import { Button, Box, Link, Image } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../resources/axiosInstance";
 
 const NavBar = () => {
     const navigate = useNavigate();
@@ -19,7 +19,7 @@ const NavBar = () => {
     const logOut = async () => {
         try {
             // Call the backend to clear the session cookie
-            await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true });
+            await axiosInstance.post("/auth/logout", {}, { withCredentials: true });
             setIsAuthenticated(false);
             navigate("/login", { replace: true });
         } catch (error) {
@@ -30,7 +30,7 @@ const NavBar = () => {
     // Function to check authentication status
     const checkAuth = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/auth/verify", { withCredentials: true });
+            const response = await axiosInstance.get("/auth/verify", { withCredentials: true });
             setIsAuthenticated(response.data.authenticated);
             setUser(response.data.user);
         } catch (error) {
