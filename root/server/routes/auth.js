@@ -8,7 +8,7 @@ const config = require('config')
 const asyncMiddleware = require('../middleware/asyncMiddleware')
 const router = express.Router()
 
-const JWT_SECRET = process.env.jwtPrivateKey || config.get('jwtPrivateKey')
+const JWT_SECRET = process.env.jwtPrivateKey
 
 // Function for verifying user
 router.get("/verify", (req, res) => {

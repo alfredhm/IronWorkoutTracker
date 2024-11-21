@@ -15,7 +15,7 @@ const { Exercise } = require('../models/exercise')
 const { Set } = require('../models/set')
 const router = express.Router()
 
-const JWT_SECRET = process.env.jwtPrivateKey || config.get('jwtPrivateKey')
+const JWT_SECRET = process.env.jwtPrivateKey
 
 // Gets user data (except password)
 router.get('/me', auth, asyncMiddleware(async (req, res) => {
