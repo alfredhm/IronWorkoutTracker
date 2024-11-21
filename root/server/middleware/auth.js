@@ -4,11 +4,10 @@ const config = require('config')
 // Authenticates user
 module.exports = function auth(req, res, next) {
     const token = req.cookies.authToken; // Get token from cookies
-    console.log('Token:', token)
     if (!token) return res.status(401).send('Access denied. No token provided.');
 
     try {
-        const decoded = jwt.verify(token, config.get('jwtPrivateKey'))
+        const decoded = jwt.verify(token, process.env.jetPrivateKey); // Verify token
         req.user = decoded
         next()
     }
