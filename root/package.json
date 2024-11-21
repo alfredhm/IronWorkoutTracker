@@ -1,10 +1,11 @@
 {
-  "name": "root",
+  "name": "ironworkoutapp",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd server && node index.js"
+    "start": "cd server && node index.js",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -23,6 +24,7 @@
     "express-rate-limit": "^7.4.1",
     "fs": "^0.0.1-security",
     "helmet": "^8.0.0",
+    "ironworkoutapp": "file:",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
