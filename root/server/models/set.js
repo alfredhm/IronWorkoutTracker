@@ -23,7 +23,7 @@ const setSchema = new mongoose.Schema({
     },
     weight: {
         type: Number,
-        min: 0,
+        min: 0, 
         default: 0
     },
     notes: { 

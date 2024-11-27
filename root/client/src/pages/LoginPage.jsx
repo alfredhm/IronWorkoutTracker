@@ -33,6 +33,7 @@ const LoginPage = () => {
             const { uid, name, email } = response.data;
             // Navigate to the dashboard after login
             navigate("/dashboard", { state: { uid, name, email } });
+            console.log(response);
 
         } catch (err) {
             console.log(err);

@@ -18,7 +18,10 @@ router.get('/', asyncMiddleware(async (req, res) => {
 // Get workout session by user ID
 router.get('/user/:userId', asyncMiddleware(async (req, res) => {
     const userId = req.params.userId
-    const workoutSessions = await WorkoutSession.find({ userId: userId }).populate('userId', 'name email').populate('exercises')
+    const workoutSessions = await WorkoutSession.find({ userId: userId })
+        .populate('userId', 'name email')
+        .populate('exercises')
+        .sort({ date: -1 }) // Sort by date in descending order
     if (workoutSessions.length === 0) {
         return res.json([])
     }
@@ -30,7 +33,7 @@ router.get('/:id', getWorkoutSession, asyncMiddleware(async (req, res) => {
     res.json(res.workoutSession)
 }))
 
-// Post new exercise
+// Post new workoutsession
 router.post('/', asyncMiddleware(async (req, res) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
