@@ -20,12 +20,11 @@ const ProtectedRoute = ({ children }) => {
                 }
             } catch {
                 setIsAuthenticated(false);
-                window.location.reload()
             }
         };
 
         checkAuth();
-    });
+    }, [navigate]);
 
     if (isAuthenticated === null) {
         return <div>Loading...</div>; // Optional loading state

@@ -1,3 +1,4 @@
 {
-    "jwtPrivateKey": "workouttracker_jwtPrivateKey"
-}  
+    "jwtPrivateKey": "JWT_PRIVATE_KEY",
+    "mongoUri": "MONGODB_URI"
+}
