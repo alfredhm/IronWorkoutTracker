@@ -1,0 +1,37 @@
+.body-weight-calendar.rdp-root {
+  --rdp-accent-color: #63b3ed;
+  --rdp-accent-background-color: #2a4365;
+  --rdp-day-height: 2.5rem;
+  --rdp-day-width: 2.5rem;
+  --rdp-day_button-height: 2.35rem;
+  --rdp-day_button-width: 2.35rem;
+  --rdp-day_button-border-radius: 0.65rem;
+  --rdp-today-color: #90cdf4;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.body-weight-calendar .rdp-button_previous,
+.body-weight-calendar .rdp-button_next {
+  border-radius: 0.5rem;
+}
+
+.body-weight-calendar .rdp-button_previous:hover,
+.body-weight-calendar .rdp-button_next:hover {
+  background-color: #2d3748;
+}
+
+.body-weight-calendar .rdp-day_button:hover:not(:disabled) {
+  background-color: #2d3748;
+}
+
+.body-weight-calendar .rdp-selected .rdp-day_button {
+  background-color: #3182ce;
+  border-color: #3182ce;
+  color: #fff;
+}
+
+.body-weight-calendar .rdp-weekday {
+  color: #a0aec0;
+  text-transform: uppercase;
+}

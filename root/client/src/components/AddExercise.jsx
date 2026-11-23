@@ -14,13 +14,30 @@ import {
 import ExerciseCategories from "./ExerciseCategories";
 import AddExerciseModal from "./AddExerciseModal";
 
-const AddExercise = ({ session, workoutID, refreshModal }) => {
+const AddExercise = ({
+  session,
+  workoutID,
+  refreshModal,
+  exercises,
+  setExercises,
+  buttonWidth = "auto",
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
+  const {
+    isOpen: isAddOpen,
+    onOpen: onAddOpen,
+    onClose: onAddClose,
+  } = useDisclosure();
 
   return (
-    <Flex justify="center" alignItems="center">
-      <Button bgColor="gray.600" color="gray.100" onClick={onOpen}>
+    <Flex w={buttonWidth} justify="center" alignItems="center">
+      <Button
+        type="button"
+        w={buttonWidth}
+        bgColor="gray.600"
+        color="gray.100"
+        onClick={onOpen}
+      >
         Add Exercise
       </Button>
 
@@ -34,7 +51,11 @@ const AddExercise = ({ session, workoutID, refreshModal }) => {
             </Text>
             <Heading fontSize="xl">Select Exercise</Heading>
             <Text color="blue.300" onClick={onAddOpen}>
-              <Image h="20px" w="20px" src={process.env.PUBLIC_URL + '/assets/blueplus.png'}/>
+              <Image
+                h="20px"
+                w="20px"
+                src={process.env.PUBLIC_URL + "/assets/blueplus.png"}
+              />
             </Text>
           </Flex>
           <ModalBody>
@@ -45,6 +66,8 @@ const AddExercise = ({ session, workoutID, refreshModal }) => {
               }}
               session={session}
               workoutID={workoutID}
+              exercises={exercises}
+              setExercises={setExercises}
             />
           </ModalBody>
         </ModalContent>

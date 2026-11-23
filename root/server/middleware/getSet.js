@@ -1,18 +1,18 @@
-const { Set } = require('../models/set')
+const { Set } = require("../models/set");
 
 // Fetches a set
 async function getSet(req, res, next) {
-    let set;
-    try {
-        set = await Set.findById(req.params.id).exec()
-        if (!set) {
-            return res.status(404).json({ message: 'Cannot find set'})
-        }
-    } catch (err) {
-        return res.status(500).json({ message: err.message})
+  let set;
+  try {
+    set = await Set.findById(req.params.id).exec();
+    if (!set) {
+      return res.status(404).json({ message: "Cannot find set" });
     }
-    res.varSet = set
-    next()
-}  
-   
-module.exports = getSet
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+  res.varSet = set;
+  next();
+}
+
+module.exports = getSet;

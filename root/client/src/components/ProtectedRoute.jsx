@@ -1,37 +1,53 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import axios from "axios";
 
 const ProtectedRoute = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(null);
-    const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const response = await axios.get("http://localhost:5000/api/auth/verify", {
-                    withCredentials: true,
-                });
-                setIsAuthenticated(true);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/auth/verify",
+          {
+            withCredentials: true,
+          },
+        );
+        setIsAuthenticated(true);
 
-                if (window.location.pathname === "/login") {
-                    const user = response.data.user;
-                    navigate("/dashboard", { state: { uid: user._id, name: user.name, email: user.email } })
-                }
-            } catch {
-                setIsAuthenticated(false);
-            }
-        };
+        const user = response.data.user;
+        if (
+          !location.state?.uid ||
+          !location.state?.name ||
+          !location.state?.email
+        ) {
+          navigate(location.pathname, {
+            replace: true,
+            state: {
+              ...location.state,
+              uid: user.id,
+              name: user.name,
+              email: user.email,
+            },
+          });
+        }
+      } catch {
+        setIsAuthenticated(false);
+      }
+    };
 
-        checkAuth();
-    }, [navigate]);
+    checkAuth();
+  }, [location.pathname, location.state, navigate]);
 
-    if (isAuthenticated === null) {
-        return <div>Loading...</div>; // Optional loading state
-    } else {
-        return isAuthenticated ? children : <Navigate to="/login" replace />;
-    }
-
+  if (isAuthenticated === null) {
+    // Wait for verification before rendering protected content or redirecting.
+    return <div>Loading...</div>;
+  } else {
+    return isAuthenticated ? children : <Navigate to="/login" replace />;
+  }
 };
 
 export default ProtectedRoute;

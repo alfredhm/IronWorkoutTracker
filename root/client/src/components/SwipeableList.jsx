@@ -87,7 +87,9 @@ const SwipeableList = ({ items, onDelete }) => {
               position="relative"
               zIndex={1}
               w="100%"
-              transform={activeItem === item._id ? "translateX(-80px)" : "translateX(0)"}
+              transform={
+                activeItem === item._id ? "translateX(-80px)" : "translateX(0)"
+              }
               transition="transform 0.3s"
               onTouchStart={(e) => handleSwipeStart(e, item._id)}
               onTouchEnd={(e) => handleSwipeEnd(e, item._id)}
@@ -165,4 +167,3 @@ const SwipeableList = ({ items, onDelete }) => {
 };
 
 export default SwipeableList;
-

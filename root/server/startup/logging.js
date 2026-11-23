@@ -1,20 +1,19 @@
-const winston = require('winston')
-require('winston-mongodb')
+const winston = require("winston");
+require("winston-mongodb");
 
-module.exports = function() {
+module.exports = function () {
+  winston.exceptions.handle(
+    new winston.transports.File({ filename: "uncaughtExceptions.log" }),
+  );
 
-    winston.exceptions.handle(
-        new winston.transports.File({ filename: 'uncaughtExceptions.log' })
-    )
+  process.on("uncaughtException", (ex) => {
+    console.error("Uncaught server exception:", ex.message);
+    winston.error(ex.message, ex);
+  });
 
-    process.on('uncaughtException', (ex) => {
-        console.log('WE GOT AN UNHANDLED REJECTION')
-        winston.error(ex.message, ex)
-    }) 
+  process.on("unhandledRejection", (ex) => {
+    throw ex;
+  });
 
-    process.on('unhandledRejection', (ex) => {
-        throw ex
-    })
-
-    winston.add(new winston.transports.File({ filename: 'logfile.log' }))
-}
+  winston.add(new winston.transports.File({ filename: "logfile.log" }));
+};
