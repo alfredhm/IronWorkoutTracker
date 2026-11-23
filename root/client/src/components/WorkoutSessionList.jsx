@@ -162,6 +162,11 @@ const WorkoutSessionList = ({
       );
       await refreshWorkoutSessions();
       onDeleteClose();
+      onClose();
+      setSelectedWorkout(null);
+      if (activeWorkoutTimerRef.current?.workoutId === deletedWorkoutId) {
+        activeWorkoutTimerRef.current = null;
+      }
     } catch (err) {
       setError(err.message);
     }

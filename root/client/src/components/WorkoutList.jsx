@@ -113,6 +113,8 @@ const WorkoutList = ({ setTabIndex, setStartedWorkout }) => {
       );
       await refreshWorkouts();
       onDeleteClose();
+      onClose();
+      setSelectedWorkout(null);
     } catch (err) {
       setError(err.message);
     }
